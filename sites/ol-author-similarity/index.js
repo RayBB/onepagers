@@ -45,7 +45,7 @@ function findGroupsOfSimilar(authorWorks, similarityThreshold = .9){
 }
 
 function buttonClicked(){
-    const authorId = document.getElementById("authorId").value;
+    const authorId = document.getElementById("authorId").value.match(/OL\d+A/gi)[0];
     console.log("searching for works by", authorId);
 
     getAuthorWorks(authorId)
