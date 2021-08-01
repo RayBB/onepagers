@@ -56,6 +56,9 @@ function buttonClicked(){
 }
 function generateResultsHTML(groups, authorId){
     let html = "";
+    if (groups.length == 0){
+        html = `<p>No similar works found for ${authorId}</p>`;
+    }
     groups.forEach(group => {
         html += "<ul>"
         group.works.forEach(work => {
