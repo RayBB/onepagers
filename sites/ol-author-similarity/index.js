@@ -6,9 +6,9 @@ function getAuthorWorks(authorId) {
 function getSimilarWorksByTitle(mainWork, allWorks, similarityThreshold = .9){
     // main work is the one we want to find similar works to
     const worksExcludingMainWork = allWorks.filter(work => work !== mainWork);
-    const titles = worksExcludingMainWork.map(work => work.title);
+    const titles = worksExcludingMainWork.map(work => work.title.toLowerCase());
 
-    const similarities = stringSimilarity.findBestMatch(mainWork.title, titles);
+    const similarities = stringSimilarity.findBestMatch(mainWork.title.toLowerCase(), titles);
     const similarWorks = similarities.ratings
     .map((result, index)=>{
         if (result.rating > similarityThreshold) {
