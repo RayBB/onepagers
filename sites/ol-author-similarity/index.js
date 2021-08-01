@@ -63,8 +63,9 @@ function generateResultsHTML(groups, authorId){
             html += `<li>${work.title} (<a href="https://openlibrary.org/works/${workId}/">${workId}</a>)</li>`
         })
         html += "</ul>"
-        const query = group.works.map(work => work.key.replace("/works/","")).join('+OR+')
-        html += `<a href="https://openlibrary.org/authors/${authorId}/?q=${query}">Search for these works</a>`
+        const workIds = group.works.map(work => work.key.replace("/works/",""))
+        html += `<a href="https://openlibrary.org/authors/${authorId}/?q=${workIds.join('+OR+')}">Search for these works</a> | `
+        html += `<span>${workIds.join(',')}</span>`
         html += "<hr>"
     })
     return html
