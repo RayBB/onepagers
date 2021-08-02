@@ -51,17 +51,18 @@ function getAuthorId(){
 function goBtnClicked(){
     authorId = getAuthorId()
     console.log("searching for works by", authorId);
+    document.getElementById("results").innerHTML = `<p>${authorId} - searching</p>`;
     getAuthorWorks(authorId)
     .then(authorWorks => {
         const groups = findGroupsOfSimilar(authorWorks);
-        document.getElementById("results").innerHTML = generateResultsHTML(groups, authorId)
+        document.getElementById("results").innerHTML = generateResultsHTML(groups, authorId);
     })
 }
 
 function generateResultsHTML(groups, authorId){
     let html = "";
     if (groups.length == 0){
-        html = `<p>No similar works found for ${authorId}</p>`;
+        html = `<p>${authorId} - no similar works found</p>`;
     }
     groups.forEach(group => {
         html += "<ul>"
