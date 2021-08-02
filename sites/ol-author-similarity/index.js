@@ -67,11 +67,11 @@ function generateResultsHTML(groups, authorId){
         html += "<ul>"
         group.works.forEach(work => {
             const workId = work.key.replace("/works/","");
-            html += `<li>${work.title} (<a href="https://openlibrary.org/works/${workId}/">${workId}</a>)</li>`
+            html += `<li>${work.title} (<a target="_blank" href="https://openlibrary.org/works/${workId}/">${workId}</a>)</li>`
         })
         html += "</ul>"
         const workIds = group.works.map(work => work.key.replace("/works/",""))
-        html += `<a href="https://openlibrary.org/authors/${authorId}/?q=${workIds.join('+OR+')}">Search for these works</a> | `
+        html += `<a target="_blank" href="https://openlibrary.org/authors/${authorId}/?q=${workIds.join('+OR+')}">Search for these works</a> | `
         html += `<span>${workIds.join(',')}</span>`
         html += "<hr>"
     })
