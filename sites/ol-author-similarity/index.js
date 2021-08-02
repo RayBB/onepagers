@@ -44,16 +44,20 @@ function findGroupsOfSimilar(authorWorks, similarityThreshold = .9){
     return groups;
 }
 
-function buttonClicked(){
-    const authorId = document.getElementById("authorId").value.match(/OL\d+A/gi)[0];
-    console.log("searching for works by", authorId);
+function getAuthorId(){
+    return document.getElementById("authorId").value.match(/OL\d+A/gi)[0].toUpperCase();
+}
 
+function goBtnClicked(){
+    authorId = getAuthorId()
+    console.log("searching for works by", authorId);
     getAuthorWorks(authorId)
     .then(authorWorks => {
         const groups = findGroupsOfSimilar(authorWorks);
         document.getElementById("results").innerHTML = generateResultsHTML(groups, authorId)
     })
 }
+
 function generateResultsHTML(groups, authorId){
     let html = "";
     if (groups.length == 0){
@@ -73,6 +77,11 @@ function generateResultsHTML(groups, authorId){
     })
     return html
 }
-const searchButton = document.getElementById("searchBtn");
-console.log(searchButton)
-searchButton.addEventListener("click", e=>buttonClicked(e));
+
+function goToNext(){
+    document.getElementById("authorId").value = "OL" + (parseInt(getAuthorId().match(/\d+/)[0])+1) + "A";
+    goBtnClicked();
+}
+
+document.getElementById("searchBtn").addEventListener("click", goBtnClicked);
+document.getElementById("nextBtn").addEventListener("click", goToNext);
