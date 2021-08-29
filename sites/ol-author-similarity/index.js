@@ -23,7 +23,7 @@ function getSimilarWorksByTitle(mainWork, allWorks, similarityThreshold = .9){
         works: similarWorks
     }
 }
-  
+
 
 function findGroupsOfSimilar(authorWorks, similarityThreshold = .9){
     const groups = [];
@@ -80,10 +80,16 @@ function generateResultsHTML(groups, authorId){
     return html
 }
 
+function goToPrev(){
+    document.getElementById("authorId").value = "OL" + (parseInt(getAuthorId().match(/\d+/)[0])-1) + "A";
+    goBtnClicked();
+}
+
 function goToNext(){
     document.getElementById("authorId").value = "OL" + (parseInt(getAuthorId().match(/\d+/)[0])+1) + "A";
     goBtnClicked();
 }
 
-document.getElementById("searchBtn").addEventListener("click", goBtnClicked);
+document.getElementById("prevBtn").addEventListener("click", goToPrev);
 document.getElementById("nextBtn").addEventListener("click", goToNext);
+document.getElementById("searchBtn").addEventListener("click", goBtnClicked);
