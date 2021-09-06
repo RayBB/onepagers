@@ -56,7 +56,12 @@ function goBtnClicked(){
     .then(authorWorks => {
         const groups = findGroupsOfSimilar(authorWorks);
         document.getElementById("results").innerHTML = generateResultsHTML(groups, authorId);
+        document.getElementById("author-link").innerHTML = generateShowAuthorHTML(authorId);
     })
+}
+
+function generateShowAuthorHTML(authorId) {
+  return `<a href="https://openlibrary.org/authors/${authorId}">${authorId}</a>`;
 }
 
 function generateResultsHTML(groups, authorId){
