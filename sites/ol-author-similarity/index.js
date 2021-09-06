@@ -61,8 +61,7 @@ function goBtnClicked(){
 }
 
 function generateShowAuthorHTML(authorId) {
-  let html = "<a href="https://openlibrary.org/authors/${authorId}">${authorId}</a>"
-  return html
+  return `<a href="https://openlibrary.org/authors/${authorId}">${authorId}</a>`;
 }
 
 function generateResultsHTML(groups, authorId){
