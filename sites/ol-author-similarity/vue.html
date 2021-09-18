@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"-->
+    <!--          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">-->
+    <script src="https://unpkg.com/vue@3.1.4"></script>
+    <script src="//unpkg.com/string-similarity@4.0.1/umd/string-similarity.min.js"></script>
+    <title>Open Library Author Works Similarity</title>
+</head>
+
+<body id="app">
+
+Author ID: <input type="text" id="authorId" v-model="authorIdText" placeholder="OL1394244A">
+<button type="button" @click="goBtnClicked">Go</button>
+<button type="button" @click="increaseAuthorId(-1)">Prev</button>
+<button type="button" @click="increaseAuthorId(1)">Next</button>
+<a :href="'https://openlibrary.org/authors/' + this.authorIdText">{{this.authorIdText}}</a>
+<div class="form-check">
+    <input class="form-check-input" type="checkbox" v-model="includeSubtitles" id="flexCheckDefault">
+    <label class="form-check-label" for="flexCheckDefault">
+        Include Subtitles
+    </label>
+</div>
+<div class="form-check">
+    <input class="form-check-input" type="checkbox" v-model="aggressiveNormalization" id="flexCheckDefault2">
+    <label class="form-check-label" for="flexCheckDefault2">
+        Aggressive Normalization
+    </label>
+</div>
+
+<h1>Results</h1>
+<div id="results" style="border-style: solid;">
+    <p>{{status}}</p>
+    <span v-for="group in this.groupsOfSimilarWorks">
+        <ul>
+            <li v-for="work in group.works">
+                {{getTitleFromWork(work)}}
+                (<a target="_blank" :href="'https://openlibrary.org/works/'+parseKey(work.key)">
+                    {{parseKey(work.key)}}
+                </a>)
+            </li>
+            <a target="_blank"
+               :href="'https://openlibrary.org/authors/${authorId}/?q=' + this.getWorkIds(group.works).join('+OR+')">Search</a> |
+            <a target="_blank"
+               :href="'https://testing.openlibrary.org/works/merge?records=' + this.getWorkIds(group.works).join(',')">Merge</a> |
+            <span>{{this.getWorkIds(group.works).join(',')}}</span>
+            <hr>
+        </ul>
+    </span>
+</div>
+
+<script src="vue.js"></script>
+</body>
+
+</html>
