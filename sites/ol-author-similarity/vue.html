@@ -46,7 +46,7 @@ Author ID: <input type="text" id="authorId" v-model="authorIdText" placeholder="
                 </a>)
             </li>
             <a target="_blank"
-               :href="'https://openlibrary.org/authors/${authorId}/?q=' + this.getWorkIds(group.works).join('+OR+')">Search</a> |
+               :href="`https://openlibrary.org/authors/${this.authorIdText}/?q=` + this.getWorkIds(group.works).join('+OR+')">Search</a> |
             <a target="_blank"
                :href="'https://testing.openlibrary.org/works/merge?records=' + this.getWorkIds(group.works).join(',')">Merge</a> |
             <span>{{this.getWorkIds(group.works).join(',')}}</span>

@@ -76,7 +76,7 @@ const Counter = {
                 title = title.replace(/[^A-Za-z0-9 ]/, '')
                 const stopWords = ["the", "and", "at"]; // words to be removed
                 for (const word of stopWords) {
-                    title = title.replaceAll(word, "")
+                    title = title.replaceAll(` ${word} `, " ")
                 }
             }
             return title;
