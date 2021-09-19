@@ -1,7 +1,8 @@
 const Counter = {
     data() {
         return {
-            authorIdText: 'OL6621416A',
+            authorIdTextBox: 'OL6621416A', // this is the value of the box and changes as the box changes
+            authorId: 'OL1A', // authorID that is currently being searched/shown. The internal representation after go clicked
             status: '',
             authorWorksJson: {},
             includeSubtitles: true, // should subtitles be included in similarity check
@@ -12,10 +13,23 @@ const Counter = {
         if (localStorage.getItem('includeSubtitles')) {
             this.includeSubtitles = localStorage.getItem('includeSubtitles');
         }
+        // Automatically load data if authorId specified in URL
+        const queryParams = new URLSearchParams(window.location.search);
+        if (queryParams.get("authorId")){
+            this.authorId = queryParams.get("authorId");
+            this.goBtnClicked();
+        }
     },
     watch: {
         includeSubtitles(newStatus) {
-            localStorage.setItem('includeSubtitles', newStatus)
+            localStorage.setItem('includeSubtitles', newStatus);
+        },
+        authorId(newValue){
+            this.authorIdTextBox = newValue;
+            // set URL
+            const url = new URL(window.location);
+            url.searchParams.set('authorId', newValue);
+            window.history.replaceState(null, '', url.toString());
         }
     },
     computed: {
@@ -43,7 +57,7 @@ const Counter = {
             return groups;
         },
         authorIdNumber() {
-            return parseInt(this.authorIdText.match(/\d+/)[0]);
+            return parseInt(this.authorId.match(/\d+/)[0]);
         }
     },
     methods: {
@@ -82,8 +96,10 @@ const Counter = {
             return title;
         },
         async goBtnClicked() {
-            this.status = `${this.authorIdText} - searching`;
-            this.authorWorksJson = await this.getAuthorWorks(this.authorIdText);
+            // TODO: this should really just set authorId based on text box
+            // the rest should move to authorId watcher
+            this.status = `${this.authorId} - searching`;
+            this.authorWorksJson = await this.getAuthorWorks(this.authorId);
             this.status = 'done';
         },
         parseKey(s) {
@@ -97,7 +113,7 @@ const Counter = {
                 .then(response => response.json())
         },
         increaseAuthorId(amount) {
-            this.authorIdText = `OL${this.authorIdNumber + amount}A`;
+            this.authorId = `OL${this.authorIdNumber + amount}A`;
             this.goBtnClicked();
         }
     }

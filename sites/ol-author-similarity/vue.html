@@ -16,11 +16,11 @@
 
 <body id="app">
 
-Author ID: <input type="text" id="authorId" v-model="authorIdText" placeholder="OL1394244A">
+Author ID: <input type="text" id="authorId" v-model="authorIdTextBox" placeholder="OL1394244A">
 <button type="button" @click="goBtnClicked">Go</button>
 <button type="button" @click="increaseAuthorId(-1)">Prev</button>
 <button type="button" @click="increaseAuthorId(1)">Next</button>
-<a :href="'https://openlibrary.org/authors/' + this.authorIdText">{{this.authorIdText}}</a>
+<a :href="'https://openlibrary.org/authors/' + this.authorId">{{this.authorId}}</a>
 <div class="form-check">
     <input class="form-check-input" type="checkbox" v-model="includeSubtitles" id="flexCheckDefault">
     <label class="form-check-label" for="flexCheckDefault">
@@ -46,7 +46,7 @@ Author ID: <input type="text" id="authorId" v-model="authorIdText" placeholder="
                 </a>)
             </li>
             <a target="_blank"
-               :href="`https://openlibrary.org/authors/${this.authorIdText}/?q=` + this.getWorkIds(group.works).join('+OR+')">Search</a> |
+               :href="`https://openlibrary.org/authors/${this.authorId}/?q=` + this.getWorkIds(group.works).join('+OR+')">Search</a> |
             <a target="_blank"
                :href="'https://testing.openlibrary.org/works/merge?records=' + this.getWorkIds(group.works).join(',')">Merge</a> |
             <span>{{this.getWorkIds(group.works).join(',')}}</span>
