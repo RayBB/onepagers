@@ -34,7 +34,18 @@
     <div class="row">
         <div class="col">
             <h1 class="h5">Author</h1>
-            <p>ID: <a :href="`https://openlibrary.org/authors/${this.authorId}`">{{this.authorId}}</a></p>
+            <div class="row">
+                <div class="col-md-auto">
+                    <div class="vstack">
+                        <span v-for="field in this.authorFieldsToDisplay">{{field.description}}</span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="vstack">
+                        <span v-for="field in this.authorFieldsToDisplay" v-html="field.value"></span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="col" v-if="this.settingsVisible">

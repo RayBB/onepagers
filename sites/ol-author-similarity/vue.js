@@ -5,6 +5,7 @@ const Counter = {
             authorId: 'OL6621416A', // authorID that is currently being searched/shown. The internal representation after go clicked
             status: '',
             authorWorksJson: {},
+            authorJson: {},
             includeSubtitles: true, // should subtitles be included in similarity check
             aggressiveNormalization: true,
             settingsVisible: true,
@@ -19,8 +20,8 @@ const Counter = {
             this.authorId = queryParams.get("authorId");
         }
     },
-    created(){
-        for (const dataName of this.dataToRemember){
+    created() {
+        for (const dataName of this.dataToRemember) {
             const storedValue = localStorage.getItem(dataName);
             if (storedValue !== null) {
                 // we stringify and parse to get boolean values and probably arrays one day too
@@ -39,7 +40,8 @@ const Counter = {
             url.searchParams.set('authorId', newValue);
             window.history.replaceState(null, '', url.toString());
             this.status = `${this.authorId} - searching`;
-            this.authorWorksJson = await this.getAuthorWorks(this.authorId);
+            this.getAuthor();
+            this.authorWorksJson = await this.getAuthorWorks();
         }
     },
     computed: {
@@ -68,6 +70,31 @@ const Counter = {
         },
         authorIdNumber() {
             return parseInt(this.authorId.match(/\d+/)[0]);
+        },
+        authorFieldsToDisplay() {
+            const toDisplay = [];
+            if (this.authorId) {
+                toDisplay.push({
+                    "description": "ID",
+                    "value": `<a target="_blank" href="https://openlibrary.org/authors/${this.authorId}">${this.authorId}</a>`
+                })
+            }
+            if (this.authorJson.name) {
+                toDisplay.push({"description": "Name", "value": this.authorJson.name})
+            }
+            if (this.authorJson.birth_date || this.authorJson.death_date) {
+                toDisplay.push({
+                    "description": "Lived",
+                    "value": `${this.authorJson.birth_date || ''} - ${this.authorJson.death_date || ''}`
+                })
+            }
+            if (this.authorJson?.remote_ids?.wikidata) {
+                toDisplay.push({
+                    "description": "Wikidata",
+                    "value": `<a target="_blank" href="https://www.wikidata.org/wiki/${this.authorJson.remote_ids.wikidata}">${this.authorJson.remote_ids.wikidata}</a>`
+                })
+            }
+            return toDisplay;
         }
     },
     methods: {
@@ -115,7 +142,16 @@ const Counter = {
         getWorkIds(works) {
             return works.map(work => this.parseKey(work.key));
         },
-        getAuthorWorks(authorId) {
+        getAuthor(authorId = this.authorId) {
+            fetch(`https://openlibrary.org/authors/${authorId}.json`)
+                .then(async response => {
+                    if (!response.ok) {
+                        return {}
+                    }
+                    this.authorJson = await response.json();
+                })
+        },
+        getAuthorWorks(authorId = this.authorId) {
             return fetch(`https://openlibrary.org/authors/${authorId}/works.json?limit=1000`)
                 .then(response => {
                     if (!response.ok) {
