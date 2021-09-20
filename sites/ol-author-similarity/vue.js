@@ -10,6 +10,7 @@ const Counter = {
             aggressiveNormalization: true,
             settingsVisible: true,
             coversVisible: true,
+            authorVisible: true,
             dataToRemember: ['includeSubtitles', 'aggressiveNormalization', 'settingsVisible', 'coversVisible'],
         }
     },
