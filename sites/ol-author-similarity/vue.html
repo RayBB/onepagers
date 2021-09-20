@@ -31,6 +31,7 @@
         <button @click="setRandomAuthorId" type="button" class="btn btn-outline-primary">Random</button>
         <button @click="this.settingsVisible = !this.settingsVisible" type="button" class="btn btn-outline-primary">Settings</button>
     </div>
+    <span><b>Status:</b> {{status}}</span>
     <div class="row">
         <div class="col">
             <span v-if="this.authorVisible">
@@ -70,11 +71,10 @@
             </div>
         </div>
     </div>
-    <p>Status: {{status}}</p>
     <div class="card card-body">
         <h1 class="h5">Similar Works</h1>
         <span v-for="group in this.groupsOfSimilarWorks">
-            <div class="row border-bottom">
+            <div class="row border-top">
                 <div class="col">
                     <ul>
                         <li v-for="work in group.works">

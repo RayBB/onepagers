@@ -12,6 +12,9 @@ const Counter = {
             coversVisible: true,
             authorVisible: true,
             dataToRemember: ['includeSubtitles', 'aggressiveNormalization', 'settingsVisible', 'coversVisible'],
+            // TODO: configurable similarity threshold, disable cache, two columns of settings
+            // skip to author with similar works
+            // add count of authors with search results of similar names
         }
     },
     mounted() {
@@ -147,6 +150,7 @@ const Counter = {
             return works.map(work => this.parseKey(work.key));
         },
         getAuthor(authorId = this.authorId) {
+            this.authorJson = {};
             fetch(`https://openlibrary.org/authors/${authorId}.json`, {cache: "force-cache"})
                 .then(async response => {
                     if (!response.ok) {
@@ -156,6 +160,7 @@ const Counter = {
                 })
         },
         getAuthorWorks(authorId = this.authorId) {
+            this.authorWorksJson = {};
             return fetch(`https://openlibrary.org/authors/${authorId}/works.json?limit=1000`, {cache: "force-cache"})
                 .then(response => {
                     if (!response.ok) {
@@ -163,7 +168,7 @@ const Counter = {
                         app.status = "Error requesting works"
                         return {}
                     }
-                    app.status = "done"
+                    app.status = "loaded"
                     return response.json()
                 })
         },
