@@ -6,7 +6,8 @@ const Counter = {
             status: '',
             authorWorksJson: {},
             includeSubtitles: true, // should subtitles be included in similarity check
-            aggressiveNormalization: true
+            aggressiveNormalization: true,
+            settingsVisible: true
         }
     },
     mounted() {
@@ -15,7 +16,7 @@ const Counter = {
         }
         // Automatically load data if authorId specified in URL
         const queryParams = new URLSearchParams(window.location.search);
-        if (queryParams.get("authorId")){
+        if (queryParams.get("authorId")) {
             this.authorId = queryParams.get("authorId");
         }
     },
@@ -109,7 +110,7 @@ const Counter = {
         getAuthorWorks(authorId) {
             return fetch(`https://openlibrary.org/authors/${authorId}/works.json?limit=1000`)
                 .then(response => {
-                    if (!response.ok){
+                    if (!response.ok) {
                         // using app here since "this" in a call back doesn't refer to the vue instance
                         app.status = "Error requesting works"
                         return {}
@@ -125,6 +126,13 @@ const Counter = {
             const highestAuthorId = 9500000; // This is an approximation and should increase over time
             const randomNumber = Math.floor(Math.random() * highestAuthorId) + 1;
             this.authorId = `OL${randomNumber}A`;
+        },
+        updateClipboard(newClip) {
+            navigator.clipboard.writeText(newClip).then(() => {
+            }, () => {
+                /* clipboard write failed */
+                app.status = "copy to clipboard failed, please check permissions"
+            });
         }
     }
 }

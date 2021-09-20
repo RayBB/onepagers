@@ -29,22 +29,31 @@
         <button @click="increaseAuthorId(-1)" type="button" class="btn btn-outline-primary">Previous</button>
         <button @click="increaseAuthorId(1)" type="button" class="btn btn-outline-primary">Next</button>
         <button @click="setRandomAuthorId" type="button" class="btn btn-outline-primary">Random</button>
-        <button type="button" class="btn btn-outline-primary">Settings</button>
+        <button @click="this.settingsVisible = !this.settingsVisible" type="button" class="btn btn-outline-primary">Settings</button>
     </div>
-    <a :href="`https://openlibrary.org/authors/${this.authorId}`">{{this.authorId}}</a>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" v-model="includeSubtitles" id="flexCheckDefault">
-        <label class="form-check-label" for="flexCheckDefault">Include Subtitles</label>
-    </div>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" v-model="aggressiveNormalization" id="flexCheckDefault2">
-        <label class="form-check-label" for="flexCheckDefault2">Aggressive Normalization</label>
+    <div class="row">
+        <div class="col">
+            <h1 class="h5">Author</h1>
+            <p>ID: <a :href="`https://openlibrary.org/authors/${this.authorId}`">{{this.authorId}}</a></p>
+        </div>
+
+        <div class="col" v-if="this.settingsVisible">
+            <h1 class="h5">Settings</h1>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" v-model="includeSubtitles" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault">Include Subtitles</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" v-model="aggressiveNormalization" id="flexCheckDefault2">
+                <label class="form-check-label" for="flexCheckDefault2">Aggressive Normalization</label>
+            </div>
+        </div>
     </div>
     <p>Status: {{status}}</p>
-    <h1>Similar Works</h1>
-    <div>
+    <div class="card card-body">
+        <h1 class="h5">Similar Works</h1>
         <span v-for="group in this.groupsOfSimilarWorks">
-            <div class="row">
+            <div class="row border-bottom">
                 <div class="col">
                     <ul>
                         <li v-for="work in group.works">
@@ -53,12 +62,15 @@
                                 {{parseKey(work.key)}}
                             </a>)
                         </li>
-                    <div>
-                        <a target="_blank"
-                           :href="`https://openlibrary.org/authors/${this.authorId}/?q=` + this.getWorkIds(group.works).join('+OR+')">Search</a> |
-                        <a target="_blank"
-                           :href="'https://testing.openlibrary.org/works/merge?records=' + this.getWorkIds(group.works).join(',')">Merge</a> |
-                        <span class="text-break">{{this.getWorkIds(group.works).join(',')}}</span>
+                    <div class="hstack gap-1">
+                        <a :href="`https://openlibrary.org/authors/${this.authorId}/?q=${this.getWorkIds(group.works).join('+OR+')}`"
+                           target="_blank">Search</a>
+                        |
+                        <a :href="`https://testing.openlibrary.org/works/merge?records=${this.getWorkIds(group.works).join(',')}`"
+                           target="_blank">Merge</a>
+                        |
+                        <span class="comma-ids overflow-auto">{{this.getWorkIds(group.works).join(',')}}</span>
+                        <button @click="updateClipboard(this.getWorkIds(group.works).join(','))" type="button" class="btn btn-outline-primary btn-sm">Copy</button>
                     </div>
                     </ul>
                 </div>
@@ -73,13 +85,20 @@
                         </a>
                     </div>
                 </div>
-                <hr>
             </div>
+
         </span>
     </div>
 
 </div>
 <style>
+    .comma-ids {
+        display: inline-block;
+        background-color: lightgray;
+        max-width: 10em;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
     .thumbnail {
         border: 1px solid #dee2e6;
     }
