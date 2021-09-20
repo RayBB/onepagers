@@ -2,7 +2,7 @@ const Counter = {
     data() {
         return {
             authorIdTextBox: 'OL6621416A', // this is the value of the box and changes as the box changes
-            authorId: 'OL1A', // authorID that is currently being searched/shown. The internal representation after go clicked
+            authorId: 'OL6621416A', // authorID that is currently being searched/shown. The internal representation after go clicked
             status: '',
             authorWorksJson: {},
             includeSubtitles: true, // should subtitles be included in similarity check
@@ -17,19 +17,20 @@ const Counter = {
         const queryParams = new URLSearchParams(window.location.search);
         if (queryParams.get("authorId")){
             this.authorId = queryParams.get("authorId");
-            this.goBtnClicked();
         }
     },
     watch: {
         includeSubtitles(newStatus) {
             localStorage.setItem('includeSubtitles', newStatus);
         },
-        authorId(newValue){
+        async authorId(newValue) {
             this.authorIdTextBox = newValue;
             // set URL
             const url = new URL(window.location);
             url.searchParams.set('authorId', newValue);
             window.history.replaceState(null, '', url.toString());
+            this.status = `${this.authorId} - searching`;
+            this.authorWorksJson = await this.getAuthorWorks(this.authorId);
         }
     },
     computed: {
@@ -39,7 +40,7 @@ const Counter = {
             if (!('entries' in this.authorWorksJson)) {
                 return []
             }
-            // I hate the hack to deep clone
+            // A hack to deep clone
             let entries = JSON.parse(JSON.stringify(this.authorWorksJson.entries));
             console.log("Entry count:", entries.length);
             while (entries.length > 1) {
@@ -96,11 +97,8 @@ const Counter = {
             return title;
         },
         async goBtnClicked() {
-            // TODO: this should really just set authorId based on text box
-            // the rest should move to authorId watcher
-            this.status = `${this.authorId} - searching`;
-            this.authorWorksJson = await this.getAuthorWorks(this.authorId);
-            this.status = 'done';
+            // TODO: this should grab authorID even from a URL or if there are spaces
+            this.authorId = this.authorIdTextBox;
         },
         parseKey(s) {
             return s.split("/")[2];
@@ -110,13 +108,25 @@ const Counter = {
         },
         getAuthorWorks(authorId) {
             return fetch(`https://openlibrary.org/authors/${authorId}/works.json?limit=1000`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok){
+                        // using app here since "this" in a call back doesn't refer to the vue instance
+                        app.status = "Error requesting works"
+                        return {}
+                    }
+                    app.status = "done"
+                    return response.json()
+                })
         },
         increaseAuthorId(amount) {
             this.authorId = `OL${this.authorIdNumber + amount}A`;
-            this.goBtnClicked();
+        },
+        setRandomAuthorId() {
+            const highestAuthorId = 9500000; // This is an approximation and should increase over time
+            const randomNumber = Math.floor(Math.random() * highestAuthorId) + 1;
+            this.authorId = `OL${randomNumber}A`;
         }
     }
 }
 
-Vue.createApp(Counter).mount('#app')
+const app = Vue.createApp(Counter).mount('#app')
