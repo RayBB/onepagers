@@ -83,6 +83,9 @@ const Counter = {
             if (this.authorJson.name) {
                 toDisplay.push({"description": "Name", "value": this.authorJson.name})
             }
+            if (this.authorJson.name) {
+                toDisplay.push({"description": "Works", "value": this.authorWorksJson?.entries?.length || '...'})
+            }
             if (this.authorJson.birth_date || this.authorJson.death_date) {
                 toDisplay.push({
                     "description": "Lived",
@@ -144,7 +147,7 @@ const Counter = {
             return works.map(work => this.parseKey(work.key));
         },
         getAuthor(authorId = this.authorId) {
-            fetch(`https://openlibrary.org/authors/${authorId}.json`)
+            fetch(`https://openlibrary.org/authors/${authorId}.json`, {cache: "force-cache"})
                 .then(async response => {
                     if (!response.ok) {
                         return {}
@@ -153,7 +156,7 @@ const Counter = {
                 })
         },
         getAuthorWorks(authorId = this.authorId) {
-            return fetch(`https://openlibrary.org/authors/${authorId}/works.json?limit=1000`)
+            return fetch(`https://openlibrary.org/authors/${authorId}/works.json?limit=1000`, {cache: "force-cache"})
                 .then(response => {
                     if (!response.ok) {
                         // using app here since "this" in a call back doesn't refer to the vue instance
