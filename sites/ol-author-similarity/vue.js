@@ -7,23 +7,31 @@ const Counter = {
             authorWorksJson: {},
             includeSubtitles: true, // should subtitles be included in similarity check
             aggressiveNormalization: true,
-            settingsVisible: true
+            settingsVisible: true,
+            coversVisible: false,
+            dataToRemember: ['includeSubtitles', 'aggressiveNormalization', 'settingsVisible', 'coversVisible'],
         }
     },
     mounted() {
-        if (localStorage.getItem('includeSubtitles')) {
-            this.includeSubtitles = localStorage.getItem('includeSubtitles');
-        }
         // Automatically load data if authorId specified in URL
         const queryParams = new URLSearchParams(window.location.search);
         if (queryParams.get("authorId")) {
             this.authorId = queryParams.get("authorId");
         }
     },
+    created(){
+        for (const dataName of this.dataToRemember){
+            const storedValue = localStorage.getItem(dataName);
+            if (storedValue !== null) {
+                // we stringify and parse to get boolean values and probably arrays one day too
+                this[dataName] = JSON.parse(storedValue);
+            }
+            this.$watch(dataName, (newVal, oldVal) => {
+                localStorage.setItem(dataName, JSON.stringify(newVal));
+            })
+        }
+    },
     watch: {
-        includeSubtitles(newStatus) {
-            localStorage.setItem('includeSubtitles', newStatus);
-        },
         async authorId(newValue) {
             this.authorIdTextBox = newValue;
             // set URL
