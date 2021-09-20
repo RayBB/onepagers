@@ -8,7 +8,7 @@ const Counter = {
             includeSubtitles: true, // should subtitles be included in similarity check
             aggressiveNormalization: true,
             settingsVisible: true,
-            coversVisible: false,
+            coversVisible: true,
             dataToRemember: ['includeSubtitles', 'aggressiveNormalization', 'settingsVisible', 'coversVisible'],
         }
     },
