@@ -149,6 +149,10 @@ const Counter = {
         async goBtnClicked() {
             // TODO: this should grab authorID even from a URL or if there are spaces
             this.searchUntilSimilarity.direction = '';
+            // do a refresh if authorId not changed
+            if (this.authorId === this.authorIdTextBox) {
+                this.getAuthorWorks(false);
+            }
             this.authorId = this.authorIdTextBox;
         },
         parseKey(s) {
@@ -180,10 +184,10 @@ const Counter = {
                 app.status = e.toString();
             }
         },
-        async getAuthorWorks() {
+        async getAuthorWorks(cache = true) {
             this.authorWorksJson = {};
             try {
-                this.authorWorksJson = await this.fetchWithRetry(`https://openlibrary.org/authors/${this.authorId}/works.json?limit=1000`);
+                this.authorWorksJson = await this.fetchWithRetry(`https://openlibrary.org/authors/${this.authorId}/works.json?limit=1000`, 3, cache);
                 app.status = "done";
             } catch (e) {
                 app.status = e.toString();
