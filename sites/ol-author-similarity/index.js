@@ -1,8 +1,8 @@
 const Counter = {
     data() {
         return {
-            authorIdTextBox: 'OL6621416A', // this is the value of the box and changes as the box changes
-            authorId: 'OL6621416A', // authorID that is currently being searched/shown. The internal representation after go clicked
+            authorIdTextBox: '', // this is the value of the box and changes as the box changes
+            authorId: 'OL1394244A', // authorID that is currently being searched/shown. The internal representation after go clicked
             status: '',
             authorWorksJson: {},
             authorJson: {},
@@ -11,11 +11,9 @@ const Counter = {
             settingsVisible: true,
             coversVisible: true,
             authorVisible: true,
-            dataToRemember: ['includeSubtitles', 'aggressiveNormalization', 'settingsVisible', 'coversVisible', 'searchUntilSimilarity'],
-            searchUntilSimilarity: {
-                enabled: true,
-                direction: '' // next, previous, random
-            }
+            dataToRemember: ['includeSubtitles', 'aggressiveNormalization', 'settingsVisible', 'coversVisible', 'authorVisible', 'searchUntilSimilarity'],
+            searchUntilSimilarity: true,
+            searchUntilSimilarityDirection: '', // next, previous, random
             // TODO: configurable similarity threshold, disable cache, two columns of settings
             // add count of authors with search results of similar names
         }
@@ -148,7 +146,7 @@ const Counter = {
         },
         async goBtnClicked() {
             // TODO: this should grab authorID even from a URL or if there are spaces
-            this.searchUntilSimilarity.direction = '';
+            this.searchUntilSimilarityDirection = '';
             // do a refresh if authorId not changed
             if (this.authorId === this.authorIdTextBox) {
                 this.getAuthorWorks(false);
@@ -194,11 +192,11 @@ const Counter = {
             }
         },
         increaseAuthorId(amount) {
-            this.searchUntilSimilarity.direction = amount > 0 ? 'next' : 'previous';
+            this.searchUntilSimilarityDirection = amount > 0 ? 'next' : 'previous';
             this.authorId = `OL${this.authorIdNumber + amount}A`;
         },
         setRandomAuthorId() {
-            this.searchUntilSimilarity.direction = 'random';
+            this.searchUntilSimilarityDirection = 'random';
             const highestAuthorId = 9500000; // This is an approximation and should increase over time
             const randomNumber = Math.floor(Math.random() * highestAuthorId) + 1;
             this.authorId = `OL${randomNumber}A`;
@@ -215,8 +213,8 @@ const Counter = {
                     this.setRandomAuthorId()
                 }
             }
-            if (this.searchUntilSimilarity.enabled && this.groupsOfSimilarWorks.length === 0) {
-                directions[this.searchUntilSimilarity.direction]();
+            if (this.searchUntilSimilarity && this.groupsOfSimilarWorks.length === 0) {
+                directions[this.searchUntilSimilarityDirection]();
             }
         },
         updateClipboard(newClip) {
