@@ -11,9 +11,12 @@ const Counter = {
             settingsVisible: true,
             coversVisible: true,
             authorVisible: true,
-            dataToRemember: ['includeSubtitles', 'aggressiveNormalization', 'settingsVisible', 'coversVisible'],
+            dataToRemember: ['includeSubtitles', 'aggressiveNormalization', 'settingsVisible', 'coversVisible', 'searchUntilSimilarity'],
+            searchUntilSimilarity: {
+                enabled: true,
+                direction: '' // next, previous, random
+            }
             // TODO: configurable similarity threshold, disable cache, two columns of settings
-            // skip to author with similar works
             // add count of authors with search results of similar names
         }
     },
@@ -45,7 +48,8 @@ const Counter = {
             window.history.replaceState(null, '', url.toString());
             this.status = `${this.authorId} - searching`;
             this.getAuthor();
-            this.getAuthorWorks();
+            await this.getAuthorWorks();
+            this.findNextSimilarity();
         }
     },
     computed: {
@@ -144,6 +148,7 @@ const Counter = {
         },
         async goBtnClicked() {
             // TODO: this should grab authorID even from a URL or if there are spaces
+            this.searchUntilSimilarity.direction = '';
             this.authorId = this.authorIdTextBox;
         },
         parseKey(s) {
@@ -185,21 +190,39 @@ const Counter = {
             }
         },
         increaseAuthorId(amount) {
+            this.searchUntilSimilarity.direction = amount > 0 ? 'next' : 'previous';
             this.authorId = `OL${this.authorIdNumber + amount}A`;
         },
         setRandomAuthorId() {
+            this.searchUntilSimilarity.direction = 'random';
             const highestAuthorId = 9500000; // This is an approximation and should increase over time
             const randomNumber = Math.floor(Math.random() * highestAuthorId) + 1;
             this.authorId = `OL${randomNumber}A`;
+        },
+        findNextSimilarity() {
+            const directions = {
+                'next': () => {
+                    this.increaseAuthorId(1)
+                },
+                'previous': () => {
+                    this.increaseAuthorId(-1)
+                },
+                'random': () => {
+                    this.setRandomAuthorId()
+                }
+            }
+            if (this.searchUntilSimilarity.enabled && this.groupsOfSimilarWorks.length === 0) {
+                directions[this.searchUntilSimilarity.direction]();
+            }
         },
         updateClipboard(newClip) {
             navigator.clipboard.writeText(newClip).then(() => {
             }, () => {
                 /* clipboard write failed */
-                app.status = "copy to clipboard failed, please check permissions"
+                app.status = "copy to clipboard failed, please check permissions";
             });
         }
     }
 }
 
-const app = Vue.createApp(Counter).mount('#app')
+const app = Vue.createApp(Counter).mount('#app');
