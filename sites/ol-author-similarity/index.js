@@ -45,7 +45,7 @@ const Counter = {
             window.history.replaceState(null, '', url.toString());
             this.status = `${this.authorId} - searching`;
             this.getAuthor();
-            this.authorWorksJson = await this.getAuthorWorks();
+            this.getAuthorWorks();
         }
     },
     computed: {
@@ -82,6 +82,9 @@ const Counter = {
                     "description": "ID",
                     "value": `<a target="_blank" href="https://openlibrary.org/authors/${this.authorId}">${this.authorId}</a>`
                 })
+            }
+            if (this.authorJson?.type?.key === "/type/redirect") {
+                toDisplay.push({"description": "Redirect", "value": "True"})
             }
             if (this.authorJson.name) {
                 toDisplay.push({"description": "Name", "value": this.authorJson.name})
@@ -149,28 +152,37 @@ const Counter = {
         getWorkIds(works) {
             return works.map(work => this.parseKey(work.key));
         },
-        getAuthor(authorId = this.authorId) {
-            this.authorJson = {};
-            fetch(`https://openlibrary.org/authors/${authorId}.json`, {cache: "force-cache"})
-                .then(async response => {
-                    if (!response.ok) {
-                        return {}
-                    }
-                    this.authorJson = await response.json();
-                })
+        async fetchWithRetry(url, retries = 3, cache = true) {
+            const config = {}
+            // we use force cache so we don't hammer OL servers
+            if (cache) {
+                config['cache'] = "force-cache"
+            }
+            const response = await fetch(url, config)
+            if (response.status !== 200) {
+                if (retries === 0) {
+                    throw new Error(`fetch failed with status ${response.status}`)
+                }
+                return this.fetchWithRetry(url, retries - 1, false)
+            }
+            return await response.json()
         },
-        getAuthorWorks(authorId = this.authorId) {
+        async getAuthor() {
+            this.authorJson = {};
+            try {
+                this.authorJson = await this.fetchWithRetry(`https://openlibrary.org/authors/${this.authorId}.json`);
+            } catch (e) {
+                app.status = e.toString();
+            }
+        },
+        async getAuthorWorks() {
             this.authorWorksJson = {};
-            return fetch(`https://openlibrary.org/authors/${authorId}/works.json?limit=1000`, {cache: "force-cache"})
-                .then(response => {
-                    if (!response.ok) {
-                        // using app here since "this" in a call back doesn't refer to the vue instance
-                        app.status = "Error requesting works"
-                        return {}
-                    }
-                    app.status = "loaded"
-                    return response.json()
-                })
+            try {
+                this.authorWorksJson = await this.fetchWithRetry(`https://openlibrary.org/authors/${this.authorId}/works.json?limit=1000`);
+                app.status = "done";
+            } catch (e) {
+                app.status = e.toString();
+            }
         },
         increaseAuthorId(amount) {
             this.authorId = `OL${this.authorIdNumber + amount}A`;
