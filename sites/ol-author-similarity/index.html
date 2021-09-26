@@ -24,8 +24,8 @@
     <div class="input-group mb-3 mt-3">
         <span class="input-group-text" id="basic-addon1">AuthorId</span>
         <input type="text" v-model="authorIdTextBox" placeholder="OL1394244A" class="form-control" aria-label="Author Id"
-               aria-describedby="basic-addon1">
-        <button @click="goBtnClicked" type="button" class="btn btn-outline-primary">Go</button>
+               aria-describedby="basic-addon1" @keyup.enter="submitAuthorId">
+        <button @click="submitAuthorId" type="button" class="btn btn-outline-primary">Go</button>
         <button @click="increaseAuthorId(-1)" type="button" class="btn btn-outline-primary">Previous</button>
         <button @click="increaseAuthorId(1)" type="button" class="btn btn-outline-primary">Next</button>
         <button @click="setRandomAuthorId" type="button" class="btn btn-outline-primary">Random</button>

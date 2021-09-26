@@ -144,7 +144,7 @@ const Counter = {
             }
             return title;
         },
-        async goBtnClicked() {
+        async submitAuthorId() {
             // TODO: this should grab authorID even from a URL or if there are spaces
             this.searchUntilSimilarityDirection = '';
             // do a refresh if authorId not changed
