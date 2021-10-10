@@ -82,7 +82,7 @@
                 <div class="col">
                     <ul>
                         <li v-for="work in group.works">
-                            {{getTitleFromWork(work)}}
+                            <span class="monospace">{{getTitleFromWork(work)}}</span>
                             (<a target="_blank" :href="'https://openlibrary.org/works/'+parseKey(work.key)">
                                 {{parseKey(work.key)}}
                             </a>)
@@ -136,6 +136,9 @@
         top: 0px;
         height: 75vh;
         z-index: 999;
+    }
+    .monospace{
+        font-family: monospace;
     }
 </style>
 <script src="index.js"></script>
