@@ -91,7 +91,7 @@
                         <a :href="`https://openlibrary.org/authors/${this.authorId}/?q=${this.getWorkIds(group.works).join('+OR+')}`"
                            target="_blank">Search</a>
                         |
-                        <a :href="`https://testing.openlibrary.org/works/merge?records=${this.getWorkIds(group.works).join(',')}`"
+                        <a :href="`https://openlibrary.org/works/merge?records=${this.getWorkIds(group.works).join(',')}`"
                            target="_blank">Merge</a>
                         |
                         <span class="comma-ids overflow-auto">{{this.getWorkIds(group.works).join(',')}}</span>
