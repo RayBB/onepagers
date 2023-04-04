@@ -1790,12 +1790,18 @@ function createCustomMarker(feature, latlng) {
         opacity: 1,
         fillOpacity: 0.8
     };
-	var marker = L.circleMarker(latlng, markerOptions);
     
     // Add a popup to display the value of "How many tears" response when the user hovers over the marker
     var popupContent = feature.properties.popup.find(function (popupItem) {
         return popupItem.question === "How many tears";
     }).response;
+
+    // if you don't know how many tears you cried make it red
+    if (!popupContent){
+        markerOptions.fillColor = "#ff0000"
+    }
+
+	var marker = L.circleMarker(latlng, markerOptions);
     marker.bindPopup(popupContent ? popupContent + " tears" : "Unknown");
     
     // Add an event listener for the mouseover event to open the popup
