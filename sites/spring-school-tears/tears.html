@@ -27,9 +27,10 @@
 
     <style>
       html,
-      body {
+      body,
+      #map {
         height: 100%;
-        margin: 0;
+        width: 100%;
       }
       .leaflet-container {
         height: 400px;
@@ -37,18 +38,14 @@
         max-width: 100%;
         max-height: 100%;
       }
-	  body {
+      body {
         padding: 0;
         margin: 0;
-    }
-    html, body, #map {
-        height: 100%;
-        width: 100%;
-    }
+      }
     </style>
   </head>
   <body>
-    <div id="map" ></div>
+    <div id="map"></div>
     <script>
       const map = L.map("map").setView([50.85045, 4.34878], 13);
 
@@ -61,1787 +58,1477 @@
         }
       ).addTo(map);
 
-    //   const marker = L.marker([51.5, -0.09])
-    //     .addTo(map)
-    //     .bindPopup("<b>Hello world!</b><br />I am a popup.")
-    //     .openPopup();
-
-    //   const circle = L.circle([51.508, -0.11], {
-    //     color: "red",
-    //     fillColor: "#f03",
-    //     fillOpacity: 0.5,
-    //     radius: 500,
-    //   })
-    //     .addTo(map)
-    //     .bindPopup("I am a circle.");
-
-    //   const polygon = L.polygon([
-    //     [51.509, -0.08],
-    //     [51.503, -0.06],
-    //     [51.51, -0.047],
-    //   ])
-    //     .addTo(map)
-    //     .bindPopup("I am a polygon.");
-
-    //   const popup = L.popup()
-    //     .setLatLng([51.513, -0.09])
-    //     .setContent("I am a standalone popup.")
-    //     .openOn(map);
-
-    //   function onMapClick(e) {
-    //     popup
-    //       .setLatLng(e.latlng)
-    //       .setContent(`You clicked the map at ${e.latlng.toString()}`)
-    //       .openOn(map);
-    //   }
-
-
-    //   map.on("click", onMapClick);
-
-	const geojsonFeature = {
-    "type": "FeatureCollection",
-    "features": [
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.373671,
-                    50.827056
-                ]
+      const geojsonFeature = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.373671, 50.827056],
             },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 50
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "3xx92jc2i443",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.370821,
-                    50.835534
-                ]
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 50,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "3xx92jc2i443",
+              responseNumber: "0",
             },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 100
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "8uw7ork837i7",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.372209,
-                    50.836364
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak",
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 25
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "33spl276vic9",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.417566,
-                    50.837114
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "I do not want to say"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 90
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "2ujh9yub6en3",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.402182,
-                    50.844917
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "I do not know"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 71
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "6iz27f2w99o9",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.391037,
-                    50.857711
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": []
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": null
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "46tiy6gac7z4",
-                "responseNumber": "2"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.375456,
-                    50.848236
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak",
-                            "Poor Mental Health",
-                            "Physical Injury",
-                            "I do not know"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 70
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "2e4ewb8fjk2a",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.488791,
-                    50.900437
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 44
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "239ztt2trr69",
-                "responseNumber": "2"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.4003,
-                    50.818539
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "World City Hypothesis"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 16
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "8ieu42k6gpo4",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.431855,
-                    50.821984
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": null
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "3xx92jc2i443",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.395807,
-                    50.822457
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 20
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "7ag7jyb2m9n6",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.395481,
-                    50.822554
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "World City Hypothesis"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 23
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "84roc2b79427",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.395392,
-                    50.822706
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "World City Hypothesis"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 100
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "2ay377g2imf7",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.394891,
-                    50.823051
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": []
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 97
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "93jsk4mo73ez",
-                "responseNumber": "2"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.393127,
-                    50.822772
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "World City Hypothesis"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 20
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "2we2sdw8hgs9",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.393934,
-                    50.823758
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 100
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "7uv8nxe6xik3",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.386797,
-                    50.826894
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak",
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 97
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": "https://d24tbo0jkzipyh.cloudfront.net/uploads/responses/32f4eka6l373/c79add29-25ff-4949-9b29-2c2dae6f6a23.jpeg"
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "4w2lmc3iis43",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.379155,
-                    50.813853
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 97
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "3xm76ud477ae",
-                "responseNumber": "2"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.393466,
-                    50.815789
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "I do not know"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 100
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "374ec3mnh4b8",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.386134,
-                    50.816316
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 99
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "239ztt2trr69",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.374391,
-                    50.810425
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 0
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "4kzr7utj9x77",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.409701,
-                    50.813493
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "I do not know"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": null
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "4c9vko6lea88",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.375495,
-                    50.810813
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": null
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "93jsk4mo73ez",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.378081,
-                    50.806804
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 82
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "46tiy6gac7z4",
-                "responseNumber": "5"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.380783,
-                    50.817576
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 62
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "4w2lmc3iis43",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.375695,
-                    50.818411
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 71
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "7l79dht7jlg3",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.333673,
-                    50.835476
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "World City Hypothesis",
-                            "Heartbreak",
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 77
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "46tiy6gac7z4",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.336142,
-                    50.835713
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 69
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "46tiy6gac7z4",
-                "responseNumber": "3"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.366424,
-                    50.838905
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "World City Hypothesis",
-                            "Poor Mental Health",
-                            "Belgian Bureaucracy"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 72
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "26myc8vi7yo7",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.327318,
-                    50.837241
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak",
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 57
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "2e4ewb8fjk2a",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.340915,
-                    50.848647
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": null
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "974v6tuo3vl7",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.340567,
-                    50.844931
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 73
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "8ieu42k6gpo4",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.366952,
-                    50.852439
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "I do not know"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 25
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "7jf8om4zf638",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.369507,
-                    50.836074
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 0
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "4kzr7utj9x77",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.370683,
-                    50.869102
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "I do not know"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": null
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "974v6tuo3vl7",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.348481,
-                    50.824551
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": []
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": null
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "3xm76ud477ae",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.347103,
-                    50.828372
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": []
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": null
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "8uw7ork837i7",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.344627,
-                    50.830557
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak",
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": null
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "2e4ewb8fjk2a",
-                "responseNumber": "2"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.326603,
-                    50.834653
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": []
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": null
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "46tiy6gac7z4",
-                "responseNumber": "4"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.32711,
-                    50.835351
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "World City Hypothesis",
-                            "Heartbreak",
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 100
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "4xs77nmh9gm7",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.332999,
-                    50.834511
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak",
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 75
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "3gky34t4i4g4",
-                "responseNumber": "2"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.365096,
-                    50.834391
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Belgian Bureaucracy"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": null
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": "https://d24tbo0jkzipyh.cloudfront.net/uploads/responses/32f4eka6l373/cd73e50c-9e7b-4a5f-9de2-821be8412e31.jpeg"
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "3xx92jc2i443",
-                "responseNumber": "2"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.327168,
-                    50.835173
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 40
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "239ztt2trr69",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.327174,
-                    50.835405
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "World City Hypothesis",
-                            "Heartbreak",
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 100
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "46tiy6gac7z4",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.334272,
-                    50.803599
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 0
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "4e6g44hjx8ia",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.366404,
-                    50.81667
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak",
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 71
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "3xm76ud477ae",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.336551,
-                    50.804494
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "World City Hypothesis",
-                            "Heartbreak",
-                            "Poor Mental Health",
-                            "Physical Injury",
-                            "I do not know"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 70
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "7uv8nxe6xik3",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.352426,
-                    50.812831
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "I do not want to say"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 14
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "3y9ai26rza2j",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.332525,
-                    50.810395
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Poor Mental Health"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 0
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "77tcs8lu23r8",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.360189,
-                    50.818564
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "Heartbreak"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 100
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "93jsk4mo73ez",
-                "responseNumber": "1"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.361494,
-                    50.818818
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "World City Hypothesis",
-                            "Poor Mental Health",
-                            "Physical Injury",
-                            "Belgian Bureaucracy"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 78
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "3gky34t4i4g4",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.361238,
-                    50.818843
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "World City Hypothesis"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 53
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "8mp6e6cx2hr7",
-                "responseNumber": "0"
-            }
-        },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    4.364891,
-                    50.820134
-                ]
-            },
-            "properties": {
-                "popup": [
-                    {
-                        "question": "Why did you cry?",
-                        "response": [
-                            "I do not know"
-                        ]
-                    },
-                    {
-                        "question": "How many tears",
-                        "response": 20
-                    },
-                    {
-                        "question": "Please upload a picture/video of you crying.",
-                        "response": null
-                    }
-                ],
-                "elementId": "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
-                "respondentId": "3gky34t4i4g4",
-                "responseNumber": "1"
-            }
-        }
-    ]
-}
-	
-
-var geojsonMarkerOptions = {
-    color: 'red',
-    fillColor: '#f03',
-    fillOpacity: 0.5,
-    radius: 8
-};
-
-function getMarkerRadius(feature) {
-    var response = feature.properties.popup.find(function (popupItem) {
-        return popupItem.question === "How many tears";
-    }).response;
-
-	const answer = response ? response / 5 : 5;
-	console.log("market readus answer", answer)
-	return answer;
-}
-
-// Define a function to create a custom marker for each feature in the GeoJSON data
-function createCustomMarker(feature, latlng) {
-    var radius = getMarkerRadius(feature);
-    var markerOptions = {
-        radius: radius,
-        fillColor: "#71a5c5",
-        color: "#000",
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.8
-    };
-    
-    // Add a popup to display the value of "How many tears" response when the user hovers over the marker
-    var popupContent = feature.properties.popup.find(function (popupItem) {
-        return popupItem.question === "How many tears";
-    }).response;
-
-    // if you don't know how many tears you cried make it red
-    if (!popupContent){
-        markerOptions.fillColor = "#ff0000"
-    }
-
-	var marker = L.circleMarker(latlng, markerOptions);
-    marker.bindPopup(popupContent ? popupContent + " tears" : "Unknown");
-    
-    // Add an event listener for the mouseover event to open the popup
-    marker.on("mouseover", function (event) {
-        event.target.openPopup();
-    });
-    
-    return marker;
-}
-
-L.geoJSON(geojsonFeature, {
-    pointToLayer: createCustomMarker
-}).addTo(map);
-
-	// L.geoJSON(geojsonFeature).addTo(map);
-
-      map.on("load", function () {
-        map.addSource("my-data", {
-          type: "geojson",
-          data: "./geo.json",
-        });
-
-        map.addLayer({
-          id: "my-icons",
-          type: "circle",
-          source: "my-data",
-          paint: {
-            "circle-radius": [
-              "interpolate",
-              ["linear"],
-              ["get", "size"],
-              0,
-              5,
-              10,
-              50,
-            ],
-            "circle-color": "blue",
           },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.370821, 50.835534],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 100,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "8uw7ork837i7",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.372209, 50.836364],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak", "Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 25,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "33spl276vic9",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.417566, 50.837114],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["I do not want to say"],
+                },
+                {
+                  question: "How many tears",
+                  response: 90,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "2ujh9yub6en3",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.402182, 50.844917],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["I do not know"],
+                },
+                {
+                  question: "How many tears",
+                  response: 71,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "6iz27f2w99o9",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.391037, 50.857711],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [],
+                },
+                {
+                  question: "How many tears",
+                  response: null,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "46tiy6gac7z4",
+              responseNumber: "2",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.375456, 50.848236],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [
+                    "Heartbreak",
+                    "Poor Mental Health",
+                    "Physical Injury",
+                    "I do not know",
+                  ],
+                },
+                {
+                  question: "How many tears",
+                  response: 70,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "2e4ewb8fjk2a",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.488791, 50.900437],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak"],
+                },
+                {
+                  question: "How many tears",
+                  response: 44,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "239ztt2trr69",
+              responseNumber: "2",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.4003, 50.818539],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["World City Hypothesis"],
+                },
+                {
+                  question: "How many tears",
+                  response: 16,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "8ieu42k6gpo4",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.431855, 50.821984],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak"],
+                },
+                {
+                  question: "How many tears",
+                  response: null,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "3xx92jc2i443",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.395807, 50.822457],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 20,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "7ag7jyb2m9n6",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.395481, 50.822554],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["World City Hypothesis"],
+                },
+                {
+                  question: "How many tears",
+                  response: 23,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "84roc2b79427",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.395392, 50.822706],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["World City Hypothesis"],
+                },
+                {
+                  question: "How many tears",
+                  response: 100,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "2ay377g2imf7",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.394891, 50.823051],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [],
+                },
+                {
+                  question: "How many tears",
+                  response: 97,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "93jsk4mo73ez",
+              responseNumber: "2",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.393127, 50.822772],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["World City Hypothesis"],
+                },
+                {
+                  question: "How many tears",
+                  response: 20,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "2we2sdw8hgs9",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.393934, 50.823758],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak"],
+                },
+                {
+                  question: "How many tears",
+                  response: 100,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "7uv8nxe6xik3",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.386797, 50.826894],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak", "Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 97,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response:
+                    "https://d24tbo0jkzipyh.cloudfront.net/uploads/responses/32f4eka6l373/c79add29-25ff-4949-9b29-2c2dae6f6a23.jpeg",
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "4w2lmc3iis43",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.379155, 50.813853],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 97,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "3xm76ud477ae",
+              responseNumber: "2",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.393466, 50.815789],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["I do not know"],
+                },
+                {
+                  question: "How many tears",
+                  response: 100,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "374ec3mnh4b8",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.386134, 50.816316],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak"],
+                },
+                {
+                  question: "How many tears",
+                  response: 99,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "239ztt2trr69",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.374391, 50.810425],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak"],
+                },
+                {
+                  question: "How many tears",
+                  response: 0,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "4kzr7utj9x77",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.409701, 50.813493],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["I do not know"],
+                },
+                {
+                  question: "How many tears",
+                  response: null,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "4c9vko6lea88",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.375495, 50.810813],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak"],
+                },
+                {
+                  question: "How many tears",
+                  response: null,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "93jsk4mo73ez",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.378081, 50.806804],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 82,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "46tiy6gac7z4",
+              responseNumber: "5",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.380783, 50.817576],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak"],
+                },
+                {
+                  question: "How many tears",
+                  response: 62,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "4w2lmc3iis43",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.375695, 50.818411],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak"],
+                },
+                {
+                  question: "How many tears",
+                  response: 71,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "7l79dht7jlg3",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.333673, 50.835476],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [
+                    "World City Hypothesis",
+                    "Heartbreak",
+                    "Poor Mental Health",
+                  ],
+                },
+                {
+                  question: "How many tears",
+                  response: 77,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "46tiy6gac7z4",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.336142, 50.835713],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 69,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "46tiy6gac7z4",
+              responseNumber: "3",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.366424, 50.838905],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [
+                    "World City Hypothesis",
+                    "Poor Mental Health",
+                    "Belgian Bureaucracy",
+                  ],
+                },
+                {
+                  question: "How many tears",
+                  response: 72,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "26myc8vi7yo7",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.327318, 50.837241],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak", "Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 57,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "2e4ewb8fjk2a",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.340915, 50.848647],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: null,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "974v6tuo3vl7",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.340567, 50.844931],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 73,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "8ieu42k6gpo4",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.366952, 50.852439],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["I do not know"],
+                },
+                {
+                  question: "How many tears",
+                  response: 25,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "7jf8om4zf638",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.369507, 50.836074],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak"],
+                },
+                {
+                  question: "How many tears",
+                  response: 0,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "4kzr7utj9x77",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.370683, 50.869102],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["I do not know"],
+                },
+                {
+                  question: "How many tears",
+                  response: null,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "974v6tuo3vl7",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.348481, 50.824551],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [],
+                },
+                {
+                  question: "How many tears",
+                  response: null,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "3xm76ud477ae",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.347103, 50.828372],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [],
+                },
+                {
+                  question: "How many tears",
+                  response: null,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "8uw7ork837i7",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.344627, 50.830557],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak", "Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: null,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "2e4ewb8fjk2a",
+              responseNumber: "2",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.326603, 50.834653],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [],
+                },
+                {
+                  question: "How many tears",
+                  response: null,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "46tiy6gac7z4",
+              responseNumber: "4",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.32711, 50.835351],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [
+                    "World City Hypothesis",
+                    "Heartbreak",
+                    "Poor Mental Health",
+                  ],
+                },
+                {
+                  question: "How many tears",
+                  response: 100,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "4xs77nmh9gm7",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.332999, 50.834511],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak", "Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 75,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "3gky34t4i4g4",
+              responseNumber: "2",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.365096, 50.834391],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Belgian Bureaucracy"],
+                },
+                {
+                  question: "How many tears",
+                  response: null,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response:
+                    "https://d24tbo0jkzipyh.cloudfront.net/uploads/responses/32f4eka6l373/cd73e50c-9e7b-4a5f-9de2-821be8412e31.jpeg",
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "3xx92jc2i443",
+              responseNumber: "2",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.327168, 50.835173],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak"],
+                },
+                {
+                  question: "How many tears",
+                  response: 40,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "239ztt2trr69",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.327174, 50.835405],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [
+                    "World City Hypothesis",
+                    "Heartbreak",
+                    "Poor Mental Health",
+                  ],
+                },
+                {
+                  question: "How many tears",
+                  response: 100,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "46tiy6gac7z4",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.334272, 50.803599],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 0,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "4e6g44hjx8ia",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.366404, 50.81667],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak", "Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 71,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "3xm76ud477ae",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.336551, 50.804494],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [
+                    "World City Hypothesis",
+                    "Heartbreak",
+                    "Poor Mental Health",
+                    "Physical Injury",
+                    "I do not know",
+                  ],
+                },
+                {
+                  question: "How many tears",
+                  response: 70,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "7uv8nxe6xik3",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.352426, 50.812831],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["I do not want to say"],
+                },
+                {
+                  question: "How many tears",
+                  response: 14,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "3y9ai26rza2j",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.332525, 50.810395],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Poor Mental Health"],
+                },
+                {
+                  question: "How many tears",
+                  response: 0,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "77tcs8lu23r8",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.360189, 50.818564],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["Heartbreak"],
+                },
+                {
+                  question: "How many tears",
+                  response: 100,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "93jsk4mo73ez",
+              responseNumber: "1",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.361494, 50.818818],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: [
+                    "World City Hypothesis",
+                    "Poor Mental Health",
+                    "Physical Injury",
+                    "Belgian Bureaucracy",
+                  ],
+                },
+                {
+                  question: "How many tears",
+                  response: 78,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "3gky34t4i4g4",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.361238, 50.818843],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["World City Hypothesis"],
+                },
+                {
+                  question: "How many tears",
+                  response: 53,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "8mp6e6cx2hr7",
+              responseNumber: "0",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [4.364891, 50.820134],
+            },
+            properties: {
+              popup: [
+                {
+                  question: "Why did you cry?",
+                  response: ["I do not know"],
+                },
+                {
+                  question: "How many tears",
+                  response: 20,
+                },
+                {
+                  question: "Please upload a picture/video of you crying.",
+                  response: null,
+                },
+              ],
+              elementId: "f6016dc6-0297-4aaf-b305-a89b7dda2cd8",
+              respondentId: "3gky34t4i4g4",
+              responseNumber: "1",
+            },
+          },
+        ],
+      };
+
+      var geojsonMarkerOptions = {
+        color: "red",
+        fillColor: "#f03",
+        fillOpacity: 0.5,
+        radius: 8,
+      };
+
+      function getMarkerRadius(feature) {
+        var response = feature.properties.popup.find(function (popupItem) {
+          return popupItem.question === "How many tears";
+        }).response;
+
+        const answer = response ? response / 5 : 5;
+        console.log("market readus answer", answer);
+        return answer;
+      }
+
+      // Define a function to create a custom marker for each feature in the GeoJSON data
+      function createCustomMarker(feature, latlng) {
+        var radius = getMarkerRadius(feature);
+        var markerOptions = {
+          radius: radius,
+          fillColor: "#71a5c5",
+          color: "#000",
+          weight: 1,
+          opacity: 1,
+          fillOpacity: 0.8,
+        };
+
+        // Add a popup to display the value of "How many tears" response when the user hovers over the marker
+        var popupContent = feature.properties.popup.find(function (popupItem) {
+          return popupItem.question === "How many tears";
+        }).response;
+
+        // if you don't know how many tears you cried make it red
+        if (!popupContent) {
+          markerOptions.fillColor = "#ff0000";
+        }
+
+        var marker = L.circleMarker(latlng, markerOptions);
+        marker.bindPopup(popupContent ? popupContent + " tears" : "Unknown");
+
+        // Add an event listener for the mouseover event to open the popup
+        marker.on("mouseover", function (event) {
+          event.target.openPopup();
         });
-      });
+
+        return marker;
+      }
+
+      L.geoJSON(geojsonFeature, {
+        pointToLayer: createCustomMarker,
+      }).addTo(map);
     </script>
   </body>
 </html>
