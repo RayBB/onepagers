@@ -1,0 +1,24 @@
+{
+    "name": "Share PWA",
+    "short_name": "SHARE_PWA",
+    "description": "Just wanna share text to my PWA",
+    "scope": "/onepagers/sites/shareable-pwa/",
+    "start_url": "/onepagers/sites/shareable-pwa/",
+    "share_target": {
+        "action": "/onepagers/sites/shareable-pwa/",
+        "method": "GET",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    },
+    "display": "browser",
+    "icons": [
+        {
+            "src": "/github-page-pwa/img/icon.png",
+            "type": "image/png",
+            "sizes": "700x700"
+        }
+    ]
+}
