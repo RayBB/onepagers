@@ -9,7 +9,7 @@
         "method": "GET",
         "params": {
             "title": "title",
-            "text": "text",
+            "text": "q",
             "url": "url"
         }
     },
