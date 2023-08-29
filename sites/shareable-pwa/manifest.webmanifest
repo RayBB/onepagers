@@ -14,11 +14,4 @@
         }
     },
     "display": "browser",
-    "icons": [
-        {
-            "src": "/github-page-pwa/img/icon.png",
-            "type": "image/png",
-            "sizes": "700x700"
-        }
-    ]
 }
