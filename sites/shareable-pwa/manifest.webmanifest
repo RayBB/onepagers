@@ -14,4 +14,11 @@
         }
     },
     "display": "browser",
+    "icons": [
+        {
+            "src": "https://upload.wikimedia.org/wikipedia/commons/a/a2/External_link_green_icon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any"
+        }
+    ]
 }
