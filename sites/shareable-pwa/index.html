@@ -17,4 +17,9 @@
     <h1>Shareable PWA</h1>
     <p>The purpose is to make a PWA that can work </p>
   </body>
+  <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register("/serviceworker.js");
+    }
+  </script>
 </html>
