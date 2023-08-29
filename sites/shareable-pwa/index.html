@@ -67,10 +67,10 @@
 
     if (isValidHttpUrl(foundParam)){
         console.log("redirecting to Kagi");
-        //window.location.replace(`https://kagi.com/summarizer/index.html?url=${foundParam}&target_language=&summary=takeaway`);
+        window.location.replace(`https://kagi.com/summarizer/index.html?url=${foundParam}&target_language=&summary=takeaway`);
     } else if (foundParam.length > 0) {
         console.log("redirecting to OL");
-        //window.location.replace(`https://openlibrary.org/search?q=${foundParam}`);
+        window.location.replace(`https://openlibrary.org/search?q=${foundParam}`);
     }
 
   </script>
