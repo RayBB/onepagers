@@ -1,25 +1,77 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
 
-    <link rel="canonical" href="https://www.rayberger.org/onepagers/sites/shareable-pwa/" />
-    <link rel="manifest" href="https://www.rayberger.org/onepagers/sites/shareable-pwa/manifest.webmanifest">
+    <link
+      rel="canonical"
+      href="https://www.rayberger.org/onepagers/sites/shareable-pwa/"
+    />
+    <link
+      rel="manifest"
+      href="https://www.rayberger.org/onepagers/sites/shareable-pwa/manifest.webmanifest"
+    />
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
 
     <title>Shareable PWA</title>
   </head>
   <body>
     <h1>Shareable PWA</h1>
-    <p>The purpose is to make a PWA that can work </p>
+    <p>
+      The purpose is to make a PWA that can work having things shared to it.
+    </p>
+    <h2>Params Found:</h2>
+    <div id="paramsDiv"></div>
   </body>
   <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register("serviceworker.js");
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("serviceworker.js");
     }
+
+    const possibleParams = ["text", "title", "url"];
+    let params = new URL(document.location).searchParams;
+    let foundParam = "";
+    for (let i of possibleParams) {
+      const result = params.get(i);
+      if (result) {
+        document.querySelector(
+          "#paramsDiv"
+        ).innerHTML += `<p>${i}: ${result}</p>`;
+        foundParam = result;
+      }
+    }
+
+    function isValidHttpUrl(string) {
+      let url;
+
+      try {
+        url = new URL(string);
+      } catch (_) {
+        return false;
+      }
+
+      return url.protocol === "http:" || url.protocol === "https:";
+    }
+
+    if (isValidHttpUrl(foundParam)){
+        console.log("redirecting to Kagi");
+        window.location.replace(`https://kagi.com/summarizer/index.html?url=${foundParam}&target_language=&summary=takeaway`);
+    } else if (foundParam.length > 0) {
+        console.log("redirecting to OL");
+        window.location.replace(`https://openlibrary.org/search?q=${foundParam}`);
+    }
+
   </script>
 </html>
