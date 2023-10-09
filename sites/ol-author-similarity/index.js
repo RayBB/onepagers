@@ -85,15 +85,9 @@ const Counter = {
                     "value": `<a target="_blank" href="https://openlibrary.org/authors/${this.authorId}">${this.authorId}</a>`
                 })
             }
-            if (this.authorJson?.type?.key === "/type/redirect") {
-                toDisplay.push({"description": "Redirect", "value": "True"})
-            }
-            if (this.authorJson.name) {
-                toDisplay.push({"description": "Name", "value": this.authorJson.name})
-            }
-            if (this.authorJson.name) {
-                toDisplay.push({"description": "Works", "value": this.authorWorksJson?.entries?.length || '...'})
-            }
+            const invisibleCharacter = '&#xfeff;'; // To keep things aligned https://stackoverflow.com/a/22588838/620699
+            toDisplay.push({"description": "Name", "value": this.authorJson.name || invisibleCharacter})
+            toDisplay.push({"description": "Works", "value": this.authorWorksJson?.entries?.length || invisibleCharacter})
             if (this.authorJson.birth_date || this.authorJson.death_date) {
                 toDisplay.push({
                     "description": "Lived",
@@ -105,6 +99,9 @@ const Counter = {
                     "description": "Wikidata",
                     "value": `<a target="_blank" href="https://www.wikidata.org/wiki/${this.authorJson.remote_ids.wikidata}">${this.authorJson.remote_ids.wikidata}</a>`
                 })
+            }
+            if (this.authorJson?.type?.key === "/type/redirect") {
+                toDisplay.push({"description": "Redirect", "value": "True"})
             }
             return toDisplay;
         }
