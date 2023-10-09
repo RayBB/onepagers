@@ -1,0 +1,24 @@
+{
+    "name": "Share PWA",
+    "short_name": "SHARE_PWA",
+    "description": "Just wanna share text to my PWA",
+    "scope": "/onepagers/sites/shareable-pwa/",
+    "start_url": "/onepagers/sites/shareable-pwa/",
+    "share_target": {
+        "action": "/onepagers/sites/shareable-pwa/",
+        "method": "GET",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    },
+    "display": "minimal-ui",
+    "icons": [
+        {
+            "src": "https://upload.wikimedia.org/wikipedia/commons/a/a2/External_link_green_icon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any"
+        }
+    ]
+}
