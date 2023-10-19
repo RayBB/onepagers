@@ -63,15 +63,16 @@
     let paramsHTML = "";
     for (const paramName of possibleParams) {
       const paramValue = params.get(paramName);
-      if (paramValue === "Share via") continue; // This is the default from Firefox on Android and never useful
+       // This is the default share title from Firefox on Android and never useful so lets skip it
+      if (paramValue === "Share via") continue;
       if (paramValue) {
         paramsHTML += `
-        <h2 class="form-check">
+        <h3 class="form-check">
           <input class="form-check-input param-${paramName}" type="radio" name="exampleRadios" id="exampleRadios${i}" value="${paramValue}" checked>
           <label class="form-check-label" for="exampleRadios${i}">
-            ${paramName}: ${paramValue}
+            ${paramValue}
           </label>
-        </h2>`
+        </h3>`
         i++;
       }
     }
