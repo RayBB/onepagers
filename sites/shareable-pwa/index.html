@@ -34,24 +34,34 @@
     </p>
     <h2>Params Found:</h2>
     <div id="paramsDiv"></div>
+    <button id="kagiBtn" type="button" class="btn btn-primary">Kagi Sum</button>
+    <button id="openlibraryBtn" type="button" class="btn btn-primary">OpenLibrary</button>
+    <button id="archiveBtn" type="button" class="btn btn-primary">Archive.is</button>
   </body>
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("serviceworker.js");
     }
 
-    const possibleParams = ["text", "title", "url"];
+    const possibleParams = ["title", "text", "url"];
     let params = new URL(document.location).searchParams;
-    let foundParam = "";
-    for (let i of possibleParams) {
-      const result = params.get(i);
+    let i = 1;
+    let paramsHTML = "";
+    for (const paramName of possibleParams) {
+      const result = params.get(paramName);
       if (result) {
-        document.querySelector(
-          "#paramsDiv"
-        ).innerHTML += `<p>${i}: ${result}</p>`;
-        foundParam = result;
+        paramsHTML += `
+        <h2 class="form-check">
+          <input class="form-check-input param-${paramName}" type="radio" name="exampleRadios" id="exampleRadios${i}" value="${result}" checked>
+          <label class="form-check-label" for="exampleRadios${i}">
+            ${paramName}: ${result}
+          </label>
+        </h2>`
+        i++;
       }
     }
+
+    document.querySelector("#paramsDiv").innerHTML = paramsHTML;
 
     function isValidHttpUrl(string) {
       let url;
@@ -64,13 +74,58 @@
 
       return url.protocol === "http:" || url.protocol === "https:";
     }
+    function isProbablyISBN(string){
+      const cleanedStr = string
+      .replace(/-/g, "")
+      .replace(/ /g, "")
+      .replace(/_/g, "");
+      return cleanedStr.length === 10 || cleanedStr.length === 13;
+    }
 
-    if (isValidHttpUrl(foundParam)){
-        console.log("redirecting to Kagi");
-        window.location.replace(`https://kagi.com/summarizer/index.html?url=${foundParam}&target_language=&summary=takeaway`);
-    } else if (foundParam.length > 0) {
-        console.log("redirecting to OL");
-        window.location.replace(`https://openlibrary.org/search?q=${foundParam}`);
+    function getSelectedParam(){
+      const radios = document.querySelectorAll('input[type=radio][name="exampleRadios"]');
+      let selectedValue;
+      for (const radio of radios) {
+        if (radio.checked) {
+          selectedValue = radio.value;
+          break;
+        }
+      }
+      return selectedValue;
+    }
+    
+    function toKagi(selectedParam){
+      window.location.replace(`https://kagi.com/summarizer/index.html?url=${selectedParam}&target_language=&summary=takeaway`);
+    }
+    function toOpenLibrary(selectedParam){
+      window.location.replace(`https://openlibrary.org/search?q=${selectedParam}`);
+    }
+    function toArchiveIs(selectedParam){
+      window.location.replace(`https://archive.is/?run=1&url=${selectedParam}`);
+    }
+
+    function addClickListener(buttonId, targetFunction) {
+      document.querySelector(buttonId).addEventListener("click", () => {
+        const selectedParam = getSelectedParam();
+        targetFunction(selectedParam);
+      });
+    }
+
+    addClickListener("#kagiBtn", toKagi);
+    addClickListener("#openlibraryBtn", toOpenLibrary);
+    addClickListener("#archiveBtn", toArchiveIs);
+
+    // Select the params that are URLs
+    params.forEach((value, key) => {
+      if (isValidHttpUrl(value)) {
+        document.querySelector(`.param-${key}`).checked = true;
+      }
+    });
+
+    // Go to OL if we think there is an ISBN
+    const isbns = Array.from(params.values()).filter(isProbablyISBN);
+    if (isbns.length > 0){
+      toOpenLibrary(isbns[0]);
     }
 
   </script>
