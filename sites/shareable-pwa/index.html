@@ -27,7 +27,7 @@
 
     <title>Shareable PWA</title>
   </head>
-  <body>
+  <body class="p-3">
     <h1>Shareable PWA</h1>
     <p>
       The purpose is to make a PWA that can work having things shared to it.
@@ -59,21 +59,19 @@
 
     const possibleParams = ["title", "text", "url"];
     let params = new URL(document.location).searchParams;
-    let i = 1;
     let paramsHTML = "";
-    for (const paramName of possibleParams) {
+    for (const [i, paramName] of possibleParams.entries()) {
       const paramValue = params.get(paramName);
+
        // This is the default share title from Firefox on Android and never useful so lets skip it
       if (paramValue === "Share via") continue;
+
       if (paramValue) {
         paramsHTML += `
         <h3 class="form-check">
           <input class="form-check-input param-${paramName}" type="radio" name="exampleRadios" id="exampleRadios${i}" value="${paramValue}" checked>
-          <label class="form-check-label" for="exampleRadios${i}">
-            ${paramValue}
-          </label>
+          <label class="form-check-label w-100 text-break" for="exampleRadios${i}">${paramValue}</label>
         </h3>`
-        i++;
       }
     }
 
