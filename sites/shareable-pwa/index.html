@@ -62,13 +62,14 @@
     let i = 1;
     let paramsHTML = "";
     for (const paramName of possibleParams) {
-      const result = params.get(paramName);
-      if (result) {
+      const paramValue = params.get(paramName);
+      if (paramValue === "Share via") continue; // This is the default from Firefox on Android and never useful
+      if (paramValue) {
         paramsHTML += `
         <h2 class="form-check">
-          <input class="form-check-input param-${paramName}" type="radio" name="exampleRadios" id="exampleRadios${i}" value="${result}" checked>
+          <input class="form-check-input param-${paramName}" type="radio" name="exampleRadios" id="exampleRadios${i}" value="${paramValue}" checked>
           <label class="form-check-label" for="exampleRadios${i}">
-            ${paramName}: ${result}
+            ${paramName}: ${paramValue}
           </label>
         </h2>`
         i++;
