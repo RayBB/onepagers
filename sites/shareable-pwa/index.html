@@ -30,7 +30,7 @@
   <body class="p-3">
     <h1>Shareable PWA</h1>
     <p>
-      The purpose is to make a PWA that can work having things shared to it.
+      Share to this PWA, go to the places I like.
     </p>
     <h2>Params Found:</h2>
     <div id="paramsDiv"></div>
@@ -48,9 +48,11 @@
         border-color: black;
       }
     </style>
-    <button id="kagiBtn" type="button" class="btn">Kagi Sum</button>
-    <button id="openlibraryBtn" type="button" class="btn">OpenLibrary</button>
-    <button id="archiveBtn" type="button" class="btn">Archive.is</button>
+    <div class="d-flex justify-content-around">
+      <a id="kagiBtn" type="button" class="btn">Kagi Sum</a>
+      <a id="openlibraryBtn" type="button" class="btn">OpenLibrary</a>
+      <a id="archiveBtn" type="button" class="btn">Archive.is</a>
+    </div>
   </body>
   <script>
     if ("serviceWorker" in navigator) {
