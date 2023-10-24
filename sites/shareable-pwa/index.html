@@ -95,7 +95,7 @@
       .replace(/-/g, "")
       .replace(/ /g, "")
       .replace(/_/g, "");
-      return cleanedStr.length === 10 || cleanedStr.length === 13;
+      return (cleanedStr.length === 10 || cleanedStr.length === 13) && !isNan(cleanedStr);
     }
 
     function getSelectedParam(){
