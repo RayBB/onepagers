@@ -45,19 +45,17 @@
             .then(response => response.text())
             .then(url => {
                 url = url.replace("https://transfer.sh/", "https://transfer.sh/get/"); // Get the download URL
+                window.open(buildKagiUrl(url), '_blank');
+
                 loading.style.display = "none";
                 responseUrl.innerHTML = `<strong>Response URL:</strong> <a href="${url}" target="_blank">${url}</a>`;
                 
-                // Add the uploaded file to the list and save it in local storage
-                const uploadedFileItem = document.createElement("li");
-                uploadedFileItem.innerHTML = `<a href="${url}" target="_blank">${file.name}</a>`;
-                uploadedFilesList.appendChild(uploadedFileItem);
-
-                const storedFiles = JSON.parse(localStorage.getItem("uploadedFiles") || "[]");
+                // Save urls to local storage and display it
+                const storedFiles = getFileHistory();
                 storedFiles.push({ name: file.name, url });
                 localStorage.setItem("uploadedFiles", JSON.stringify(storedFiles));
+                displayUploadedFiles();
 
-                window.open(buildKagiUrl(url), '_blank');
             })
             .catch(error => {
                 loading.style.display = "none";
@@ -65,9 +63,11 @@
                 console.error(error);
             });
         }
+        function getFileHistory() {
+            return JSON.parse(localStorage.getItem("uploadedFiles") || "[]");
+        }
         function removeUploadedFileByName(name) {
-            const storedFiles = JSON.parse(localStorage.getItem("uploadedFiles") || "[]");
-            const updatedFiles = storedFiles.filter(file => file.name !== name);
+            const updatedFiles = getFileHistory().filter(file => file.name !== name);
             localStorage.setItem("uploadedFiles", JSON.stringify(updatedFiles));
         }
 
@@ -76,8 +76,8 @@
         }
 
         function displayUploadedFiles() {
-            const storedFiles = JSON.parse(localStorage.getItem("uploadedFiles") || "[]");
-            storedFiles.reverse().forEach(file => {
+            uploadedFilesList.innerHTML = "";
+            getFileHistory().reverse().forEach(file => {
                 const uploadedFileItem = document.createElement("li");
                 uploadedFileItem.innerHTML += ` <a href="${file.url}" target="_blank">${file.name}</a> - <a href="${buildKagiUrl(file.url)}" target="_blank">Kagi</a>`;
 
