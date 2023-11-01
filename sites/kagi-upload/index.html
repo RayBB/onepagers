@@ -57,7 +57,7 @@
                 storedFiles.push({ name: file.name, url });
                 localStorage.setItem("uploadedFiles", JSON.stringify(storedFiles));
 
-                // window.location.href = makeKagiUrl(url);
+                window.open(buildKagiUrl(url), '_blank');
             })
             .catch(error => {
                 loading.style.display = "none";
@@ -71,7 +71,7 @@
             localStorage.setItem("uploadedFiles", JSON.stringify(updatedFiles));
         }
 
-        function makeKagiUrl(url) {
+        function buildKagiUrl(url) {
             return 'https://kagi.com/summarizer/index.html?target_language=&summary=takeaway&url=' + encodeURIComponent(url);
         }
 
@@ -79,7 +79,7 @@
             const storedFiles = JSON.parse(localStorage.getItem("uploadedFiles") || "[]");
             storedFiles.reverse().forEach(file => {
                 const uploadedFileItem = document.createElement("li");
-                uploadedFileItem.innerHTML += ` <a href="${file.url}" target="_blank">${file.name}</a> - <a href="${makeKagiUrl(file.url)}" target="_blank">Kagi</a>`;
+                uploadedFileItem.innerHTML += ` <a href="${file.url}" target="_blank">${file.name}</a> - <a href="${buildKagiUrl(file.url)}" target="_blank">Kagi</a>`;
 
                 const b = document.createElement("button");
                 b.innerText = "X";
