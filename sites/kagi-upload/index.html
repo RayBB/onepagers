@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kagi Upload and Summarize</title>
+</head>
+<body>
+    <h1>Upload to somewhere and Summarize on Kagi</h1>
+
+    <div id="dropZone" style="border: 2px dashed #ccc; padding: 20px; text-align: center;">
+        <p>Drop a file anywhere on this page to upload</p>
+    </div>
+
+    <input type="file" id="fileInput" style="display: none;" />
+
+    <p id="responseUrl"></p>
+
+    <div id="loading" style="display: none; text-align: center;">
+        <p>Loading...</p>
+    </div>
+
+    <div>
+        <h2>Previously Uploaded Files</h2>
+        <ul id="uploadedFilesList"></ul>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById("dropZone");
+        const fileInput = document.getElementById("fileInput");
+        const responseUrl = document.getElementById("responseUrl");
+        const loading = document.getElementById("loading");
+        const uploadedFilesList = document.getElementById("uploadedFilesList");
+
+        function uploadFile(file) {
+            loading.style.display = "block";
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            // const url = 'https://corsproxy.org/?' + encodeURIComponent("https://transfer.sh/" + file.name);
+            const url = 'https://corsproxy.org/?' + encodeURIComponent("https://0x0.st/");
+            fetch(url, {
+                method: "POST",
+                body: formData,
+            })
+            .then(response => response.text())
+            .then(url => {
+                url = url.replace("https://transfer.sh/", "https://transfer.sh/get/"); // Get the download URL
+                loading.style.display = "none";
+                responseUrl.innerHTML = `<strong>Response URL:</strong> <a href="${url}" target="_blank">${url}</a>`;
+                
+                // Add the uploaded file to the list and save it in local storage
+                const uploadedFileItem = document.createElement("li");
+                uploadedFileItem.innerHTML = `<a href="${url}" target="_blank">${file.name}</a>`;
+                uploadedFilesList.appendChild(uploadedFileItem);
+
+                const storedFiles = JSON.parse(localStorage.getItem("uploadedFiles") || "[]");
+                storedFiles.push({ name: file.name, url });
+                localStorage.setItem("uploadedFiles", JSON.stringify(storedFiles));
+
+                // window.location.href = makeKagiUrl(url);
+            })
+            .catch(error => {
+                loading.style.display = "none";
+                responseUrl.innerHTML = "Error uploading the file.";
+                console.error(error);
+            });
+        }
+        function removeUploadedFileByName(name) {
+            const storedFiles = JSON.parse(localStorage.getItem("uploadedFiles") || "[]");
+            const updatedFiles = storedFiles.filter(file => file.name !== name);
+            localStorage.setItem("uploadedFiles", JSON.stringify(updatedFiles));
+        }
+
+        function makeKagiUrl(url) {
+            return 'https://kagi.com/summarizer/index.html?target_language=&summary=takeaway&url=' + encodeURIComponent(url);
+        }
+
+        function displayUploadedFiles() {
+            const storedFiles = JSON.parse(localStorage.getItem("uploadedFiles") || "[]");
+            storedFiles.reverse().forEach(file => {
+                const uploadedFileItem = document.createElement("li");
+                uploadedFileItem.innerHTML += ` <a href="${file.url}" target="_blank">${file.name}</a> - <a href="${makeKagiUrl(file.url)}" target="_blank">Kagi</a>`;
+
+                const b = document.createElement("button");
+                b.innerText = "X";
+                b.addEventListener("click", () => {
+                    console.log('clicked')
+                    removeUploadedFileByName(file.name);
+                    uploadedFileItem.remove();
+                });
+                uploadedFileItem.prepend(b);// prepend so it goes first but we add it last so onclick doesn't get broken.
+                
+                uploadedFilesList.appendChild(uploadedFileItem);
+            });
+        }
+
+        // Display previously uploaded files on page load
+        displayUploadedFiles();
+
+        dropZone.addEventListener("paste", (event) => {
+            event.preventDefault();
+            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].kind === "file") {
+                    const file = items[i].getAsFile();
+                    uploadFile(file);
+                }
+            }
+        });
+
+        dropZone.addEventListener("drop", (event) => {
+            event.preventDefault();
+            const files = event.dataTransfer.files;
+
+            for (let i = 0; i < files.length; i++) {
+                uploadFile(files[i]);
+            }
+        });
+
+        dropZone.addEventListener("click", () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", () => {
+            const files = fileInput.files;
+
+            for (let i = 0; i < files.length; i++) {
+                uploadFile(files[i]);
+            }
+        });
+
+        dropZone.addEventListener("dragover", (event) => {
+            event.preventDefault();
+        });
+    </script>
+</body>
+</html>
