@@ -10,7 +10,7 @@
         <p>Drop a file anywhere on this page to upload</p>
     </div>
 
-    <input type="file" id="fileInput" style="display: none;" />
+    <input type="file" id="fileInput" style="display: none;" multiple />
 
     <p id="responseUrl"></p>
 
@@ -97,25 +97,17 @@
         // Display previously uploaded files on page load
         displayUploadedFiles();
 
-        dropZone.addEventListener("paste", (event) => {
+        // Listen for paste event on whole window, not just dropzone
+        window.addEventListener("paste", (event) => {
             event.preventDefault();
             const items = (event.clipboardData || event.originalEvent.clipboardData).items;
-
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].kind === "file") {
-                    const file = items[i].getAsFile();
-                    uploadFile(file);
-                }
-            }
+            Array.from(items).filter(item => item.kind === "file")
+            .forEach(item => uploadFile(item.getAsFile()));
         });
 
         dropZone.addEventListener("drop", (event) => {
             event.preventDefault();
-            const files = event.dataTransfer.files;
-
-            for (let i = 0; i < files.length; i++) {
-                uploadFile(files[i]);
-            }
+            Array.from(event.dataTransfer.files).forEach(uploadFile);
         });
 
         dropZone.addEventListener("click", () => {
@@ -123,11 +115,7 @@
         });
 
         fileInput.addEventListener("change", () => {
-            const files = fileInput.files;
-
-            for (let i = 0; i < files.length; i++) {
-                uploadFile(files[i]);
-            }
+            Array.from(files).forEach(uploadFile);
         });
 
         dropZone.addEventListener("dragover", (event) => {
