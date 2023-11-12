@@ -66,15 +66,15 @@
 
         function addUploadedFile(name, url){
             // Save urls to local storage and display it
-            removeUploadedFileByName(name); // first remove it if it already exists, then we put it at the top!
+            removeUploadedFileByUrl(url); // first remove it if it already exists, then we put it at the top!
             const storedFiles = getFileHistory();
             storedFiles.push({ name: name, url });
             localStorage.setItem("uploadedFiles", JSON.stringify(storedFiles));
             displayUploadedFiles();
         }
 
-        function removeUploadedFileByName(name) {
-            const updatedFiles = getFileHistory().filter(file => file.name !== name);
+        function removeUploadedFileByUrl(url) {
+            const updatedFiles = getFileHistory().filter(file => file.url !== url);
             localStorage.setItem("uploadedFiles", JSON.stringify(updatedFiles));
         }
 
@@ -92,7 +92,7 @@
                 b.innerText = "X";
                 b.addEventListener("click", () => {
                     console.log('clicked')
-                    removeUploadedFileByName(file.name);
+                    removeUploadedFileByUrl(file.url);
                     uploadedFileItem.remove();
                 });
                 uploadedFileItem.prepend(b);// prepend so it goes first but we add it last so onclick doesn't get broken.
