@@ -3,15 +3,12 @@
 <head>
     <title>Kagi Upload and Summarize</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 </head>
 <body>
     <h1>Upload to somewhere and Summarize on Kagi</h1>
 
-    <div id="dropZone" style="border: 2px dashed #ccc; padding: 20px; text-align: center;">
-        <p>Drop a file anywhere on this page to upload</p>
-    </div>
-
-    <input type="file" id="fileInput" style="display: none;" multiple />
+    <input type="file" id="fileInput" class="filepond" multiple />
 
     <p id="responseUrl"></p>
 
@@ -24,49 +21,61 @@
         <ul id="uploadedFilesList"></ul>
     </div>
 
+    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
     <script>
-        const dropZone = document.getElementById("dropZone");
         const fileInput = document.getElementById("fileInput");
         const responseUrl = document.getElementById("responseUrl");
         const loading = document.getElementById("loading");
         const uploadedFilesList = document.getElementById("uploadedFilesList");
+        const uploadUrl = 'https://corsproxy.org/?' + encodeURIComponent("https://0x0.st");
 
-        function uploadFile(file) {
-            loading.style.display = "block";
+        const pond = FilePond.create(fileInput, {
+            allowMultiple: true,
+            server: {
+                process: (fieldName, file, metadata, load, error, progress, abort) => {
+                    // Have to do it manually this way for now because https://github.com/pqina/filepond/issues/851
+                    const formData = new FormData();
+                    formData.append("file", file);
 
-            const formData = new FormData();
-            formData.append("file", file);
+                    fetch(uploadUrl, {
+                        method: "POST",
+                        body: formData
+                    })
+                    .on('progress', (e) => {
+                        progress(e.lengthComputable, e.loaded, e.total);
+                    })
+                    .then(response => response.text())
+                    .then(url => {
+                        window.open(buildKagiUrl(url), '_blank');
 
-            // const url = 'https://corsproxy.org/?' + encodeURIComponent("https://transfer.sh/" + file.name);
-            const url = 'https://corsproxy.org/?' + encodeURIComponent("https://0x0.st/");
-            fetch(url, {
-                method: "POST",
-                body: formData,
-            })
-            .then(response => response.text())
-            .then(url => {
-                url = url.replace("https://transfer.sh/", "https://transfer.sh/get/"); // Get the download URL
-                window.open(buildKagiUrl(url), '_blank');
+                        loading.style.display = "none";
+                        responseUrl.innerHTML = `<strong>Response URL:</strong> <a href="${url}" target="_blank">${url}</a>`;
 
-                loading.style.display = "none";
-                responseUrl.innerHTML = `<strong>Response URL:</strong> <a href="${url}" target="_blank">${url}</a>`;
-                
-                // Save urls to local storage and display it
-                const storedFiles = getFileHistory();
-                storedFiles.push({ name: file.name, url });
-                localStorage.setItem("uploadedFiles", JSON.stringify(storedFiles));
-                displayUploadedFiles();
+                        // Save urls to local storage and display it
+                        const storedFiles = getFileHistory();
+                        storedFiles.push({ name: file.name, url });
+                        localStorage.setItem("uploadedFiles", JSON.stringify(storedFiles));
+                        displayUploadedFiles();
+                        load(url);
+                    })
+                    
+                    .catch(err => {
+                        loading.style.display = "none";
+                        responseUrl.innerHTML = "Error uploading the file.";
+                        console.error(err);
+                        error(err);
+                    });
 
-            })
-            .catch(error => {
-                loading.style.display = "none";
-                responseUrl.innerHTML = "Error uploading the file.";
-                console.error(error);
-            });
+                }
+            }
         }
+        );
+        console.log("pond:", pond)
+
         function getFileHistory() {
             return JSON.parse(localStorage.getItem("uploadedFiles") || "[]");
         }
+
         function removeUploadedFileByName(name) {
             const updatedFiles = getFileHistory().filter(file => file.name !== name);
             localStorage.setItem("uploadedFiles", JSON.stringify(updatedFiles));
@@ -97,31 +106,6 @@
 
         // Display previously uploaded files on page load
         displayUploadedFiles();
-
-        // Listen for paste event on whole window, not just dropzone
-        window.addEventListener("paste", (event) => {
-            event.preventDefault();
-            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
-            Array.from(items).filter(item => item.kind === "file")
-            .forEach(item => uploadFile(item.getAsFile()));
-        });
-
-        dropZone.addEventListener("drop", (event) => {
-            event.preventDefault();
-            Array.from(event.dataTransfer.files).forEach(uploadFile);
-        });
-
-        dropZone.addEventListener("click", () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener("change", () => {
-            Array.from(files).forEach(uploadFile);
-        });
-
-        dropZone.addEventListener("dragover", (event) => {
-            event.preventDefault();
-        });
     </script>
 </body>
 </html>
