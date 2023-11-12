@@ -12,10 +12,6 @@
 
     <p id="responseUrl"></p>
 
-    <div id="loading" style="display: none; text-align: center;">
-        <p>Loading...</p>
-    </div>
-
     <div>
         <h2>Previously Uploaded Files</h2>
         <ul id="uploadedFilesList"></ul>
@@ -24,8 +20,6 @@
     <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
     <script>
         const fileInput = document.getElementById("fileInput");
-        const responseUrl = document.getElementById("responseUrl");
-        const loading = document.getElementById("loading");
         const uploadedFilesList = document.getElementById("uploadedFilesList");
         const uploadUrl = 'https://corsproxy.org/?' + encodeURIComponent("https://0x0.st");
 
@@ -37,35 +31,29 @@
                     const formData = new FormData();
                     formData.append("file", file);
 
-                    fetch(uploadUrl, {
-                        method: "POST",
-                        body: formData
-                    })
-                    .on('progress', (e) => {
-                        progress(e.lengthComputable, e.loaded, e.total);
-                    })
-                    .then(response => response.text())
-                    .then(url => {
-                        window.open(buildKagiUrl(url), '_blank');
+                    // We have to use this instead of fetch to report progress...
+                    const xhr = new XMLHttpRequest();
 
-                        loading.style.display = "none";
-                        responseUrl.innerHTML = `<strong>Response URL:</strong> <a href="${url}" target="_blank">${url}</a>`;
+                    function handleError() {
+                        console.error(xhr.statusText);
+                        error(xhr.statusText);
+                    }
 
-                        // Save urls to local storage and display it
-                        const storedFiles = getFileHistory();
-                        storedFiles.push({ name: file.name, url });
-                        localStorage.setItem("uploadedFiles", JSON.stringify(storedFiles));
-                        displayUploadedFiles();
-                        load(url);
-                    })
-                    
-                    .catch(err => {
-                        loading.style.display = "none";
-                        responseUrl.innerHTML = "Error uploading the file.";
-                        console.error(err);
-                        error(err);
-                    });
+                    xhr.onload = () => {
+                        if (xhr.status === 200) {
+                            const url = xhr.responseText;
+                            window.open(buildKagiUrl(url), '_blank');
+                            addUploadedFile(file.name, url);
+                            load(url);
+                        } else {
+                            handleError()
+                        }
+                    };
 
+                    xhr.upload.onprogress =  (e) => {progress(e.lengthComputable, e.loaded, e.total)};
+                    xhr.onerror = handleError
+                    xhr.open("POST", uploadUrl, true);
+                    xhr.send(formData);
                 }
             }
         }
@@ -74,6 +62,15 @@
 
         function getFileHistory() {
             return JSON.parse(localStorage.getItem("uploadedFiles") || "[]");
+        }
+
+        function addUploadedFile(name, url){
+            // Save urls to local storage and display it
+            removeUploadedFileByName(name); // first remove it if it already exists, then we put it at the top!
+            const storedFiles = getFileHistory();
+            storedFiles.push({ name: name, url });
+            localStorage.setItem("uploadedFiles", JSON.stringify(storedFiles));
+            displayUploadedFiles();
         }
 
         function removeUploadedFileByName(name) {
