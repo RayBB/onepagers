@@ -111,13 +111,13 @@
     }
 
     function toKagi(selectedParam){
-      window.location.replace(`https://kagi.com/summarizer/index.html?url=${selectedParam}&target_language=&summary=takeaway`);
+      window.location.assign(`https://kagi.com/summarizer/index.html?url=${selectedParam}&target_language=&summary=takeaway`);
     }
     function toOpenLibrary(selectedParam){
-      window.location.replace(`https://openlibrary.org/search?q=${selectedParam}`);
+      window.location.assign(`https://openlibrary.org/search?q=${selectedParam}`);
     }
     function toArchiveIs(selectedParam){
-      window.location.replace(`https://archive.is/?run=1&url=${selectedParam}`);
+      window.location.assign(`https://archive.is/?run=1&url=${selectedParam}`);
     }
 
     function addClickListener(buttonId, targetFunction) {
