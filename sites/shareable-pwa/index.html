@@ -144,5 +144,21 @@
       toOpenLibrary(isbns[0]);
     }
 
+    // Redirect to kagi automatically if url is valid and last redirect was less than a minute ago
+    function redirectedRecently(){
+      const lastRedirectTime = localStorage.getItem('lastRedirectTime');
+      const currentTime = new Date().getTime();
+      const timeSinceLastRedirect = currentTime - lastRedirectTime;
+      console.log("timeSinceLastRedirect", timeSinceLastRedirect);
+      return timeSinceLastRedirect < 60000;
+    }
+    
+    if (isValidHttpUrl(getSelectedParam()) && !redirectedRecently()) {
+      localStorage.setItem('lastRedirectTime', new Date().getTime());
+      // Have to use a setTimeout because the page is still loading and the back button won't work
+      // https://stackoverflow.com/questions/3731888/
+      setTimeout(()=>toKagi(getSelectedParam()), 100);
+    }
+
   </script>
 </html>
