@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Posts Data</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <style>
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .table th,
+      .table td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="container">
+      <h2>Group Postings</h2>
+      <ul class="list-group">
+        <li v-for="post in sortedPosts" :key="post.url" class="list-group-item">
+          <div class="row">
+            <span class="col-8">
+              <div class="d-flex">
+                <h5 class="mb-1">{{post.title}}</h5>
+                <div class="ms-auto">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    :class="{ 'text-warning': post.favorite }"
+                    @click="(e)=>{post.favorite = !post.favorite; updatePost(post, {favorite: post.favorite});}"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-star-fill"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"
+                      ></path>
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger ms-3"
+                    @click="(e)=>{ post.hide = true; updatePost(post, {hide: post.hide});}"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-trash"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"
+                      ></path>
+                      <path
+                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <span class="mb-1">Price: {{post.price}}</span> |
+              <span class="mb-1">Location: {{post.location}}</span> |
+              <small
+                >Date Posted:
+                <a :href="post.url" target="_blank"
+                  >{{new Date(post.date_posted).toLocaleString()}}</a
+                ></small
+              >
+              <p class="mb-1"><b>Description:</b> {{post.description}}</p>
+            </span>
+            <div class="form-floating col-4">
+              <textarea
+                v-model="post.own_comments"
+                class="form-control h-100"
+                placeholder="Leave a comment here"
+                id="floatingTextarea"
+                @input="()=>{updatePost(post, {own_comments: post.own_comments})}"
+              ></textarea>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <script>
+      const { createApp, ref } = Vue;
+      const app = createApp({
+        setup() {
+          const HOST = "https://syxppgphbpysdzjdcbqx.supabase.co";
+          
+          // Get key from local storage or prompt the user to enter it
+          let api_key = localStorage.getItem("api_key");
+          if (!api_key) {
+            api_key = prompt("Please enter your key:");
+            localStorage.setItem("api_key", api_key);
+          }
+          const supabaseClient = supabase.createClient(HOST, api_key);
+
+          const posts = ref([
+            {
+              url: "example.com/post1",
+              created_at: "2023-12-10T02:42:12Z",
+              title: "Example Post 1",
+              price: "$100",
+              location: "Amsterdam",
+              description: "This is an example post.",
+              date_posted: "2023-12-10",
+              own_comments: "",
+              favorite: false,
+              hide: false,
+            },
+          ]);
+
+          return {
+            posts,
+            supabaseClient,
+          };
+        },
+        mounted() {
+          this.supabaseClient
+            .from("posts")
+            .select("*")
+            .then(({ data: posts, error }) => {
+              if (error) {
+                console.log(error);
+                return;
+              }
+              this.posts = posts;
+            });
+        },
+        computed: {
+          sortedPosts() {
+            return this.posts
+              .sort((a, b) => {
+                return new Date(b.date_posted) - new Date(a.date_posted);
+              })
+              .sort((a, b) => {
+                return a.hide - b.hide;
+              });
+          },
+        },
+        methods: {
+          updatePost(post, newState) {
+            // newState should be a dictionary of fields to update
+            this.supabaseClient
+              .from("posts")
+              .update(newState)
+              .eq("url", post.url)
+              .then(({ error }) => {
+                if (error) {
+                  console.log(error);
+                  return;
+                }
+              });
+          },
+        },
+      });
+
+      app.mount("#app");
+    </script>
+  </body>
+</html>
