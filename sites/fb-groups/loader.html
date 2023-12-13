@@ -82,10 +82,48 @@
           setTimeout(() => loadNextPage(), 1000 * 10); // check again for new posts in 10 seconds
         }
       }
+
+      async function setLastVisitedNow(url){
+        await supabaseClient
+          .from("groups")
+          .update({ last_visited: new Date().toISOString() })
+          .eq("url", url)
+          .then(({ data: groups, error }) => {
+            if (error) {
+              console.log(error);
+              return;
+            }
+            console.log("set last visited", groups);
+          });
+      }
+
+      async function getGroupToLoad(){
+       const groups = await supabaseClient
+          .from("groups")
+          .select("*")
+          .eq("auto_visit", true)
+          .lte("last_visited", (new Date(new Date() - 1000 * 60 * 60)).toISOString()) // last visited more than 1 hour ago
+          .limit(1);
+
+          const group = groups.data[0];
+          return group;
+      }
+      
+      async function loadNextGroup(){
+        const group = await getGroupToLoad();
+        if (group) {
+          await setLastVisitedNow(group.url);
+          window.location.href = group.url + "?sorting_setting=CHRONOLOGICAL";
+        } else {
+          console.log("no groups to visit")
+          setTimeout(() => loadNextGroup(), 1000 * 11); // check again for new posts in 10 seconds
+        };
+      }
       const autoFetchMode =
         new URLSearchParams(window.location.search).get("fetch_next") == "true";
       if (autoFetchMode) {
         loadNextPage();
+        setTimeout(() => loadNextGroup(), 1000 * 2); // give pages a 2 second head start
       }
     </script>
   </body>
