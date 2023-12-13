@@ -28,7 +28,16 @@
   </head>
   <body>
     <div id="app" class="container">
-      <h2>Group Postings</h2>
+      <div class="d-flex">
+        <h2 class="d-inline-block">Group Postings</h2>
+        <span
+          v-if="loading"
+          class="spinner-border text-primary ms-auto mt-1"
+          role="status"
+        >
+          <span class="visually-hidden">Loading...</span>
+        </span>
+      </div>
       <ul class="list-group">
         <li v-for="post in sortedPosts" :key="post.url" class="list-group-item">
           <div class="row">
@@ -49,7 +58,9 @@
                   >{{new Date(post.date_posted).toLocaleString()}}</a
                 ></small
               >
-              <p class="mb-1 text-break"><b>Description:</b> {{post.description}}</p>
+              <p class="mb-1 text-break">
+                <b>Description:</b> {{post.description}}
+              </p>
             </span>
             <div class="col-sm-12 col-md-4 d-flex flex-column">
               <div class="d-flex justify-content-between">
@@ -122,7 +133,7 @@
           }
           const supabaseClient = supabase.createClient(HOST, api_key);
 
-          const posts = ref([
+          const examplePosts = [
             {
               url: "example.com/post1",
               created_at: "2023-12-10T02:42:12Z",
@@ -135,11 +146,14 @@
               favorite: false,
               hide: false,
             },
-          ]);
+          ];
+          const cachedPosts = localStorage.getItem("posts");
+          const posts = ref(JSON.parse(cachedPosts) || examplePosts);
 
           return {
             posts,
             supabaseClient,
+            loading: true,
           };
         },
         mounted() {
@@ -154,6 +168,8 @@
                 return;
               }
               this.posts = posts;
+              this.loading = false;
+              localStorage.setItem("posts", JSON.stringify(posts));
             });
         },
         computed: {
@@ -178,7 +194,7 @@
                 if (error) {
                   console.log(error);
                   // Warn user that there is unsaved data before leaving
-                  window.onbeforeunload = function() {return true;};
+                  window.onbeforeunload = () => true;
                   setTimeout(() => {
                     this.updatePost(post, newState);
                   }, 1000 * 10); // try again in 10 seconds
@@ -186,6 +202,7 @@
                 } else {
                   // Remove warning when there is no unsaved data
                   window.onbeforeunload = null;
+                  localStorage.setItem("posts", JSON.stringify(this.posts));
                 }
               });
           },
