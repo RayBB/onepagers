@@ -83,7 +83,7 @@
       const autoFetchMode =
         new URLSearchParams(window.location.search).get("fetch_next") == "true";
       if (autoFetchMode) {
-        loadNextPage();
+        setInterval(()=>loadNextPage(), 1000 * 10); // check for new posts every 10 seconds
       }
     </script>
   </body>
