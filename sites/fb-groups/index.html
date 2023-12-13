@@ -177,7 +177,15 @@
               .then(({ error }) => {
                 if (error) {
                   console.log(error);
+                  // Warn user that there is unsaved data before leaving
+                  window.onbeforeunload = function() {return true;};
+                  setTimeout(() => {
+                    this.updatePost(post, newState);
+                  }, 1000 * 10); // try again in 10 seconds
                   return;
+                } else {
+                  // Remove warning when there is no unsaved data
+                  window.onbeforeunload = null;
                 }
               });
           },
