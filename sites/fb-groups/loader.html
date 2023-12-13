@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Loader</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <h1>Data Loader</h1>
+
+    <h1>data</h1>
+    <pre style="max-width: 100%"><div id="data"></div></pre>
+    <h1>response</h1>
+    <pre><div id="response"></div></pre>
+
+    <script>
+      const HOST = "https://syxppgphbpysdzjdcbqx.supabase.co";
+      // Get key from local storage or prompt the user to enter it
+      let api_key = localStorage.getItem("api_key");
+      if (!api_key) {
+        api_key = prompt("Please enter your key:");
+        localStorage.setItem("api_key", api_key);
+      }
+      const supabaseClient = supabase.createClient(HOST, api_key);
+
+      function decodeParam(encodedString) {
+        // encoded twice because of dealing with emojis
+        return JSON.parse(
+          decodeURIComponent(atob(decodeURIComponent(encodedString)))
+        );
+      }
+
+      //const dstr = window.location.href.split("l?d=")[1]; //new URLSearchParams(window.location.search).get('d');
+      const dstr = new URLSearchParams(window.location.search).get("d");
+
+      if (dstr) {
+        console.log("dstr", dstr);
+        const decodedDValue = decodeParam(dstr);
+        console.log('The decoded value of "d" is:', decodedDValue);
+        document.querySelector("#data").innerText = JSON.stringify(
+          decodedDValue,
+          null,
+          4
+        );
+
+        async function go() {
+          // Just in a function to be async
+          const insert_response = await supabaseClient
+            .from("posts")
+            .upsert(decodedDValue);
+          console.log(insert_response);
+          document.querySelector("#response").innerText = JSON.stringify(
+            insert_response,
+            null,
+            4
+          );
+        }
+        go();
+      }
+
+      // auto loader
+      async function getPostToLoad() {
+        // Picks one of 10 random posts to load (this way we can have multiple tabs open at once if needed)
+        const posts = await supabaseClient
+          .from("posts")
+          .select("*")
+          .is("date_posted", null)
+          .limit(10);
+        // picks one random post
+        const post = posts.data[Math.floor(Math.random() * posts.data.length)];
+        console.log(post);
+        return post;
+      }
+      async function loadNextPage() {
+        const post = await getPostToLoad();
+        console.log("post", post);
+        if (post) {
+          window.location.href = post.url.replace(
+            "facebook.com",
+            "mbasic.facebook.com"
+          );
+        }
+      }
+      const autoFetchMode =
+        new URLSearchParams(window.location.search).get("fetch_next") == "true";
+      if (autoFetchMode) {
+        loadNextPage();
+      }
+    </script>
+  </body>
+</html>
