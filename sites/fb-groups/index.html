@@ -54,7 +54,8 @@
                   </button>
                   <button
                     type="button"
-                    class="btn btn-danger ms-3"
+                    class="btn ms-3"
+                    :class="{ 'btn-outline-danger': post.hide, 'btn-danger': !post.hide }"
                     @click="(e)=>{ post.hide = true; updatePost(post, {hide: post.hide});}"
                   >
                     <svg
@@ -104,7 +105,7 @@
       const app = createApp({
         setup() {
           const HOST = "https://syxppgphbpysdzjdcbqx.supabase.co";
-          
+
           // Get key from local storage or prompt the user to enter it
           let api_key = localStorage.getItem("api_key");
           if (!api_key) {

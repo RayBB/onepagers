@@ -78,12 +78,14 @@
             "facebook.com",
             "mbasic.facebook.com"
           );
+        } else {
+          setTimeout(() => loadNextPage(), 1000 * 10); // check again for new posts in 10 seconds
         }
       }
       const autoFetchMode =
         new URLSearchParams(window.location.search).get("fetch_next") == "true";
       if (autoFetchMode) {
-        setInterval(()=>loadNextPage(), 1000 * 10); // check for new posts every 10 seconds
+        loadNextPage();
       }
     </script>
   </body>
