@@ -146,6 +146,8 @@
           this.supabaseClient
             .from("posts")
             .select("*")
+            .limit(300)
+            .order('date_posted', { ascending: false })
             .then(({ data: posts, error }) => {
               if (error) {
                 console.log(error);
