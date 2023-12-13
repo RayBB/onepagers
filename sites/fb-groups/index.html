@@ -32,7 +32,7 @@
       <ul class="list-group">
         <li v-for="post in sortedPosts" :key="post.url" class="list-group-item">
           <div class="row">
-            <span class="col-8">
+            <span class="col-sm-12 col-md-8">
               <div class="d-flex">
                 <h5 class="mb-1">{{post.title}}</h5>
                 <div class="ms-auto"></div>
@@ -51,7 +51,7 @@
               >
               <p class="mb-1"><b>Description:</b> {{post.description}}</p>
             </span>
-            <div class="col-4 d-flex flex-column">
+            <div class="col-sm-12 col-md-4 d-flex flex-column">
               <div class="d-flex justify-content-between">
                 <button
                   type="button"
@@ -147,7 +147,7 @@
             .from("posts")
             .select("*")
             .limit(300)
-            .order('date_posted', { ascending: false })
+            .order("date_posted", { ascending: false })
             .then(({ data: posts, error }) => {
               if (error) {
                 console.log(error);
