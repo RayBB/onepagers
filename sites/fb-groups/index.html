@@ -184,9 +184,11 @@
                 return a.hide - b.hide;
               })
               .filter((post) => {
+                // If there is no description we'll keep it
+                if (!post.description) return true;
                 // Just don't even show posts with these word
                 const keywords = ["clawq"];
-                const description = post.description?.toLowerCase();
+                const description = post.description.toLowerCase();
                 return !keywords.some((keyword) =>
                   description.includes(keyword)
                 );
