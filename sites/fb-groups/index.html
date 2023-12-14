@@ -143,6 +143,7 @@
               description: "This is an example post.",
               date_posted: "2023-12-10",
               own_comments: "",
+              poster_id: "123",
               favorite: false,
               hide: false,
             },
@@ -170,6 +171,7 @@
               this.posts = posts;
               this.loading = false;
               localStorage.setItem("posts", JSON.stringify(posts));
+              this.posts = this.markDuplicatesAsHidden(this.posts);
             });
         },
         computed: {
@@ -180,6 +182,14 @@
               })
               .sort((a, b) => {
                 return a.hide - b.hide;
+              })
+              .filter((post) => {
+                // Just don't even show posts with these word
+                const keywords = ["clawq"];
+                const description = post.description.toLowerCase();
+                return !keywords.some((keyword) =>
+                  description.includes(keyword)
+                );
               });
           },
         },
@@ -205,6 +215,30 @@
                   localStorage.setItem("posts", JSON.stringify(this.posts));
                 }
               });
+          },
+          markDuplicatesAsHidden(posts) {
+            // Create a new array to avoid mutating the original array
+            const markedPosts = posts.map((post) => ({ ...post }));
+            const postMap = {};
+            let counter = 0;
+
+            // Iterate through the array and mark duplicates as hide: true
+            markedPosts.forEach((post) => {
+              const { title, poster_id, description, price, location } = post;
+              const key = `${title}_${poster_id}_${description}_${price}_${location}`;
+
+              if (postMap[key]) {
+                // This post is a duplicate, mark it as hide: true
+                post.hide = true;
+                counter++;
+                console.log(key);
+              } else {
+                // Mark the first occurrence as false, and store it in the map
+                postMap[key] = true;
+              }
+            });
+            console.log(`Marked ${counter} duplicates as hidden.`);
+            return markedPosts;
           },
         },
       });
