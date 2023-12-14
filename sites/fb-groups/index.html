@@ -186,7 +186,7 @@
               .filter((post) => {
                 // Just don't even show posts with these word
                 const keywords = ["clawq"];
-                const description = post.description.toLowerCase();
+                const description = post.description?.toLowerCase();
                 return !keywords.some((keyword) =>
                   description.includes(keyword)
                 );
