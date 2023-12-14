@@ -87,7 +87,7 @@
                   type="button"
                   class="btn"
                   :class="{ 'btn-outline-danger': post.hide, 'btn-danger': !post.hide }"
-                  @click="(e)=>{ post.hide = true; updatePost(post, {hide: post.hide});}"
+                  @click="(e)=>{ post.hide = !post.hide; updatePost(post, {hide: post.hide});}"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
