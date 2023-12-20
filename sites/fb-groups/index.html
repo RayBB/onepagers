@@ -38,6 +38,17 @@
           <span class="visually-hidden">Loading...</span>
         </span>
       </div>
+      <ul class="nav nav-tabs">
+        <li v-for="tab in tabs" :key="tab" class="nav-item">
+          <a
+            class="nav-link"
+            href="#"
+            :class="{ 'active': activeTab == tab }"
+            @click="setActiveTab(tab)"
+            >{{tab}}</a
+          >
+        </li>
+      </ul>
       <ul class="list-group">
         <li v-for="post in sortedPosts" :key="post.url" class="list-group-item">
           <div class="row">
@@ -150,11 +161,15 @@
           ];
           const cachedPosts = localStorage.getItem("posts");
           const posts = ref(JSON.parse(cachedPosts) || examplePosts);
+          const tabs = ref(["New", "Favs", "Deleted", "Templates"]);
+          const activeTab = ref(tabs.value[0]);
 
           return {
             posts,
             supabaseClient,
             loading: true,
+            activeTab,
+            tabs,
           };
         },
         mounted() {
@@ -177,6 +192,12 @@
         computed: {
           sortedPosts() {
             return this.posts
+              .filter((post) => {
+                if (this.activeTab == "New") return !post.hide;
+                if (this.activeTab == "Favs") return post.favorite;
+                if (this.activeTab == "Deleted") return post.hide;
+                // if (this.activeTab == "templates") return post.template;
+              })
               .sort((a, b) => {
                 return new Date(b.date_posted) - new Date(a.date_posted);
               })
@@ -240,6 +261,9 @@
             });
             console.log(`Marked ${counter} duplicates as hidden.`);
             return markedPosts;
+          },
+          setActiveTab(tab) {
+            this.activeTab = tab;
           },
         },
       });
