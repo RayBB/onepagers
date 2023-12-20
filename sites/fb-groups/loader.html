@@ -30,7 +30,7 @@
       }
 
       //const dstr = window.location.href.split("l?d=")[1]; //new URLSearchParams(window.location.search).get('d');
-      const dstr = new URLSearchParams(window.location.search).get("d");
+      const dstr = dstrr = new URLSearchParams(window.location.search).get("d") || window.location.hash.slice(1); // slice to remove the #
 
       if (dstr) {
         console.log("dstr", dstr);
