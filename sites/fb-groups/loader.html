@@ -38,9 +38,7 @@
       document.querySelector("#date").innerText = new Date().toLocaleString();
 
       if (dstr) {
-        console.log("dstr", dstr);
         const decodedDValue = decodeParam(dstr);
-        console.log('The decoded value of "d" is:', decodedDValue);
         document.querySelector("#data").innerText = JSON.stringify(
           decodedDValue,
           null,
@@ -58,6 +56,11 @@
             null,
             4
           );
+          // if decodedDValue is an array, then we need to update the group's last_visited
+          if (Array.isArray(decodedDValue) && decodedDValue.length > 0) {
+            const group_id = getGroupIDFromUrl(decodedDValue[0].url);
+            await setLastVisitedNow(group_id);
+          }
         }
         go();
       }
@@ -88,11 +91,16 @@
         }
       }
 
-      async function setLastVisitedNow(url) {
+      function getGroupIDFromUrl(url) {
+        // splits the string by / and then returns the item after "groups"
+        return url.split("/")[url.split("/").indexOf("groups") + 1];
+      }
+
+      async function setLastVisitedNow(group_id) {
         await supabaseClient
           .from("groups")
           .update({ last_visited: new Date().toISOString() })
-          .eq("url", url)
+          .eq("group_id", group_id)
           .then(({ data: groups, error }) => {
             if (error) {
               console.log(error);
@@ -120,7 +128,6 @@
       async function loadNextGroup() {
         const group = await getGroupToLoad();
         if (group) {
-          await setLastVisitedNow(group.url);
           window.location.href = group.url + "?sorting_setting=CHRONOLOGICAL";
         } else {
           console.log("no groups to visit");
