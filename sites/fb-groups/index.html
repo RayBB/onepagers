@@ -58,6 +58,7 @@
                   >{{new Date(post.date_posted).toLocaleString()}}</a
                 ></small
               >
+              <span v-if="post.has_video"> | 🎥 </span>
               <p class="mb-1 text-break">
                 <b>Description:</b> {{post.description}}
               </p>
