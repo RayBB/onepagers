@@ -100,7 +100,8 @@
         await supabaseClient
           .from("groups")
           .update({ last_visited: new Date().toISOString() })
-          .eq("group_id", group_id)
+          // back to using url because group_id didn't work with www.umbrellarental.nl
+          .eq("url", `https://www.facebook.com/groups/${group_id}/`)
           .then(({ data: groups, error }) => {
             if (error) {
               console.log(error);
