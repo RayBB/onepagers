@@ -168,6 +168,8 @@
           const posts = ref(JSON.parse(cachedPosts) || examplePosts);
           const tabs = ref(["New", "Favs", "Deleted", "Templates"]);
           const activeTab = ref(tabs.value[0]);
+          // don't show any posts from these users, mostly group admins sending welcomes and spam
+          const blockedUsers = ref(["StudentHousingAmsterdam", "100008137993454", "3580922115521518"]);
 
           return {
             posts,
@@ -175,6 +177,7 @@
             loading: true,
             activeTab,
             tabs,
+            blockedUsers,
           };
         },
         mounted() {
@@ -202,6 +205,10 @@
                 if (this.activeTab == "Favs") return post.favorite;
                 if (this.activeTab == "Deleted") return post.hide;
                 // if (this.activeTab == "templates") return post.template;
+              })
+              .filter((post) => {
+                // Filter out posts from blocked users
+                return !this.blockedUsers.includes(post.poster_id);
               })
               .sort((a, b) => {
                 return new Date(b.date_posted) - new Date(a.date_posted);
