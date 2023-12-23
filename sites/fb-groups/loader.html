@@ -30,10 +30,9 @@
         );
       }
 
-      //const dstr = window.location.href.split("l?d=")[1]; //new URLSearchParams(window.location.search).get('d');
-      const dstr = (dstrr =
+      const dstr =
         new URLSearchParams(window.location.search).get("d") ||
-        window.location.hash.slice(1)); // slice to remove the #
+        window.location.hash.slice(1); // slice to remove the #
 
       document.querySelector("#date").innerText = new Date().toLocaleString();
 
@@ -100,8 +99,7 @@
         await supabaseClient
           .from("groups")
           .update({ last_visited: new Date().toISOString() })
-          // back to using url because group_id didn't work with www.umbrellarental.nl
-          .eq("url", `https://www.facebook.com/groups/${group_id}/`)
+          .eq("group_id", group_id)
           .then(({ data: groups, error }) => {
             if (error) {
               console.log(error);
