@@ -75,6 +75,7 @@
                 ></small
               >
               <span v-if="post.has_video"> | 🎥 </span>
+              <span v-if="post.img_count > 0"> | 🖼️ </span>
               <p class="mb-1 text-break">
                 <b>Description:</b> {{post.description}}
               </p>
@@ -169,7 +170,11 @@
           const tabs = ref(["New", "Favs", "Deleted", "Templates"]);
           const activeTab = ref(tabs.value[0]);
           // don't show any posts from these users, mostly group admins sending welcomes and spam
-          const blockedUsers = ref(["StudentHousingAmsterdam", "100008137993454", "3580922115521518"]);
+          const blockedUsers = ref([
+            "StudentHousingAmsterdam",
+            "100008137993454",
+            "3580922115521518",
+          ]);
 
           return {
             posts,
