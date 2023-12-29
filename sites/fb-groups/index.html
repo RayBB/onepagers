@@ -150,6 +150,7 @@
           }
           const supabaseClient = supabase.createClient(HOST, api_key);
 
+          // keeping this example here for copilot
           const examplePosts = [
             {
               url: "example.com/post1",
@@ -163,10 +164,9 @@
               poster_id: "123",
               favorite: false,
               hide: false,
+              img_count: 0,
             },
           ];
-          const cachedPosts = localStorage.getItem("posts");
-          const posts = ref(JSON.parse(cachedPosts) || examplePosts);
           const tabs = ref(["New", "Favs", "Deleted", "Templates"]);
           const activeTab = ref(tabs.value[0]);
           // don't show any posts from these users, mostly group admins sending welcomes and spam
@@ -179,49 +179,41 @@
           ]);
 
           return {
-            posts,
             supabaseClient,
             loading: true,
             activeTab,
             tabs,
             blockedUsers,
+            newPosts: ref([]),
+            favoritePosts: ref([]),
+            deletedPosts: ref([]),
           };
         },
         mounted() {
-          this.supabaseClient
-            .from("posts")
-            .select("*")
-            .limit(300)
-            .order("date_posted", { ascending: false })
-            .then(({ data: posts, error }) => {
-              if (error) {
-                console.log(error);
-                return;
-              }
-              this.posts = posts;
-              this.loading = false;
-              localStorage.setItem("posts", JSON.stringify(posts));
-              this.posts = this.markDuplicatesAsHidden(this.posts);
-            });
+          this.newPosts = this.getFromLocalStorage("newPosts");
+          this.favoritePosts = this.getFromLocalStorage("favoritePosts");
+          this.deletedPosts = this.getFromLocalStorage("deletedPosts");
+          this.getNewPosts();
         },
         computed: {
+          selectedPosts() {
+            // Returns the posts based on the active tab
+            let posts = [];
+            if (this.activeTab == "New") posts = this.newPosts;
+            if (this.activeTab == "Favs") posts = this.favoritePosts;
+            if (this.activeTab == "Deleted") posts = this.deletedPosts;
+            return posts;
+          },
           sortedPosts() {
-            return this.posts
-              .filter((post) => {
-                if (this.activeTab == "New") return !post.hide;
-                if (this.activeTab == "Favs") return post.favorite;
-                if (this.activeTab == "Deleted") return post.hide;
-                // if (this.activeTab == "templates") return post.template;
-              })
+            // Returns the selectedPosts after being filter
+
+            // TODO move this duplicate detection to the server
+            const posts = this.markDuplicatesAsHidden(this.selectedPosts);
+
+            return posts
               .filter((post) => {
                 // Filter out posts from blocked users
                 return !this.blockedUsers.includes(post.poster_id);
-              })
-              .sort((a, b) => {
-                return new Date(b.date_posted) - new Date(a.date_posted);
-              })
-              .sort((a, b) => {
-                return a.hide - b.hide;
               })
               .filter((post) => {
                 // If there is no description we'll keep it
@@ -232,7 +224,35 @@
                 return !keywords.some((keyword) =>
                   description.includes(keyword)
                 );
+              })
+              .sort((a, b) => {
+                // putting hidden at the bottom is mostly for the favs tab
+                return a.hide - b.hide;
               });
+          },
+        },
+        watch: {
+          activeTab: {
+            handler(activeTab) {
+              if (activeTab == "New") this.getNewPosts();
+              if (activeTab == "Favs") this.getFavoritePosts();
+              if (activeTab == "Deleted") this.getDeletedPosts();
+            },
+          },
+          newPosts: {
+            handler(posts) {
+              localStorage.setItem("newPosts", JSON.stringify(posts));
+            },
+          },
+          favoritePosts: {
+            handler(posts) {
+              localStorage.setItem("favoritePosts", JSON.stringify(posts));
+            },
+          },
+          deletedPosts: {
+            handler(posts) {
+              localStorage.setItem("deletedPosts", JSON.stringify(posts));
+            },
           },
         },
         methods: {
@@ -254,7 +274,6 @@
                 } else {
                   // Remove warning when there is no unsaved data
                   window.onbeforeunload = null;
-                  localStorage.setItem("posts", JSON.stringify(this.posts));
                 }
               });
           },
@@ -283,6 +302,41 @@
           },
           setActiveTab(tab) {
             this.activeTab = tab;
+          },
+          getFromLocalStorage(key) {
+            try {
+              // need to do this to deal with "undefined" sometimes being set
+              return JSON.parse(localStorage.getItem(key));
+            } catch (e) {
+              return [];
+            }
+          },
+          // gets posts
+          async getPosts(column, value, limit = 300) {
+            // returns the posts that match the column and value
+            this.loading = true;
+            const { data: posts, error } = await this.supabaseClient
+              .from("posts")
+              .select("*")
+              .eq(column, value)
+              .limit(limit)
+              .order("date_posted", { ascending: false });
+            this.loading = false;
+
+            if (error) {
+              console.log(error);
+              return;
+            }
+            return posts;
+          },
+          async getNewPosts() {
+            this.newPosts = await this.getPosts("hide", false);
+          },
+          async getFavoritePosts() {
+            this.favoritePosts = await this.getPosts("favorite", true);
+          },
+          async getDeletedPosts() {
+            this.deletedPosts = await this.getPosts("hide", true);
           },
         },
       });
