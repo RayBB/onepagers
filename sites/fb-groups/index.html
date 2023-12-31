@@ -278,8 +278,13 @@
               });
           },
           markDuplicatesAsHidden(posts) {
-            const postMap = {};
-            let counter = 0;
+            /*
+            TODO: As I've been writing this I realized that once we make the newest post as hidden when you refresh the duplicates will show up again.
+            So maybe I need to save these marked as duplicates to the server side.
+            Which begs the question, why not just do this in the database by having a calculated column that's the key and 
+            a trigger that sets hide to true if there is a duplicate.
+            */
+            const postKeys = new Set();
 
             // we mutate the original array for reactivity
             // Iterate through the array and mark duplicates as hide: true
@@ -287,16 +292,15 @@
               const { title, poster_id, description, price, location } = post;
               const key = `${title}_${poster_id}_${description}_${price}_${location}`;
 
-              if (postMap[key]) {
-                // This post is a duplicate, mark it as hide: true
+              if (postKeys.has(key)) {
                 post.hide = true;
-                counter++;
               } else {
-                // Mark the first occurrence as false, and store it in the map
-                postMap[key] = true;
+                postKeys.add(key);
               }
             });
-            console.log(`Marked ${counter} duplicates as hidden.`);
+            console.log(
+              `Marked ${posts.length - postKeys.size} duplicates as hidden.`
+            );
           },
           setActiveTab(tab) {
             this.activeTab = tab;
