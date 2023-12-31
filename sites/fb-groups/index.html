@@ -86,7 +86,7 @@
                   type="button"
                   class="btn btn-secondary"
                   :class="{ 'text-warning': post.favorite }"
-                  @click="(e)=>{post.favorite = !post.favorite; updatePost(post, {favorite: post.favorite});}"
+                  @click="(e)=>{post = { ...post, favorite: !post.favorite }; console.log(post); updatePost(post, {favorite: post.favorite});}"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -208,9 +208,9 @@
             // Returns the selectedPosts after being filter
 
             // TODO move this duplicate detection to the server
-            const posts = this.markDuplicatesAsHidden(this.selectedPosts);
+            this.markDuplicatesAsHidden(this.selectedPosts);
 
-            return posts
+            return this.selectedPosts
               .filter((post) => {
                 // Filter out posts from blocked users
                 return !this.blockedUsers.includes(post.poster_id);
@@ -278,13 +278,12 @@
               });
           },
           markDuplicatesAsHidden(posts) {
-            // Create a new array to avoid mutating the original array
-            const markedPosts = posts.map((post) => ({ ...post }));
             const postMap = {};
             let counter = 0;
 
+            // we mutate the original array for reactivity
             // Iterate through the array and mark duplicates as hide: true
-            markedPosts.forEach((post) => {
+            posts.forEach((post) => {
               const { title, poster_id, description, price, location } = post;
               const key = `${title}_${poster_id}_${description}_${price}_${location}`;
 
@@ -298,7 +297,6 @@
               }
             });
             console.log(`Marked ${counter} duplicates as hidden.`);
-            return markedPosts;
           },
           setActiveTab(tab) {
             this.activeTab = tab;
