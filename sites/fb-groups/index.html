@@ -294,6 +294,8 @@
 
               if (postKeys.has(key)) {
                 post.hide = true;
+                // temporary client side hiding to prevent duplicates
+                this.updatePost(post, {hide: post.hide});
               } else {
                 postKeys.add(key);
               }
