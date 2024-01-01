@@ -86,7 +86,7 @@
                   type="button"
                   class="btn btn-secondary"
                   :class="{ 'text-warning': post.favorite }"
-                  @click="(e)=>{post = { ...post, favorite: !post.favorite }; console.log(post); updatePost(post, {favorite: post.favorite});}"
+                  @click="(e)=>{post.favorite = !post.favorite; updatePost(post, {favorite: post.favorite});}"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
