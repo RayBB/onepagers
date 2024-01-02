@@ -63,13 +63,16 @@
                 <div class="ms-auto"></div>
               </div>
               <span v-if="post.price" class="mb-1"
-                >Price: {{post.price}} |
+                ><span :class="{ 'text-danger fw-bold': !inPriceRange(post) }">
+                  {{post.price}}
+                </span>
+                |
               </span>
               <span v-if="post.location" class="mb-1"
-                >Location: {{post.location}} |
+                >Location: {{post.location.replace(", Netherlands", "")}} |
               </span>
               <small
-                >Date Posted:
+                >Posted:
                 <a :href="post.url" target="_blank"
                   >{{new Date(post.date_posted).toLocaleString()}}</a
                 ></small
@@ -256,6 +259,13 @@
           },
         },
         methods: {
+          inPriceRange(post) {
+            if (!post.price) return false;
+            const priceInt = parseInt(post.price.match(/\d/g).join(""));
+            const minPrice = 500;
+            const maxPrice = 2000;
+            return priceInt > minPrice && priceInt < maxPrice;
+          },
           updatePost(post, newState) {
             // newState should be a dictionary of fields to update
             this.supabaseClient
@@ -295,7 +305,7 @@
               if (postKeys.has(key)) {
                 post.hide = true;
                 // temporary client side hiding to prevent duplicates
-                this.updatePost(post, {hide: post.hide});
+                this.updatePost(post, { hide: post.hide });
               } else {
                 postKeys.add(key);
               }
