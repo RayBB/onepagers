@@ -74,11 +74,11 @@
               <small
                 >Posted:
                 <a :href="post.url" target="_blank"
-                  >{{new Date(post.date_posted).toLocaleString()}}</a
+                  >{{new Date(post.date_posted).toLocaleDateString('en-US', {
+                  day: 'numeric', month: 'short', hour: 'numeric', minute:
+                  '2-digit', hour12: true })}}</a
                 ></small
               >
-              <span v-if="post.has_video"> | 🎥 </span>
-              <span v-if="post.img_count > 0"> | 🖼️ </span>
               <p class="mb-1 text-break">
                 <b>Description:</b> {{post.description}}
               </p>
