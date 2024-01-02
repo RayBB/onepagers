@@ -68,6 +68,8 @@
                 </span>
                 |
               </span>
+              <span v-if="post.has_video">🎥 | </span>
+              <span v-if="post.img_count > 0">🖼️ | </span>
               <span v-if="post.location" class="mb-1"
                 >Location: {{post.location.replace(", Netherlands", "")}} |
               </span>
