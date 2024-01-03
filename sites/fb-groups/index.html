@@ -267,25 +267,26 @@
           listingProblems(post) {
             const problems = [];
             if (!post.gemini_info) return "";
-            if (!post.gemini_info.suitable_for_couples)
+
+            if (!post.gemini_info.about_housing)
               problems.push(
-                "Not suitable for couples" +
-                  ` (${post.gemini_info.reason.suitable_for_couples})`
-              );
-            if (!post.gemini_info.availability_match)
-              problems.push(
-                "Availability doesn't match" +
-                  ` (${post.gemini_info.reason.availability_match})`
+                "Not housing" +
+                  ` (${post.gemini_info.reason.about_housing})`
               );
             if (post.gemini_info.seeking_housing)
               problems.push(
                 "Seeking housing" +
                   ` (${post.gemini_info.reason.seeking_housing})`
               );
-            if (!post.gemini_info.about_housing)
+            if (!post.gemini_info.availability_match)
               problems.push(
-                "Not about housing" +
-                  ` (${post.gemini_info.reason.about_housing})`
+                "Availability mismatch" +
+                  ` (${post.gemini_info.reason.availability_match})`
+              );
+            if (!post.gemini_info.suitable_for_couples)
+              problems.push(
+                "Not for couples" +
+                  ` (${post.gemini_info.reason.suitable_for_couples})`
               );
             return problems.join(", ");
           },
