@@ -81,6 +81,9 @@
                   '2-digit', hour12: true })}}</a
                 ></small
               >
+              <p v-if="listingProblems(post)" class="mb-1 text-danger">
+                <b>Problems:</b> {{listingProblems(post)}}
+              </p>
               <p class="mb-1 text-break">
                 <b>Description:</b> {{post.description}}
               </p>
@@ -261,6 +264,31 @@
           },
         },
         methods: {
+          listingProblems(post) {
+            const problems = [];
+            if (!post.gemini_info) return "";
+            if (!post.gemini_info.suitable_for_couples)
+              problems.push(
+                "Not suitable for couples" +
+                  ` (${post.gemini_info.reason.suitable_for_couples})`
+              );
+            if (!post.gemini_info.availability_match)
+              problems.push(
+                "Availability doesn't match" +
+                  ` (${post.gemini_info.reason.availability_match})`
+              );
+            if (post.gemini_info.seeking_housing)
+              problems.push(
+                "Seeking housing" +
+                  ` (${post.gemini_info.reason.seeking_housing})`
+              );
+            if (!post.gemini_info.about_housing)
+              problems.push(
+                "Not about housing" +
+                  ` (${post.gemini_info.reason.about_housing})`
+              );
+            return problems.join(", ");
+          },
           inPriceRange(post) {
             if (!post.price) return false;
             const priceInt = parseInt(post.price.match(/\d/g).join(""));
