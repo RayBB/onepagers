@@ -7,6 +7,7 @@
   <body>
     <h1>Data Loader</h1>
     <span>Loaded: <span id="date"></span></span>
+    <input type="button" value="Visit Groups Now" onclick="resetVisitDates()" />
 
     <h1>data</h1>
     <pre style="max-width: 100%"><div id="data"></div></pre>
@@ -93,6 +94,16 @@
       function getGroupIDFromUrl(url) {
         // splits the string by / and then returns the item after "groups"
         return url.split("/")[url.split("/").indexOf("groups") + 1];
+      }
+
+      async function resetVisitDates(){
+        const oneDayAgo = new Date(Date.now() - 86400000);
+        const { data, error } = await supabaseClient
+          .from('groups')
+          .update({ last_visited: oneDayAgo.toISOString() })
+          .eq("auto_visit", true)
+          .select()
+        console.log('all groups last visit date reset')
       }
 
       async function setLastVisitedNow(group_id) {
