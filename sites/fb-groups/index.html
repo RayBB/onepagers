@@ -81,9 +81,11 @@
                   '2-digit', hour12: true })}}</a
                 ></small
               >
-              <p v-if="listingProblems(post)" class="mb-1 text-danger">
-                <b>Problems:</b> {{listingProblems(post)}}
-              </p>
+              <ul class="list-group">
+                <li v-for="p in listingProblems(post)" class="text-danger">
+                  <small>{{p}}</small>
+                </li>
+              </ul>
               <p class="mb-1 text-break">
                 <b>Description:</b> {{post.description}}
               </p>
@@ -130,6 +132,14 @@
                       d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"
                     ></path>
                   </svg>
+                </button>
+                <!-- hidden because is only for testing -->
+                <button
+                  hidden
+                  class="btn btn-secondary"
+                  @click="(e)=>{updatePost(post, {gemini_info: null})}"
+                >
+                  refresh
                 </button>
               </div>
               <textarea
@@ -270,25 +280,24 @@
 
             if (!post.gemini_info.about_housing)
               problems.push(
-                "Not housing" +
-                  ` (${post.gemini_info.reason.about_housing})`
+                "🏠 Not housing" + ` (${post.gemini_info.reason.about_housing})`
               );
             if (post.gemini_info.seeking_housing)
               problems.push(
-                "Seeking housing" +
+                "🔍 Seeking housing" +
                   ` (${post.gemini_info.reason.seeking_housing})`
               );
             if (!post.gemini_info.availability_match)
               problems.push(
-                "Availability mismatch" +
+                "⌛ Availability mismatch" +
                   ` (${post.gemini_info.reason.availability_match})`
               );
             if (!post.gemini_info.suitable_for_couples)
               problems.push(
-                "Not for couples" +
+                "👫 Not for couples" +
                   ` (${post.gemini_info.reason.suitable_for_couples})`
               );
-            return problems.join(", ");
+            return problems;
           },
           inPriceRange(post) {
             if (!post.price) return false;
