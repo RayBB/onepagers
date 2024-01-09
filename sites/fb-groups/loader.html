@@ -96,14 +96,14 @@
         return url.split("/")[url.split("/").indexOf("groups") + 1];
       }
 
-      async function resetVisitDates(){
+      async function resetVisitDates() {
         const oneDayAgo = new Date(Date.now() - 86400000);
         const { data, error } = await supabaseClient
-          .from('groups')
+          .from("groups")
           .update({ last_visited: oneDayAgo.toISOString() })
           .eq("auto_visit", true)
-          .select()
-        console.log('all groups last visit date reset')
+          .select();
+        console.log("all groups last visit date reset");
       }
 
       async function setLastVisitedNow(group_id) {
@@ -147,8 +147,33 @@
       const autoFetchMode =
         new URLSearchParams(window.location.search).get("fetch_next") == "true";
       if (autoFetchMode) {
-        setTimeout(() => loadNextPage(), 1000 * .5);
+        setTimeout(() => loadNextPage(), 1000 * 0.5);
         setTimeout(() => loadNextGroup(), 1000 * 2); // give pages a 1.5 second head start
+      }
+    </script>
+    <script>
+      // This whole section keeps the screen awake as long as the page is visible.
+      // Helps avoid sleeping while scraping
+      if ("wakeLock" in navigator) {
+        async function requestWakeLock() {
+          try {
+            wakeLock = await navigator.wakeLock.request("screen");
+          } catch (err) {
+            console.error("wake log err", err);
+          }
+        }
+
+        function handleVisibilityChange() {
+          if (wakeLock !== null && document.visibilityState === "visible") {
+            console.log("wakelock request again");
+            requestWakeLock();
+          }
+        }
+
+        console.log("wakelock is supported, screen will stay on");
+        let wakeLock = null;
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        requestWakeLock();
       }
     </script>
   </body>
