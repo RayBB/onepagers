@@ -225,14 +225,11 @@
           sortedPosts() {
             // Returns the selectedPosts after being filter
 
+            this.hidePostsFromBlockedUsers(this.selectedPosts);
             // TODO move this duplicate detection to the server
             this.markDuplicatesAsHidden(this.selectedPosts);
 
             return this.selectedPosts
-              .filter((post) => {
-                // Filter out posts from blocked users
-                return !this.blockedUsers.includes(post.poster_id);
-              })
               .filter((post) => {
                 // If there is no description we'll keep it
                 if (!post.description) return true;
@@ -318,6 +315,17 @@
                   window.onbeforeunload = null;
                 }
               });
+          },
+          hidePostsFromBlockedUsers(posts) {
+            // hide the posts from blocked users client and server side
+            const toHide = posts.filter((post) =>
+              this.blockedUsers.includes(post.poster_id)
+            );
+            toHide.forEach((post) => {
+              post.hide = true;
+              this.updatePost(post, { hide: post.hide });
+            });
+            console.log(`Hiding ${toHide.length} posts from blocked users.`);
           },
           markDuplicatesAsHidden(posts) {
             /*
