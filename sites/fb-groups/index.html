@@ -278,6 +278,7 @@
             const problems = [];
             if (!post.gemini_info) return problems;
             const r = post.gemini_info.reason;
+            if (!r) return problems;
 
             if (!post.gemini_info.about_housing)
               problems.push(`🏠 Not housing: ${r.about_housing}`);
