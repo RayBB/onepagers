@@ -147,8 +147,8 @@
       const autoFetchMode =
         new URLSearchParams(window.location.search).get("fetch_next") == "true";
       if (autoFetchMode) {
-        loadNextPage();
-        setTimeout(() => loadNextGroup(), 1000 * 2); // give pages a 2 second head start
+        setTimeout(() => loadNextPage(), 1000 * .5);
+        setTimeout(() => loadNextGroup(), 1000 * 2); // give pages a 1.5 second head start
       }
     </script>
   </body>
