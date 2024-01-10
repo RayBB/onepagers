@@ -334,25 +334,41 @@
             Which begs the question, why not just do this in the database by having a calculated column that's the key and 
             a trigger that sets hide to true if there is a duplicate.
             */
-            const postKeys = new Set();
+            function toDateStrr(dateStr) {
+              // make DD_MM_YYYY format
+              let d = new Date(dateStr);
+              return [d.getDate(), d.getMonth() + 1, d.getFullYear()].join("_");
+            }
 
+            // key is the poster_id and date_posted
+            // value is the post object
+            const postDict = {};
             // we mutate the original array for reactivity
             // Iterate through the array and mark duplicates as hide: true
-            posts.forEach((post) => {
-              const { title, poster_id, description, price, location } = post;
-              const key = `${title}_${poster_id}_${description}_${price}_${location}`;
+            posts.forEach((curPost) => {
+              // we hide newer posts by the same user in the same day
+              const { poster_id, date_posted } = curPost;
+              const key = `${poster_id}_${toDateStrr(date_posted)}`;
+              const seenPost = postDict[key];
 
-              if (postKeys.has(key)) {
-                post.hide = true;
-                // temporary client side hiding to prevent duplicates
-                this.updatePost(post, { hide: post.hide });
-              } else {
-                postKeys.add(key);
+              if (!seenPost) {
+                postDict[key] = curPost;
+                return;
               }
+
+              const newer =
+                new Date(seenPost.date_posted) > new Date(curPost.date_posted)
+                  ? seenPost
+                  : curPost;
+              const older = newer === seenPost ? curPost : seenPost;
+
+              postDict[key] = older;
+              newer.hide = true;
+              this.updatePost(newer, { hide: newer.hide });
             });
-            console.log(
-              `Marked ${posts.length - postKeys.size} duplicates as hidden.`
-            );
+            
+            const dupeCount = posts.length - Object.keys(postDict).length;
+            console.log(`${dupeCount} duplicates marked as hidden.`);
           },
           setActiveTab(tab) {
             this.activeTab = tab;
