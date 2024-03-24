@@ -162,7 +162,7 @@
 
           // Get key from local storage or prompt the user to enter it
           let api_key = localStorage.getItem("api_key");
-          if (!api_key) {
+          if (!api_key || api_key == "null") {
             api_key = prompt("Please enter your key:");
             localStorage.setItem("api_key", api_key);
           }
@@ -226,8 +226,7 @@
           sortedPosts() {
             // Returns the selectedPosts after being filter
 
-
-            if (this.activeTab == "New"){
+            if (this.activeTab == "New") {
               this.hidePostsFromBlockedUsers(this.selectedPosts);
               // TODO move this duplicate detection to the server
               this.markDuplicatesAsHidden(this.selectedPosts);
