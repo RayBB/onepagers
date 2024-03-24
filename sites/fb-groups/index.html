@@ -226,9 +226,12 @@
           sortedPosts() {
             // Returns the selectedPosts after being filter
 
-            this.hidePostsFromBlockedUsers(this.selectedPosts);
-            // TODO move this duplicate detection to the server
-            this.markDuplicatesAsHidden(this.selectedPosts);
+
+            if (this.activeTab == "New"){
+              this.hidePostsFromBlockedUsers(this.selectedPosts);
+              // TODO move this duplicate detection to the server
+              this.markDuplicatesAsHidden(this.selectedPosts);
+            }
 
             return this.selectedPosts
               .filter((post) => {
