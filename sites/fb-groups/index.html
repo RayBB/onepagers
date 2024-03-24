@@ -386,7 +386,7 @@
             }
           },
           // gets posts
-          async getPosts(column, value, limit = 300) {
+          async getPosts(column, value, limit = 1000) {
             // returns the posts that match the column and value
             this.loading = true;
             const { data: posts, error } = await this.supabaseClient

@@ -5,7 +5,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body>
-    <h1>Data Loader</h1>
+    <h1>Data Loader <span id="post-count"></span></h1>
     <span>Loaded: <span id="date"></span></span>
     <input type="button" value="Visit Groups Now" onclick="resetVisitDates()" />
 
@@ -17,6 +17,10 @@
     <script>
       const HOST = "https://syxppgphbpysdzjdcbqx.supabase.co";
       // Get key from local storage or prompt the user to enter it
+      const postCount = localStorage.getItem("post-count");
+      if (postCount){
+        document.getElementById("post-count").innerText = `(${postCount})`;
+      }
       let api_key = localStorage.getItem("api_key");
       if (!api_key) {
         api_key = prompt("Please enter your key:");
@@ -72,7 +76,8 @@
           .from("posts")
           .select("*")
           .is("date_posted", null)
-          .limit(10);
+          .limit(100);
+        localStorage.setItem("post-count", posts.data.length);
         // picks one random post
         const post = posts.data[Math.floor(Math.random() * posts.data.length)];
         console.log(post);
