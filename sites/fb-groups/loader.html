@@ -16,11 +16,9 @@
 
     <script>
       const HOST = "https://syxppgphbpysdzjdcbqx.supabase.co";
+      displayPostCount();
+
       // Get key from local storage or prompt the user to enter it
-      const postCount = localStorage.getItem("post-count");
-      if (postCount){
-        document.getElementById("post-count").innerText = `(${postCount})`;
-      }
       let api_key = localStorage.getItem("api_key");
       if (!api_key) {
         api_key = prompt("Please enter your key:");
@@ -78,6 +76,7 @@
           .is("date_posted", null)
           .limit(100);
         localStorage.setItem("post-count", posts.data.length);
+        displayPostCount();
         // picks one random post
         const post = posts.data[Math.floor(Math.random() * posts.data.length)];
         console.log(post);
@@ -155,6 +154,12 @@
         // load groups first because they sometimes need to be in focus to load
         setTimeout(() => loadNextGroup(), 1000 * 0.5);
         setTimeout(() => loadNextPage(), 1000 * 2); // give groups a 1.5 second head start
+      }
+      function displayPostCount() {
+        const postCount = localStorage.getItem("post-count");
+        if (postCount) {
+          document.getElementById("post-count").innerText = `(${postCount})`;
+        }
       }
     </script>
     <script>
