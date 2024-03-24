@@ -82,7 +82,7 @@
         console.log(post);
         return post;
       }
-      async function loadNextPage() {
+      async function visitNextPost() {
         const post = await getPostToLoad();
         console.log("post", post);
         if (post) {
@@ -91,7 +91,7 @@
             "mbasic.facebook.com"
           );
         } else {
-          setTimeout(() => loadNextPage(), 1000 * 10); // check again for new posts in 10 seconds
+          setTimeout(() => visitNextPost(), 1000 * 10); // check again for new posts in 10 seconds
         }
       }
 
@@ -139,21 +139,21 @@
         return group;
       }
 
-      async function loadNextGroup() {
+      async function visitNextGroup() {
         const group = await getGroupToLoad();
         if (group) {
           window.location.href = group.url + "?sorting_setting=CHRONOLOGICAL";
         } else {
           console.log("no groups to visit");
-          setTimeout(() => loadNextGroup(), 1000 * 11); // check again for new posts in 10 seconds
+          setTimeout(() => visitNextGroup(), 1000 * 11); // check again for new posts in 10 seconds
         }
       }
       const autoFetchMode =
         new URLSearchParams(window.location.search).get("fetch_next") == "true";
       if (autoFetchMode) {
-        // load groups first because they sometimes need to be in focus to load
-        setTimeout(() => loadNextGroup(), 1000 * 0.5);
-        setTimeout(() => loadNextPage(), 1000 * 2); // give groups a 1.5 second head start
+        // load groups first because they need the tab visible to work most times
+        setTimeout(() => visitNextGroup(), 1000 * 0.5);
+        setTimeout(() => visitNextPost(), 1000 * 2); // give groups a 1.5 second head start
       }
       function displayPostCount() {
         const postCount = localStorage.getItem("post-count");
