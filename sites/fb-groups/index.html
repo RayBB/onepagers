@@ -238,7 +238,10 @@
                 // If there is no description we'll keep it
                 if (!post.description) return true;
                 // Just don't even show posts with these word
-                const keywords = ["clawq", "the new members"];
+                const keywords = ["clawq",
+                 "the new members", // spammy posts about new members joining the group
+                 "budget is", // pretty much always people looking for a place
+                ];
                 const description = post.description.toLowerCase();
                 return !keywords.some((keyword) =>
                   description.includes(keyword)
