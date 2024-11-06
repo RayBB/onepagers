@@ -1,0 +1,7 @@
+{
+  "main": "gemini.js",
+  "dependencies": {
+    "@google/generative-ai": "^0.1.3",
+    "@supabase/supabase-js": "^2.39.2"
+  }
+}
