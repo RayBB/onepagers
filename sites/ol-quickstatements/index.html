@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OL Quickstatements</title>
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div id="app">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">OL Quickstatements</h1>
+            <textarea 
+                v-model="statements"
+                class="w-full h-32 p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
+                placeholder="Enter your quickstatements here..."
+            ></textarea>
+
+            <div v-if="parsedStatements" class="bg-white p-4 rounded-lg shadow">
+                <h2 class="text-xl font-semibold mb-4">Parsed Results:</h2>
+                <div v-for="(transforms, authorId) in parsedStatements" :key="authorId" class="mb-4">
+                    <h3 class="font-medium text-gray-800">{{ authorId }}</h3>
+                    <ul class="ml-4 mt-2">
+                        <li v-for="transform in transforms" :key="transform.path" class="text-gray-600">
+                            {{ transform }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+        
+        createApp({
+            data() {
+                return {
+                    statements: `OL1394244A|.author.name = "New Author Name"
+                                OL1394244A|.author.description = "New Author description"
+                                OL1394245A|.author.description = "New Author description"'`
+                }
+            },
+            computed: {
+                parsedStatements() {
+                    if (!this.statements.trim()) return null;
+
+                    return this.statements
+                        .split('\n')
+                        .filter(line => line.trim())
+                        .reduce((result, line) => {
+                            let [authorId, transform] = line.split('|');
+                            authorId = authorId.trim();
+                            transform = transform.trim();
+                            
+                            return {
+                                ...result,
+                                [authorId]: [
+                                    ...(result[authorId] || []),
+                                    transform
+                                ]
+                            };
+                        }, {});
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
