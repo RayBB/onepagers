@@ -24,14 +24,10 @@
             <div v-if="parsedStatements" class="bg-white p-4 rounded-lg shadow">
                 <h2 class="text-xl font-semibold mb-4">Parsed Results:</h2>
                 <div v-for="(transforms, authorId) in parsedStatements" :key="authorId" class="mb-4">
-                    <h3 class="font-medium text-gray-800">{{ authorId }}</h3>
-                    
-                    <div v-if="authorData[authorId]" class="mt-2 p-3 bg-gray-50 rounded">
-                        <p><span class="font-medium">Name:</span> {{ authorData[authorId].name }}</p>
-                        <p v-if="authorData[authorId].birth_date">
-                            <span class="font-medium">Birth Date:</span> {{ authorData[authorId].birth_date }}
-                        </p>
-                    </div>
+                    <h3 class="font-medium text-gray-800">
+                        <span>{{ authorId }}</span>
+                        <span v-if="authorData[authorId]" class="ml-2">- {{ authorData[authorId].name }}</span>
+                    </h3>
 
                     <ul class="ml-4 mt-2">
                         <li v-for="transform in transforms" :key="transform.path" class="text-gray-600">
