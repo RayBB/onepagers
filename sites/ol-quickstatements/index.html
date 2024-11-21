@@ -29,19 +29,31 @@
                         <span v-if="authorData[authorId]" class="ml-2">- {{ authorData[authorId].name }}</span>
                     </h3>
 
-                    <ul class="ml-4 mt-2">
-                        <li v-for="transform in transforms" :key="transform.path" class="text-gray-600">
-                            {{ transform }}
-                        </li>
-                    </ul>
-                    <div v-if="getAuthorDiff(authorId)" class="mt-2 space-y-1">
-                        <div v-for="change in getAuthorDiff(authorId)" :key="change.path.join('.')" 
-                             class="text-sm font-mono">
-                            <span class="text-gray-500">{{ change.path.join('.') }}:</span>
-                            <span class="text-red-500 line-through mr-1">{{ change.lhs }}</span>
-                            <span class="text-green-500">{{ change.rhs }}</span>
+                    <div class="grid grid-cols-2 gap-4 mt-2">
+                        <!-- Transformations Column -->
+                        <div class="space-y-2">
+                            <h4 class="font-medium text-gray-700">Transformations:</h4>
+                            <ul class="ml-4">
+                                <li v-for="transform in transforms" :key="transform" class="text-gray-600">
+                                    {{ transform }}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Diff Column -->
+                        <div class="space-y-2">
+                            <h4 class="font-medium text-gray-700">Changes:</h4>
+                            <div v-if="getAuthorDiff(authorId)" class="space-y-1">
+                                <div v-for="change in getAuthorDiff(authorId)" :key="change.path.join('.')" 
+                                     class="text-sm font-mono">
+                                    <span class="text-gray-500">{{ change.path.join('.') }}:</span>
+                                    <span class="text-red-500 line-through mr-1">{{ change.lhs }}</span>
+                                    <span class="text-green-500">{{ change.rhs }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    <hr>
                 </div>
             </div>
         </div>
