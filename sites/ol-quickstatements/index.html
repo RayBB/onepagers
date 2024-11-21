@@ -9,6 +9,7 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/jq-web@0.6.0/jq.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/deep-diff@1/dist/deep-diff.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
     <div id="app">
@@ -45,7 +46,14 @@
                             {{ transform }}
                         </li>
                     </ul>
-                    <div class="truncate">{{transformAuthorData(authorId)}}</div>
+                    <div v-if="getAuthorDiff(authorId)" class="mt-2 space-y-1">
+                        <div v-for="change in getAuthorDiff(authorId)" :key="change.path.join('.')" 
+                             class="text-sm font-mono">
+                            <span class="text-gray-500">{{ change.path.join('.') }}:</span>
+                            <span class="text-red-500 line-through mr-1">{{ change.lhs }}</span>
+                            <span class="text-green-500">{{ change.rhs }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -59,6 +67,7 @@
                 return {
                     statements: `OL1394244A|.name = "New Author Name"
                                 OL1394244A|.description = "New Author description"
+                                OL1394244A|del(.personal_name)
                                 OL1394245A|.name = "New Author Name"`,
                     authorData: {},
                     jq: null
@@ -127,6 +136,24 @@
                         console.error('Error fetching author data:', error)
                         return null
                     }
+                },
+                getAuthorDiff(authorId) {
+                    const originalData = this.authorData[authorId];
+                    const transformedData = this.transformAuthorData(authorId);
+                    
+                    if (!originalData || !transformedData) return null;
+                    
+                    return DeepDiff.diff(originalData, transformedData)
+                        ?.filter(change => ['E', 'N', 'D'].includes(change.kind))
+                        ?.map(change => ({
+                            ...change,
+                            // For new fields, set lhs to undefined
+                            // For deleted fields, use the lhs value
+                            lhs: change.kind === 'N' ? undefined : (change.kind === 'D' ? change.lhs : change.lhs),
+                            // For new fields, use rhs directly
+                            // For deleted fields, set rhs to undefined
+                            rhs: change.kind === 'D' ? undefined : (change.kind === 'N' ? change.rhs : change.rhs)
+                        }));
                 }
             }
         }).mount('#app')
