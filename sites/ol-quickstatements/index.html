@@ -45,6 +45,7 @@
                             {{ transform }}
                         </li>
                     </ul>
+                    <div class="truncate">{{transformAuthorData(authorId)}}</div>
                 </div>
             </div>
         </div>
@@ -56,38 +57,15 @@
         createApp({
             data() {
                 return {
-                    statements: `OL1394244A|.author.name = "New Author Name"
-                                OL1394244A|.author.description = "New Author description"
-                                OL1394245A|.author.description = "New Author description"`,
+                    statements: `OL1394244A|.name = "New Author Name"
+                                OL1394244A|.description = "New Author description"
+                                OL1394245A|.name = "New Author Name"`,
                     authorData: {},
-                    jq: null // Add jq to data
+                    jq: null
                 }
             },
-            mounted() {
-                // Set jq instance when component is mounted
-                jq.then(jq => {
-                    this.jq = jq;
-                    console.log("exposing jq", jq);
-                });
-            },
-            methods: {
-                async fetchAuthorData(authorId) {
-                    try {
-                        // Check if we already have the data cached
-                        if (this.authorData[authorId]) {
-                            return this.authorData[authorId];
-                        }
-
-                        const response = await fetch(`https://openlibrary.org/authors/${authorId}.json`)
-                        if (!response.ok) throw new Error('Failed to fetch author data')
-                        const data = await response.json()
-                        this.authorData[authorId] = data
-                        return data
-                    } catch (error) {
-                        console.error('Error fetching author data:', error)
-                        return null
-                    }
-                }
+            async created() {
+                this.jq = await jq;
             },
             computed: {
                 parsedStatements() {
@@ -109,6 +87,46 @@
                                 ]
                             };
                         }, {});
+                }
+            },
+            methods: {
+                transformAuthorData(authorId) {
+                    if (!this.jq || !this.parsedStatements) return null;
+
+                    const authorData = this.authorData[authorId];
+                    if (!authorData) return null;
+
+                    const jqStatements = this.parsedStatements[authorId];
+                    let transformedData = JSON.parse(JSON.stringify(authorData));
+
+                    // Apply each transformation sequentially
+                    for (const statement of jqStatements) {
+                        transformedData = this.jq.json(transformedData, statement);
+                    }
+
+                    return transformedData;
+                },
+                async fetchAuthorData(authorId) {
+                    try {
+                        // Check if we already have the data cached
+                        if (this.authorData[authorId]) {
+                            console.log('Cached author data:', authorId, this.authorData[authorId]);
+
+                            if (this.parsedStatements && this.parsedStatements[authorId]) {
+                                console.log('Transforms for author:', authorId, this.parsedStatements[authorId]);
+                            }
+                            return this.authorData[authorId];
+                        }
+
+                        const response = await fetch(`https://openlibrary.org/authors/${authorId}.json`)
+                        if (!response.ok) throw new Error('Failed to fetch author data')
+                        const data = await response.json()
+                        this.authorData[authorId] = data
+                        return data
+                    } catch (error) {
+                        console.error('Error fetching author data:', error)
+                        return null
+                    }
                 }
             }
         }).mount('#app')
