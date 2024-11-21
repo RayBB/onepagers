@@ -24,15 +24,7 @@
             <div v-if="parsedStatements" class="bg-white p-4 rounded-lg shadow">
                 <h2 class="text-xl font-semibold mb-4">Parsed Results:</h2>
                 <div v-for="(transforms, authorId) in parsedStatements" :key="authorId" class="mb-4">
-                    <div class="flex items-center gap-2">
-                        <h3 class="font-medium text-gray-800">{{ authorId }}</h3>
-                        <button 
-                            @click="fetchAuthorData(authorId)"
-                            class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                        >
-                            Fetch Data
-                        </button>
-                    </div>
+                    <h3 class="font-medium text-gray-800">{{ authorId }}</h3>
                     
                     <div v-if="authorData[authorId]" class="mt-2 p-3 bg-gray-50 rounded">
                         <p><span class="font-medium">Name:</span> {{ authorData[authorId].name }}</p>
@@ -154,6 +146,18 @@
                             // For deleted fields, set rhs to undefined
                             rhs: change.kind === 'D' ? undefined : (change.kind === 'N' ? change.rhs : change.rhs)
                         }));
+                }
+            },
+            watch: {
+                parsedStatements: {
+                    immediate: true,
+                    async handler(newStatements) {
+                        if (!newStatements) return;
+                        
+                        for (const authorId of Object.keys(newStatements)) {
+                            await this.fetchAuthorData(authorId);
+                        }
+                    }
                 }
             }
         }).mount('#app')
