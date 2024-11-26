@@ -97,6 +97,15 @@
                     </div>
                     <hr>
                 </div>
+                <button 
+                    @click="copyAllFetchCommands"
+                    class="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md flex items-center gap-2"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                    Copy All Fetch Commands
+                </button>
             </div>
 
             <!-- Documentation Section -->
@@ -229,6 +238,45 @@
                 async initializeJq() {
                     this.jq = await jq;
                 },
+                async copyToClipboard(text, successMessage = 'Copied to clipboard!') {
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        this.notyf.success(successMessage);
+                    } catch (err) {
+                        console.error('Failed to copy:', err);
+                        this.notyf.error('Failed to copy to clipboard');
+                    }
+                },
+                generateFetchCommand(authorId, transformedData) {
+                    return `fetch('https://openlibrary.org/authors/${authorId}.json', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(${JSON.stringify(transformedData)}) })
+    .then(async response => {
+        if (!response.ok) throw new Error('Failed to update author');
+        console.log(\`✅ Successfully updated author: ${authorId}\`);
+    })
+    .catch(error => console.error(\`❌ Error updating author: ${authorId}\`, error))`;
+                },
+                copyFetchCommand(authorId) {
+                    const transformedData = this.transformAuthorData(authorId);
+                    if (!transformedData) return;
+
+                    const fetchCommand = this.generateFetchCommand(authorId, transformedData);
+                    this.copyToClipboard(fetchCommand, 'Fetch command copied to clipboard!');
+                },
+                copyAllFetchCommands() {
+                    const commands = Object.keys(this.parsedStatements)
+                        .map(authorId => {
+                            const transformedData = this.transformAuthorData(authorId);
+                            if (!transformedData) return null;
+
+                            return `// Update ${authorId}\n${this.generateFetchCommand(authorId, transformedData)}`;
+                        })
+                        .filter(Boolean)
+                        .join('\n\n');
+
+                    this.copyToClipboard(commands, 'All fetch commands copied to clipboard!');
+                },
                 transformAuthorData(authorId) {
                     if (!this.jq || !this.parsedStatements) return null;
 
@@ -301,33 +349,6 @@
                     const urlParams = new URLSearchParams(window.location.search);
                     const statements = urlParams.get('statements');
                     return statements ? decodeURIComponent(statements) : null;
-                },
-                copyFetchCommand(authorId) {
-                    const transformedData = this.transformAuthorData(authorId);
-                    if (!transformedData) return;
-
-                    const fetchCommand = `fetch('https://openlibrary.org/authors/${authorId}.json', {
-    method: 'PUT',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(${JSON.stringify(transformedData)})
-})
-    .then(async response => {
-        if (!response.ok) throw new Error('Failed to update author');
-        const data = await response.json();
-        console.log(\`✅ Successfully updated author: ${authorId}\`, data);
-    })
-    .catch(error => console.error('❌ Error updating author:', error))`;
-
-                    navigator.clipboard.writeText(fetchCommand)
-                        .then(() => {
-                            this.notyf.success('Fetch command copied to clipboard!');
-                        })
-                        .catch(err => {
-                            console.error('Failed to copy:', err);
-                            this.notyf.error('Failed to copy fetch command');
-                        });
                 }
             },
             watch: {
