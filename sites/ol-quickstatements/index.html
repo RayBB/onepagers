@@ -10,6 +10,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/jq-web@0.6.0/jq.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/deep-diff@1/dist/deep-diff.min.js"></script>
+    <!-- Notyf -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
     <div id="app">
@@ -171,11 +174,13 @@
                             label: 'Remove author name',
                             value: 'OL1234567A|del(.name)'
                         }
-                    }
+                    },
+                    notyf: null
                 }
             },
-            async created() {
-                this.jq = await jq;
+            created() {
+                this.initializeNotyf();
+                this.initializeJq();
             },
             computed: {
                 parsedStatements() {
@@ -200,6 +205,12 @@
                 }
             },
             methods: {
+                initializeNotyf() {
+                    this.notyf = new Notyf();
+                },
+                async initializeJq() {
+                    this.jq = await jq;
+                },
                 transformAuthorData(authorId) {
                     if (!this.jq || !this.parsedStatements) return null;
 
@@ -280,11 +291,11 @@
 
                     navigator.clipboard.writeText(fetchCommand)
                         .then(() => {
-                            alert('Fetch command copied to clipboard!');
+                            this.notyf.success('Fetch command copied to clipboard!');
                         })
                         .catch(err => {
                             console.error('Failed to copy:', err);
-                            alert('Failed to copy fetch command');
+                            this.notyf.error('Failed to copy fetch command');
                         });
                 }
             },
