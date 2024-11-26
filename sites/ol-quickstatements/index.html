@@ -271,16 +271,22 @@
                     if (!originalData || !transformedData) return null;
                     
                     return DeepDiff.diff(originalData, transformedData)
-                        ?.filter(change => ['E', 'N', 'D'].includes(change.kind))
-                        ?.map(change => ({
-                            ...change,
-                            // For new fields, set lhs to undefined
-                            // For deleted fields, use the lhs value
-                            lhs: change.kind === 'N' ? undefined : (change.kind === 'D' ? change.lhs : change.lhs),
-                            // For new fields, use rhs directly
-                            // For deleted fields, set rhs to undefined
-                            rhs: change.kind === 'D' ? undefined : (change.kind === 'N' ? change.rhs : change.rhs)
-                        }));
+                        ?.filter(change => ['E', 'N', 'D', 'A'].includes(change.kind))
+                        ?.map(change => {
+                            if (change.kind === 'A') {
+                                return {
+                                    ...change,
+                                    path: [...change.path, change.index],
+                                    lhs: change.item.kind === 'D' ? change.item.lhs : undefined,
+                                    rhs: change.item.kind === 'N' ? change.item.rhs : undefined
+                                };
+                            }
+                            return {
+                                ...change,
+                                lhs: change.kind === 'N' ? undefined : (change.kind === 'D' ? change.lhs : change.lhs),
+                                rhs: change.kind === 'D' ? undefined : (change.kind === 'N' ? change.rhs : change.rhs)
+                            };
+                        });
                 },
                 applyPreset() {
                     if (this.selectedPreset && this.presets[this.selectedPreset]) {
