@@ -72,6 +72,67 @@
                     <hr>
                 </div>
             </div>
+
+            <!-- Documentation Section -->
+            <div class="max-w-4xl mx-auto mt-12 bg-white p-6 rounded-lg shadow">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Documentation & FAQs</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">How does it work?</h3>
+                        <p class="text-gray-600">
+                            This tool uses <a href="https://stedolan.github.io/jq/" class="text-blue-600 hover:underline" target="_blank">jq</a> 
+                            for JSON transformations. Each line in the quickstatements follows the format:
+                            <code class="block bg-gray-100 p-2 mt-2 rounded font-mono text-sm">
+                                [Author ID]|[jq transformation]
+                            </code>
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Can I share quickstatements via URL?</h3>
+                        <p class="text-gray-600">
+                            Yes! You can pass quickstatements via the URL using the <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">statements</code> parameter. For example:
+                            <code class="block bg-gray-100 p-2 mt-2 rounded font-mono text-sm break-all">
+                                ?statements=OL1234567A|.name%20%3D%20%22New%20Author%20Name%22
+                            </code>
+                            Make sure to URL encode the statements when sharing.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Common jq Operations</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>Set a value: <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">.name = "New Name"</code></li>
+                            <li>Add to array: <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">.alternate_names += ["New Name"]</code></li>
+                            <li>Delete a field: <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">del(.field_name)</code></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Working with Nested JSON</h3>
+                        <p class="text-gray-600 mb-2">
+                            Access nested fields using dot notation:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>Set nested value: <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">.remote_ids.wikidata = "Q12345"</code></li>
+                            <li>Delete nested value: <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">del(.remote_ids.wikidata)</code></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Array Operations</h3>
+                        <p class="text-gray-600 mb-2">
+                            There are several ways to modify arrays:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>Delete by index: <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">del(.alternate_names[0])</code></li>
+                            <li>Delete last item: <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">del(.alternate_names[-1])</code></li>
+                            <li>Delete by value: <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">.alternate_names -= ["Name to Remove"]</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -81,7 +142,7 @@
         createApp({
             data() {
                 return {
-                    statements: `OL1394244A|.name = "New Author Name"
+                    statements: this.getStatementsFromUrl() || `OL1394244A|.name = "New Author Name"
                                 OL1394244A|.remote_ids.wikidata = "New Author description"
                                 OL1394244A|del(.personal_name)
                                 OL1394245A|.name = "New Author Name"`,
@@ -190,6 +251,11 @@
                     if (this.selectedPreset && this.presets[this.selectedPreset]) {
                         this.statements = this.presets[this.selectedPreset].value;
                     }
+                },
+                getStatementsFromUrl() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const statements = urlParams.get('statements');
+                    return statements ? decodeURIComponent(statements) : null;
                 }
             },
             watch: {
