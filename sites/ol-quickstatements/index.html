@@ -312,7 +312,13 @@
         'Content-Type': 'application/json'
     },
     body: JSON.stringify(${JSON.stringify(transformedData)})
-})`;
+})
+    .then(async response => {
+        if (!response.ok) throw new Error('Failed to update author');
+        const data = await response.json();
+        console.log(\`✅ Successfully updated author: ${authorId}\`, data);
+    })
+    .catch(error => console.error('❌ Error updating author:', error))`;
 
                     navigator.clipboard.writeText(fetchCommand)
                         .then(() => {
