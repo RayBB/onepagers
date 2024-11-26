@@ -56,7 +56,11 @@
                 <h2 class="text-xl font-semibold mb-4">Parsed Results:</h2>
                 <div v-for="(transforms, authorId) in parsedStatements" :key="authorId" class="mb-4">
                     <h3 class="font-medium text-gray-800 flex items-center gap-2">
-                        <span>{{ authorId }}</span>
+                        <a 
+                            :href="`https://openlibrary.org/authors/${authorId}`"
+                            target="_blank"
+                            class="text-blue-600 hover:underline"
+                        >{{ authorId }}</a>
                         <span v-if="!authorData[authorId]" class="ml-2 text-sm text-gray-500">Loading<span class="loading-text"></span></span>
                         <span v-else class="ml-2">- {{ authorData[authorId].name }}</span>
                         <button 
