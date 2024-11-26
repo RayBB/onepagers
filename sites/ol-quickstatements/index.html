@@ -168,10 +168,12 @@
         createApp({
             data() {
                 return {
-                    statements: this.getStatementsFromUrl() || `OL1394244A|.name = "New Author Name"
-                                OL1394244A|.remote_ids.wikidata = "New Author description"
-                                OL1394244A|del(.personal_name)
-                                OL1394245A|.name = "New Author Name"`,
+                    statements: this.getStatementsFromUrl() || [
+                        'OL1394244A|.name = "New Author Name"',
+                        'OL1394244A|.remote_ids.wikidata = "Q1104369"',
+                        'OL1394244A|del(.personal_name)',
+                        'OL1394245A|.name = "New Author Name"'
+                    ].join('\n'),
                     authorData: {},
                     jq: null,
                     selectedPreset: '',
