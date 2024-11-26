@@ -15,6 +15,22 @@
     <div id="app">
         <div class="max-w-4xl mx-auto">
             <h1 class="text-3xl font-bold text-gray-900 mb-8">OL Quickstatements</h1>
+            
+            <div class="mb-4">
+                <label for="presets" class="block text-sm font-medium text-gray-700 mb-2">Preset Examples</label>
+                <select 
+                    id="presets" 
+                    v-model="selectedPreset" 
+                    @change="applyPreset"
+                    class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                    <option value="">Select a preset...</option>
+                    <option v-for="(preset, key) in presets" :key="key" :value="key">
+                        {{ preset.label }}
+                    </option>
+                </select>
+            </div>
+
             <textarea 
                 v-model="statements"
                 class="w-full h-32 p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
@@ -66,11 +82,26 @@
             data() {
                 return {
                     statements: `OL1394244A|.name = "New Author Name"
-                                OL1394244A|.description = "New Author description"
+                                OL1394244A|.remote_ids.wikidata = "New Author description"
                                 OL1394244A|del(.personal_name)
                                 OL1394245A|.name = "New Author Name"`,
                     authorData: {},
-                    jq: null
+                    jq: null,
+                    selectedPreset: '',
+                    presets: {
+                        setWikidata: {
+                            label: 'Set author Wikidata ID',
+                            value: 'OL1234567A|.remote_ids.wikidata = "Q12345"'
+                        },
+                        addAltName: {
+                            label: 'Add alternative name',
+                            value: 'OL1234567A|.alternate_names += ["Alternative Author Name"]'
+                        },
+                        removeAuthorName: {
+                            label: 'Remove author name',
+                            value: 'OL1234567A|del(.name)'
+                        }
+                    }
                 }
             },
             async created() {
@@ -154,6 +185,11 @@
                             // For deleted fields, set rhs to undefined
                             rhs: change.kind === 'D' ? undefined : (change.kind === 'N' ? change.rhs : change.rhs)
                         }));
+                },
+                applyPreset() {
+                    if (this.selectedPreset && this.presets[this.selectedPreset]) {
+                        this.statements = this.presets[this.selectedPreset].value;
+                    }
                 }
             },
             watch: {
