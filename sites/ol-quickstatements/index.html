@@ -31,6 +31,15 @@
         <div class="max-w-4xl mx-auto">
             <h1 class="text-3xl font-bold text-gray-900 mb-8">OL Quickstatements</h1>
             
+            <div class="mb-6 flex justify-end">
+                <button 
+                    @click="promptForAuthCookie"
+                    class="text-sm px-3 py-1 text-gray-600 hover:text-gray-800"
+                >
+                    {{ authCookie ? 'Change Auth Cookie' : 'Set Auth Cookie' }}
+                </button>
+            </div>
+
             <div class="mb-4">
                 <label for="presets" class="block text-sm font-medium text-gray-700 mb-2">Preset Examples</label>
                 <select 
@@ -72,6 +81,16 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                             </svg>
                             Copy Fetch
+                        </button>
+                        <button 
+                            v-if="authorData[authorId] && authCookie"
+                            @click="submitChange(authorId)"
+                            class="ml-2 px-2 py-1 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md flex items-center gap-1"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Submit Change
                         </button>
                     </h3>
 
@@ -183,12 +202,9 @@
         createApp({
             data() {
                 return {
-                    statements: this.getStatementsFromUrl() || [
-                        'OL1394244A|.name = "New Author Name"',
-                        'OL1394244A|.remote_ids.wikidata = "Q1104369"',
-                        'OL1394244A|del(.personal_name)',
-                        'OL1394245A|.name = "New Author Name"'
-                    ].join('\n'),
+                    authCookie: localStorage.getItem('authCookie') || '',
+                    proxyHost: 'https://ash-lush-seat.glitch.me',
+                    statements: this.getStatementsFromUrl() || '',
                     authorData: {},
                     jq: null,
                     selectedPreset: '',
@@ -204,6 +220,10 @@
                         removeAuthorName: {
                             label: 'Remove author name',
                             value: 'OL1234567A|del(.name)'
+                        },
+                        multipleChanges: {
+                            label: 'Multiple Changes',
+                            value: ['OL1394244A|.name = "New Author Name"', 'OL1394244A|.remote_ids.wikidata = "Q1104369"', 'OL1394244A|del(.personal_name)', 'OL1394245A|.name = "New Author Name"'].join('\n')
                         }
                     },
                     notyf: null
@@ -212,6 +232,7 @@
             created() {
                 this.initializeNotyf();
                 this.initializeJq();
+                fetch(this.proxyHost); // Fetch to warmup Glitch.me proxy
             },
             computed: {
                 parsedStatements() {
@@ -353,6 +374,49 @@
                     const urlParams = new URLSearchParams(window.location.search);
                     const statements = urlParams.get('statements');
                     return statements ? decodeURIComponent(statements) : null;
+                },
+                async submitChange(authorId) {
+                    try {
+                        console.log(`Submitting changes for author: ${authorId}`);
+                        
+                        const transformedData = this.transformAuthorData(authorId);
+                        const authCookie = this.authCookie;
+                        if (!transformedData) {
+                            throw new Error('Failed to transform author data');
+                        }
+
+                        const response = await fetch(`${this.proxyHost}/proxy`, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                url: `https://openlibrary.org/authors/${authorId}.json`,
+                                method: 'PUT',
+                                headers: {'Cookie': authCookie},
+                                body: transformedData
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Server responded with status: ${response.status}`);
+                        }
+
+                        const result = await response.json();
+                        this.notyf.success('Changes submitted successfully!');
+                        
+                        // Refresh author data
+                        await this.fetchAuthorData(authorId);
+
+                    } catch (error) {
+                        console.error('Error submitting changes:', error);
+                        this.notyf.error(`Failed to submit changes: ${error.message}`);
+                    }
+                },
+                promptForAuthCookie() {
+                    const cookie = prompt('Enter your auth cookie:');
+                    if (cookie) {
+                        this.authCookie = cookie;
+                        localStorage.setItem('authCookie', cookie);
+                    }
                 }
             },
             watch: {
