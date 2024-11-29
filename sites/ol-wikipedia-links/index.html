@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OL Wikipedia Links</title>
+    
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- PocketBase -->
+    <script src="https://unpkg.com/pocketbase@0.21.1/dist/pocketbase.umd.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div id="app" v-cloak>
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">OL Wikipedia Links</h1>
+            
+            <div class="bg-white p-4 rounded-lg shadow mb-8">
+                <p class="text-lg">
+                    Number of records to process: {{ recordCount }}
+                </p>
+            </div>
+
+            <div v-if="isLoading" class="text-center py-4">
+                <p class="text-gray-600">Loading records...</p>
+            </div>
+            
+            <div v-else class="space-y-4">
+                <div v-for="record in records" :key="record.id" class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-medium text-gray-900">
+                                <a :href="`https://openlibrary.org/authors/${record.OLID}`" class="text-blue-500 hover:underline">
+                                    {{ record.OLID }}
+                                </a>
+                                <div class="inline-flex gap-2 ml-2">
+                                    <button 
+                                        @click="markAsFixed(record)"
+                                        :disabled="record.isUpdating"
+                                        class="px-3 py-1 text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        {{ record.isUpdating ? 'Checking...' : 'Fixed' }}
+                                    </button>
+                                    <a 
+                                        :href="`https://www.rayberger.org/onepagers/sites/ol-quickstatements/?statements=${record.OLID}|del(.wikipedia)`"
+                                        target="_blank"
+                                        class="px-3 py-1 text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 border border-blue-300 shadow-sm transition-colors"
+                                    >
+                                        Quickstatements
+                                    </a>
+                                </div>
+                            </h3>
+                            <p class="text-gray-600 mt-1">
+                                Wikidata: 
+                                <a :href="`https://www.wikidata.org/wiki/${record.wikidata}`" class="text-blue-500 hover:underline">
+                                    {{ record.wikidata }}
+                                </a>
+                            </p>
+                            <p class="text-gray-800 mt-2">{{ record.wikipedia_text }}</p>
+                        </div>
+                        <span class="px-2 py-1 text-xs font-medium rounded" 
+                              :class="record.corrected ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
+                            {{ record.corrected ? 'Corrected' : 'Pending' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        /*
+        RECORD SCHEMA
+        {
+        "id": "RECORD_ID", 
+        "collectionId": "v622peub3ac7iif",
+        "collectionName": "aw1",
+        "created": "2022-01-01 01:00:00.123Z",
+        "updated": "2022-01-01 23:59:59.456Z",
+        "OLID": "test",
+        "wikidata": "test",
+        "wikipedia_text": "test",
+        "corrected": true
+        }
+        */
+        const { createApp, ref, onMounted } = Vue
+        
+        createApp({
+            setup() {
+                const pb = new PocketBase('https://substance-mysterious.pockethost.io')
+                const recordCount = ref(0)
+                const records = ref([])
+                const isLoading = ref(false)
+
+                const markAsFixed = async (record) => {
+                    record.isUpdating = true
+                    try {
+                        // First check Open Library API
+                        const olResponse = await fetch(`https://openlibrary.org/authors/${record.OLID}.json`)
+                        
+                        if (!olResponse.ok) {
+                            throw new Error('Failed to fetch from Open Library API')
+                        }
+                        
+                        const olData = await olResponse.json()
+                        const hasWikipedia = olData.wikipedia ? true : false
+
+                        if (!hasWikipedia){
+                            // Update record in PocketBase with the verification result
+                            await pb.collection('aw1').update(record.id, {
+                                corrected: !hasWikipedia
+                            })
+
+                            // Remove from list
+                            records.value = records.value.filter(r => r.id !== record.id)
+                            recordCount.value -= 1
+                        }
+                    } catch (error) {
+                        console.error('Failed to verify/update record:', error)
+                        alert('Failed to verify record. Please try again.')
+                    } finally {
+                        record.isUpdating = false
+                    }
+                }
+
+                const fetchRecords = async () => {
+                    isLoading.value = true
+                    try {
+                        const resultList = await pb.collection('aw1').getList(1, 10, {
+                            filter: 'corrected != true && wikidata != qid_from_wikipedia',
+                            sort: '-created'
+                        })
+                        records.value = resultList.items.map(record => ({
+                            ...record,
+                            isUpdating: false
+                        }))
+                        recordCount.value = resultList.totalItems
+                    } catch (error) {
+                        console.error('Failed to fetch records:', error)
+                    } finally {
+                        isLoading.value = false
+                    }
+                }
+
+                onMounted(fetchRecords)
+
+                return {
+                    recordCount,
+                    records,
+                    isLoading,
+                    markAsFixed
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
