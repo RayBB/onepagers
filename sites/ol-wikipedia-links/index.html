@@ -60,7 +60,13 @@
                                     {{ record.wikidata }}
                                 </a>
                             </p>
-                            <p class="text-gray-800 mt-2">{{ record.wikipedia_text }}</p>
+                            <p class="text-gray-800 mt-2">
+                                <a :href="record.wikipedia_text" 
+                                   class="text-blue-500 hover:underline"
+                                   target="_blank">
+                                    {{ record.wikipedia_text }}
+                                </a>
+                            </p>
                         </div>
                         <span class="px-2 py-1 text-xs font-medium rounded" 
                               :class="record.corrected ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
