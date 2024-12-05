@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Monitor</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div id="app" class="p-8 max-w-md w-full bg-white rounded-lg shadow-lg">
+        <div v-if="!url" class="text-red-600">
+            Add ?url=YOUR_URL to the address
+        </div>
+        <div v-else class="space-y-4">
+            <div>URL: <a :href="url" target="_blank" class="text-blue-600 hover:text-blue-800 underline">{{ url }}</a></div>
+            <div>Requests: {{ requestCount }}</div>
+            <div>Last response duration: {{ lastTime }} {{ lastTime ? 'ms' : ''}}</div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue
+        const EXPECTED_RESPONSE_TIME_MS = 2000
+        const REQUEST_TIMEOUT_MS = 5000
+        const CHECK_INTERVAL_MS = 5000
+        
+        createApp({
+            setup() {
+                const url = ref(new URLSearchParams(location.search).get('url'))
+                if (!url.value) return { url }
+
+                const requestCount = ref(0)
+                const lastTime = ref(null)
+
+                const measureResponseTime = () => {
+                    requestCount.value++
+                    const start = performance.now()
+                    fetch(url.value, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) })
+                        .finally(() => {
+                            const responseTime = Math.round(performance.now() - start)
+                            lastTime.value = responseTime
+                            redirectIfFastEnough(responseTime)
+                        })
+                }
+
+                const redirectIfFastEnough = (responseTime) => {
+                    if (responseTime < EXPECTED_RESPONSE_TIME_MS) {
+                        location.href = url.value
+                    }
+                }
+
+                measureResponseTime()
+                setInterval(measureResponseTime, CHECK_INTERVAL_MS)
+
+                return { url, requestCount, lastTime }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
