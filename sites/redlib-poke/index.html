@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Monitor</title>
+    <title>redlib-poke</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -16,6 +16,7 @@
             <div>URL: <a :href="url" target="_blank" class="text-blue-600 hover:text-blue-800 underline">{{ url }}</a></div>
             <div>Requests: {{ requestCount }}</div>
             <div>Last response duration: {{ lastTime }} {{ lastTime ? 'ms' : ''}}</div>
+            <div>Next request in: {{ nextRequestTime.toFixed(1) }}s</div>
         </div>
     </div>
 
@@ -32,9 +33,11 @@
 
                 const requestCount = ref(0)
                 const lastTime = ref(null)
+                const nextRequestTime = ref(CHECK_INTERVAL_MS / 1000)
 
                 const measureResponseTime = () => {
                     requestCount.value++
+                    nextRequestTime.value = CHECK_INTERVAL_MS / 1000
                     const start = performance.now()
                     fetch(url.value, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) })
                         .finally(() => {
@@ -53,7 +56,13 @@
                 measureResponseTime()
                 setInterval(measureResponseTime, CHECK_INTERVAL_MS)
 
-                return { url, requestCount, lastTime }
+                // Add countdown timer
+                const updateCountdown = () => {
+                    nextRequestTime.value = Math.max(0, nextRequestTime.value - 0.1)
+                }
+                setInterval(updateCountdown, 100)
+
+                return { url, requestCount, lastTime, nextRequestTime }
             }
         }).mount('#app')
     </script>
