@@ -280,7 +280,7 @@
                     }
                 },
                 generateFetchCommand(authorId, transformedData) {
-                    return `fetch('https://openlibrary.org/authors/${authorId}.json', {
+                    return `await fetch('https://openlibrary.org/authors/${authorId}.json', {
     method: 'PUT', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(${JSON.stringify(transformedData)}) })
     .then(async response => {
