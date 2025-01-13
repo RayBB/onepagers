@@ -134,6 +134,7 @@
                     </svg>
                     Copy All Fetch Commands
                 </button>
+                <button @click="submitAllChanges" class="mt-4 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md">Submit All Changes</button>
             </div>
 
             <!-- Documentation Section -->
@@ -141,7 +142,7 @@
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Documentation & FAQs</h2>
                 
                 <div class="space-y-6">
-                    <div>
+                     <div>
                         <h3 class="text-lg font-semibold text-gray-800 mb-2">How does it work?</h3>
                         <p class="text-gray-600">
                             This tool uses <a href="https://stedolan.github.io/jq/" class="text-blue-600 hover:underline" target="_blank">jq</a> 
@@ -443,6 +444,12 @@
                         await this.fetchAuthorData(authorId, true);
                     }
                     console.log("finishe refreshing authors")
+                },
+                async submitAllChanges() {
+                    if (!this.parsedStatements || !this.authCookie) return;
+                    for (const authorId of Object.keys(this.parsedStatements)) {
+                        await this.submitChange(authorId);
+                    }
                 }
             },
             watch: {
