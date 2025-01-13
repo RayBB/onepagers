@@ -85,7 +85,7 @@
                         <button 
                             v-if="authorData[authorId] && authCookie"
                             @click="submitChange(authorId)"
-                            :disabled="isSubmitting[authorId]"
+                            :disabled="isSubmitting[authorId] || submitted[authorId]"
                             class="ml-2 px-2 py-1 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-md flex items-center gap-1"
                         >
                             <svg v-if="isSubmitting[authorId]" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -95,7 +95,7 @@
                             <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
-                            {{ isSubmitting[authorId] ? 'Submitting...' : 'Submit Change' }}
+                            {{ isSubmitting[authorId] ? 'Submitting...' : submitted[authorId] ? 'Submitted' : 'Submit Change' }}
                         </button>
                     </h3>
 
@@ -232,7 +232,8 @@
                         }
                     },
                     notyf: null,
-                    isSubmitting: {}
+                    isSubmitting: {},
+                    submitted: {}
                 }
             },
             created() {
@@ -421,6 +422,7 @@
                         this.notyf.error(`Failed to submit changes: ${error.message}`);
                     } finally {
                         this.isSubmitting = { ...this.isSubmitting, [authorId]: false };
+                        this.submitted = { ...this.submitted, [authorId]: true };
                     }
                 },
                 promptForAuthCookie() {
