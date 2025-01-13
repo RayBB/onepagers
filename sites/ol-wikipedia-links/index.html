@@ -23,6 +23,7 @@
                 <p class="text-lg">
                     Number of records to process: {{ recordCount }}
                 </p>
+                <button @click="markAllAsFixed" class="px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">Mark All as Fixed</button>
             </div>
 
             <div v-if="isLoading" class="text-center py-4">
@@ -134,17 +135,29 @@
                     }
                 }
 
+                const markAllAsFixed = async () => {
+                    try {
+                        for (const record of records.value) {
+                            await markAsFixed(record);
+                        }
+                    } catch (error) {
+                        console.error("Failed to mark all as fixed:", error);
+                        alert("Failed to mark all records as fixed. Please try again.");
+                    }
+                };
+
                 const fetchRecords = async () => {
                     isLoading.value = true
                     try {
                         const resultList = await pb.collection('aw1').getList(1, 10, {
-                            filter: 'corrected != true && wikidata != qid_from_wikipedia',
+                            filter: 'corrected != true',
                             sort: '-created'
                         })
                         records.value = resultList.items.map(record => ({
                             ...record,
                             isUpdating: false
                         }))
+                        console.log(resultList.items.map(e=>`${e.OLID}|del(.wikipedia)`).join("\n"))
                         recordCount.value = resultList.totalItems
                     } catch (error) {
                         console.error('Failed to fetch records:', error)
@@ -159,7 +172,8 @@
                     recordCount,
                     records,
                     isLoading,
-                    markAsFixed
+                    markAsFixed,
+                    markAllAsFixed
                 }
             }
         }).mount('#app')
