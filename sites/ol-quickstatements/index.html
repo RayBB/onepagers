@@ -434,7 +434,7 @@
                     }
                 },
                 handleVisibilityChange() {
-                    if (document.visibilityState === 'visible') {
+                    if (document.visibilityState === 'visible' && Object.keys(this.parsedStatements || {}).length < 10) {
                         this.refreshAllAuthors();
                     }
                 },
