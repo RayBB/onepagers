@@ -42,4 +42,4 @@ This is a one-off utility project designed to:
 The tool will become obsolete once all ~1800 identified author records are processed and corrected.
 
 
-Blog post: https://blog.rayberger.org/cleaning-up-legacy-wikipedia-liniks
+Blog post: https://blog.rayberger.org/cleaning-up-legacy-wikipedia-links
