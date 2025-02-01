@@ -20,19 +20,19 @@ def fill_empty_notion_rows():
         page = extract_page(row.url)
         print(page)
 
-        llm_results = get_llm_categorizations(page.title, page.text)
+        llm_results = get_llm_categorizations(page)
         print(llm_results)
 
         row_input = NotionRowInput(
             url=row.url,
             notion_row_id=row.id,
-            title=page.title,
+            title=page.title or llm_results.title,
             summary=llm_results.summary,
             region=llm_results.region,
             topics=llm_results.topics,
             other_tags=llm_results.other_tags,
             vibe=llm_results.vibe,
-            date=page.date,
+            date=page.date or llm_results.date,
         )
         pprint(row_input)
 
@@ -41,5 +41,9 @@ def fill_empty_notion_rows():
 
 if __name__ == "__main__":
     while True:
-        fill_empty_notion_rows()
+        try:
+            fill_empty_notion_rows()
+        except Exception as e:
+            print(f"Error: {e}")
+        print("checking again in 60 seconds...")
         time.sleep(60)
