@@ -18,3 +18,4 @@ A few main components here:
 
 I'm going to use Python because it's more common for data science.
 
+`uv run main.py` to have it run through and update rows without AI summaries!

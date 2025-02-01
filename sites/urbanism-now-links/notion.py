@@ -55,29 +55,38 @@ def get_select_options(field_name, db_properties=None):
 
 @dataclass
 class NotionRowInput:
-    url: str
-    topics: List[str]
-    other_tags: List[str]
+    url: str = None
+    topics: List[str] = None
+    other_tags: List[str] = None
+    notion_row_id: str = None  # Only for updating row
     title: str = None
     summary: str = None
     region: str = None
     vibe: str = None
-    date: str = None  #: datetime.date
+    date: str = None  # YYYY-MM-DD
 
 
 def create_notion_input_properties(row_input: NotionRowInput) -> Dict[str, Any]:
-    # date_string = row_input.date.strftime("%Y-%m-%d")
-    date_string = row_input.date
-    return {
-        "Title": [{"text": {"content": row_input.title}}],
-        "URL": row_input.url,
-        "A.I. Summary": [{"text": {"content": row_input.summary}}],
-        "Region": {"name": row_input.region},
-        "Vibe": {"name": row_input.vibe},  # Not a multiselect, can only have one
-        "Topic": [{"name": topic} for topic in row_input.topics],
-        "Other Tags": [{"name": tag} for tag in row_input.other_tags],
-        "Publication Date": {"start": date_string},  # YYYY-MM-DD
-    }
+    properties = {}
+    if row_input.title:
+        properties["Title"] = [{"text": {"content": row_input.title}}]
+    if row_input.url:
+        properties["URL"] = row_input.url
+    if row_input.summary:
+        properties["A.I. Summary"] = [{"text": {"content": row_input.summary}}]
+    if row_input.region:
+        properties["Region"] = {"name": row_input.region}
+    if row_input.vibe:
+        properties["Vibe"] = {
+            "name": row_input.vibe
+        }  # Not a multiselect, can only have one
+    if row_input.topics:
+        properties["Topic"] = [{"name": topic} for topic in row_input.topics]
+    if row_input.other_tags:
+        properties["Other Tags"] = [{"name": tag} for tag in row_input.other_tags]
+    if row_input.date:
+        properties["Publication Date"] = {"start": row_input.date}  # YYYY-MM-DD
+    return properties
 
 
 # Todo I think we'll be updating Notion rows rather than creating them.
@@ -89,11 +98,46 @@ def create_notion_row(properties):
     return o
 
 
-if __name__ == "__main__":
-    properties = get_db_properties()
-    pprint(properties)
+@dataclass
+class NotionRowURL:
+    id: str
+    url: str
 
-    pprint(get_select_options("Vibe"))
-    pprint(get_select_options("Region"))
-    pprint(get_select_options("Topic"))
-    pprint(get_select_options("Other Tags"))
+
+def get_notion_rows_without_ai_summary() -> List[NotionRowURL]:
+    # No AI summary and no region so we don't get old articles
+    filter = {
+        "and": [
+            {"property": "A.I. Summary", "rich_text": {"is_empty": True}},
+            # {"property": "Region", "select": {"is_empty": True}},
+        ]
+    }
+    results = notion.databases.query(**{"database_id": DATABASE_ID, "filter": filter})
+    notion_rows = []
+    for result in results["results"]:
+        notion_row = NotionRowURL(
+            id=result["id"], url=result["properties"]["URL"]["url"]
+        )
+        notion_rows.append(notion_row)
+    return notion_rows
+
+
+def update_notion_row(row: NotionRowInput) -> None:
+    notion.pages.update(
+        page_id=row.notion_row_id,
+        properties=create_notion_input_properties(row),
+    )
+
+
+if __name__ == "__main__":
+    # properties = get_db_properties()
+    # pprint(properties)
+
+    # pprint(get_select_options("Vibe"))
+    # pprint(get_select_options("Region"))
+    # pprint(get_select_options("Topic"))
+    # pprint(get_select_options("Other Tags"))
+    r = get_notion_rows_without_ai_summary()
+    pprint(r)
+    input = NotionRowInput(notion_row_id=r[0].id, title="Test3")
+    update_notion_row(input)
