@@ -1,11 +1,9 @@
 # Tried markitdown but it gives huge headers and footers from sites :(
 # Maybe I'll use it for dealing with screenshots
 """
-from markitdown import MarkItDown
-
-md = MarkItDown()
-result = md.convert_url("https://nextcity.org/urbanist-news/in-nashville-cdfis-are-helping-convert-motels-into-affordable-housing")
-print(result.text_content)
+Some notes:
+  - Zoom links don't work well with this
+  - Youtube links barely work
 """
 
 import json

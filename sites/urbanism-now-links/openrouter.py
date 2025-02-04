@@ -15,6 +15,15 @@ client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.environ["OPEN_ROUTER_TOKEN"],
 )
+MODEL = "google/gemini-flash-1.5"
+
+client = OpenAI(
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+    api_key=os.environ["GEMINI_API_KEY"],
+)
+MODEL = "gemini-1.5-flash"
+MODEL = "gemini-1.5-pro"
+MODEL = "gemini-2.0-flash-exp"  # This model seems to be working pretty well!
 
 
 def build_schema_properties(page: ExtractedPage) -> dict[str, Any]:
@@ -88,7 +97,7 @@ def get_llm_categorizations(
             "HTTP-Referer": "https://urbanismnow.com",  # Optional. Site URL for rankings on openrouter.ai.
             "X-Title": "Urbanism Now",  # Optional. Site title for rankings on openrouter.ai.
         },
-        model="google/gemini-flash-1.5",
+        model=MODEL,
         messages=[
             {
                 "role": "user",
