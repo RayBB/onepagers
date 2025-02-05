@@ -23,7 +23,9 @@ client = OpenAI(
 )
 MODEL = "gemini-1.5-flash"
 MODEL = "gemini-1.5-pro"
-MODEL = "gemini-2.0-flash-exp"  # This model seems to be working pretty well!
+MODEL = "gemini-2.0-flash"  # 15RPM This model seems to be working pretty well!
+# MODEL = "gemini-2.0-flash-thinking-exp-01-21" # 10 RPM # No JSON mode :(
+MODEL = "gemini-2.0-pro-exp-02-05"  # 2RPM 50 requests per day
 
 
 def build_schema_properties(page: ExtractedPage) -> dict[str, Any]:
