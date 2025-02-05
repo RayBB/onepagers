@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 
 from cachetools import TTLCache, cached
 from dotenv import load_dotenv
+from notion2md.exporter.block import StringExporter
 from notion_client import Client
 
 load_dotenv()
@@ -127,6 +128,10 @@ def update_notion_row(row: NotionRowInput) -> None:
         page_id=row.notion_row_id,
         properties=create_notion_input_properties(row),
     )
+
+
+def get_notion_page_contents_as_md(page_id: str) -> str:
+    return StringExporter(block_id=page_id).export()
 
 
 if __name__ == "__main__":

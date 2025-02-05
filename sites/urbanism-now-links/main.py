@@ -17,7 +17,7 @@ from scrape_page import extract_page
 def fill_empty_notion_rows():
     for row in get_notion_rows_without_ai_summary():
         print(row)
-        page = extract_page(row.url)
+        page = extract_page(row.url, row.id)
         print(page)
 
         llm_results = get_llm_categorizations(page)

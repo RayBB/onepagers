@@ -12,6 +12,8 @@ from dataclasses import dataclass
 import trafilatura
 from markitdown import MarkItDown
 
+from notion import get_notion_page_contents_as_md
+
 
 @dataclass
 class ExtractedPage:
@@ -22,31 +24,37 @@ class ExtractedPage:
     date: str = None
 
 
-def extract_page(url: str) -> ExtractedPage:
+def extract_page(url: str, notion_id: str) -> ExtractedPage:
     try:
         downloaded = trafilatura.fetch_url(url)
-        result = trafilatura.extract(
+        extracted = trafilatura.extract(
             downloaded, with_metadata=True, output_format="json"
         )
-        result = json.loads(result)
+        if extracted:
+            result = json.loads(extracted)
+            return ExtractedPage(
+                text=result["text"],
+                title=result["title"],
+                author=result["author"],
+                date=result["date"],  # seems to be YYYY-MM-DD
+                url=url,
+            )
     except Exception as e:
         print(e)
+
+    try:
         md = MarkItDown()
         md_result = md.convert_url(url)
-        result = {
-            "text": md_result.text_content,
-            "title": md_result.title,
-            "author": None,
-            "date": None,
-        }
+        return ExtractedPage(
+            text=md_result.text_content, title=md_result.title, url=url
+        )
 
-    return ExtractedPage(
-        text=result["text"],
-        title=result["title"],
-        author=result["author"],
-        date=result["date"],  # seems to be YYYY-MM-DD
-        url=url,
-    )
+    except Exception as e:
+        print(e)
+        md_result = get_notion_page_contents_as_md(page_id=notion_id)
+        if not md_result:
+            raise Exception("Could not get Notion page contents")
+        return ExtractedPage(text=md_result, url=url)
 
 
 if __name__ == "__main__":
