@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OL Wikidata Matcher</title>
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes loadingDots {
+            0%, 20% { content: "." }
+            40% { content: ".." }
+            60%, 100% { content: "..." }
+        }
+        .loading-text::after {
+            content: "...";
+            display: inline-block;
+            animation: loadingDots 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div id="app">
+        <h1 class="text-4xl font-bold mb-4">OL Wikidata Matcher</h1>
+        <div class="grid grid-cols-1 gap-4">
+            <div v-for="author in authors" :key="author.key" class="bg-white rounded-lg shadow p-4">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    {{ author.humanLabel.value }}
+                    <span class="text-sm">
+                        <a :href="externalAuthorUrl + author.externalAuthorId.value" class="text-blue-500 hover:underline" target="_blank">Librivox</a>
+                        |
+                        <a :href="'https://www.wikidata.org/w/index.php?go=Go&search=' + author.humanLabel.value" class="text-blue-500 hover:underline" target="_blank">Wikidata Search</a>
+                        |
+                        <a :href="'https://reasonator.toolforge.org/?&lang=mul&q=' + getAuthorWikidataID(author)" class="text-blue-500 hover:underline" target="_blank">Wikidata Reasonator</a>
+                    </span>
+                </h2>
+                <div>
+                    <h3 class="text-lg font-semibold flex items-center gap-2">OL Search Results
+                        <a :href="'https://openlibrary.org/search/authors?q=' + author.humanLabel.value" class="text-blue-500 hover:underline" target="_blank">
+                            ({{ olAuthorSearchResults[getAuthorWikidataID(author)]?.length || 0 }})
+                        </a>
+                    </h3>
+                    <ul class="list-disc pl-6">
+                        <li v-for="result in olAuthorSearchResults[getAuthorWikidataID(author)]" :key="result.key">
+                            <a :href="`https://openlibrary.org/authors/${result.key}`" class="text-blue-500 hover:underline" target="_blank">{{ result.name }}</a>
+                            <ul class="list-disc pl-6" v-if="olAuthorWorks[result.key]">
+                                <li v-for="work in olAuthorWorks[result.key]" :key="work.key">
+                                    <a :href="`https://openlibrary.org/works/${work.key}`" class="text-blue-500 hover:underline" target="_blank">{{ work.title }}</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+        
+        createApp({
+            data() {
+                return {
+                    externalAuthorUrl: 'https://librivox.org/author/',
+                    authors: [{
+                        "human": {
+                            "type": "uri",
+                            "value": "http://www.wikidata.org/entity/Q535740"
+                        },
+                        "externalAuthorId": {
+                            "type": "literal",
+                            "value": "1584"
+                        },
+                        "humanLabel": {
+                            "xml:lang": "en",
+                            "type": "literal",
+                            "value": "Placide Cappeau"
+                        }
+                    }],
+                    olAuthorSearchResults: {
+                        "Q535740": []
+                    },
+                    olAuthorWorks: {
+                        "OL1584A": []
+                    }
+                }
+            },
+            created() {
+                this.queryWikidata();
+            },
+            computed: {
+            },
+            methods: {
+                async queryWikidata(){
+                    const sparqlQuery = `SELECT ?human ?humanLabel ?externalAuthorId WHERE {
+                    ?human wdt:P31 wd:Q5.  # filter for humans (P31 is "instance of")
+                    ?human wdt:P1412 wd:Q1860.  # filter for speaking english
+                    ?human wdt:P1899 ?externalAuthorId.  # filter for humans with a certain author ID
+                    MINUS {  # exclude humans with an Open Library ID
+                        ?human wdt:P648 ?openLibraryId.  # filter for humans with an Open Library ID (P648 is "Open Library ID")
+                    }
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+                    } LIMIT 6`;
+                    const response = await fetch("https://query.wikidata.org/sparql?query=" + encodeURIComponent(sparqlQuery) + "&format=json");
+                    const data = await response.json();
+                    this.authors = data.results.bindings;
+                    this.authors.forEach(async (author) => {
+                        const results = await this.getOLSearchResults(author.humanLabel.value);
+                        this.olAuthorSearchResults[this.getAuthorWikidataID(author)] = results;
+                        results.forEach(async (result) => {
+                            const works = await this.getOpenLibraryAuthorWorks(result.key);
+                            this.olAuthorWorks[result.key] = works;
+                        });
+                    });
+                },
+                async getOLSearchResults(authorName) {
+                    const response = await fetch("https://openlibrary.org/search/authors.json?q=" + encodeURIComponent(authorName));
+                    const data = await response.json();
+                    // Docs look like: [{"key": "OL10149828A", "name": "Cory Doctorow"}]
+                    return data.docs;
+                },
+                async getOpenLibraryAuthorWorks(authorId){
+                    const response = await fetch("https://openlibrary.org/authors/" + authorId + "/works.json?limit=10");
+                    const data = await response.json();
+                    return data.entries;
+                },
+                getAuthorWikidataID(author){
+                    return author.human.value.split('/').pop();
+                }
+            },
+            watch: {
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
