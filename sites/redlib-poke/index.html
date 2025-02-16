@@ -22,9 +22,10 @@
 
     <script>
         const { createApp, ref } = Vue
-        const EXPECTED_RESPONSE_TIME_MS = 2000
-        const REQUEST_TIMEOUT_MS = 2500
-        const CHECK_INTERVAL_MS = 2500
+        const EXPECTED_RESPONSE_TIME_MS = 1500
+        const REQUEST_TIMEOUT_MS = 2000
+        const CHECK_INTERVAL_MS = 2000
+        const MAX_FAIL_COUNT = 2;
         
         createApp({
             setup() {
@@ -34,17 +35,30 @@
                 const requestCount = ref(0)
                 const lastTime = ref(null)
                 const nextRequestTime = ref(CHECK_INTERVAL_MS / 1000)
+                const failCount = ref(0)
 
                 const measureResponseTime = () => {
                     requestCount.value++
                     nextRequestTime.value = CHECK_INTERVAL_MS / 1000
                     const start = performance.now()
                     fetch(url.value, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) })
-                        .finally(() => {
+                        .then(() => {
+                            failCount.value = 0
                             const responseTime = Math.round(performance.now() - start)
                             lastTime.value = responseTime
                             redirectIfFastEnough(responseTime)
                         })
+                        .catch(() => {
+                            failCount.value++
+                            if (failCount.value > MAX_FAIL_COUNT) {
+                                straightToReddit()
+                            }
+                        })
+                }
+
+                const straightToReddit = () => {
+                    const destinationUrl = new URL(url.value)
+                    location.href = destinationUrl.href.replace(destinationUrl.hostname, 'old.reddit.com')
                 }
 
                 const redirectIfFastEnough = (responseTime) => {
@@ -56,7 +70,6 @@
                 measureResponseTime()
                 setInterval(measureResponseTime, CHECK_INTERVAL_MS)
 
-                // Add countdown timer
                 const updateCountdown = () => {
                     nextRequestTime.value = Math.max(0, nextRequestTime.value - 0.1)
                 }
