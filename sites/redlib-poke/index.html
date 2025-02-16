@@ -37,6 +37,7 @@
                 const lastTime = ref(null)
                 const nextRequestTime = ref(CHECK_INTERVAL_MS / 1000)
                 const failCount = ref(0)
+                const intervalRef = ref(null)
 
                 const skipIfFailedRecently = () => {
                     const lastFailTime = localStorage.getItem('lastFailTime')
@@ -50,39 +51,41 @@
                     nextRequestTime.value = CHECK_INTERVAL_MS / 1000
                     const start = performance.now()
                     fetch(url.value, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) })
-                        .then(() => {
-                            failCount.value = 0
-                            const responseTime = Math.round(performance.now() - start)
-                            lastTime.value = responseTime
-                            redirectIfFastEnough(responseTime)
-                        })
-                        .catch(() => {
+                        .finally(() => {
                             failCount.value++
-                            localStorage.setItem('lastFailTime', Date.now().toString())
-                            if (failCount.value > MAX_FAIL_COUNT) {
+                            if (failCount.value >= MAX_FAIL_COUNT) {
+                                localStorage.setItem('lastFailTime', Date.now().toString())
                                 straightToReddit()
+                                return;
                             }
+
+                            lastTime.value = Math.round(performance.now() - start)
+                            if (redirectIfFastEnough(lastTime.value)) return;
                         })
                 }
 
                 const straightToReddit = () => {
+                    clearInterval(intervalRef.value)
                     const destinationUrl = new URL(url.value)
                     let destinationHostname = 'old.reddit.com'
                     if (/Mobi/i.test(window.navigator.userAgent)) {
                         destinationHostname = destinationHostname.replace('old.', '')
                     }
-                    location.href = destinationUrl.href.replace(destinationUrl.hostname, destinationHostname)
+                    location.href = new URL(destinationUrl.href.replace(destinationUrl.hostname, destinationHostname));
                 }
 
                 const redirectIfFastEnough = (responseTime) => {
                     if (responseTime < EXPECTED_RESPONSE_TIME_MS) {
+                        clearInterval(intervalRef.value)
                         location.href = url.value
+                        return true;
                     }
+                    return false;
                 }
 
                 skipIfFailedRecently()
                 measureResponseTime()
-                setInterval(measureResponseTime, CHECK_INTERVAL_MS)
+                intervalRef.value = setInterval(measureResponseTime, CHECK_INTERVAL_MS)
 
                 const updateCountdown = () => {
                     nextRequestTime.value = Math.max(0, nextRequestTime.value - 0.1)
