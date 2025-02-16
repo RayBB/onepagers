@@ -25,8 +25,9 @@
         const EXPECTED_RESPONSE_TIME_MS = 1500
         const REQUEST_TIMEOUT_MS = 2000
         const CHECK_INTERVAL_MS = 2000
-        const MAX_FAIL_COUNT = 2;
-        
+        const MAX_FAIL_COUNT = 2
+        const FAIL_COOLDOWN_MS = 12 * 60 * 60 * 1000 // 12 hours
+
         createApp({
             setup() {
                 const url = ref(new URLSearchParams(location.search).get('url'))
@@ -36,6 +37,13 @@
                 const lastTime = ref(null)
                 const nextRequestTime = ref(CHECK_INTERVAL_MS / 1000)
                 const failCount = ref(0)
+
+                const skipIfFailedRecently = () => {
+                    const lastFailTime = localStorage.getItem('lastFailTime')
+                    if (lastFailTime && Date.now() - parseInt(lastFailTime) < FAIL_COOLDOWN_MS) {
+                        straightToReddit()
+                    } 
+                }
 
                 const measureResponseTime = () => {
                     requestCount.value++
@@ -50,6 +58,7 @@
                         })
                         .catch(() => {
                             failCount.value++
+                            localStorage.setItem('lastFailTime', Date.now().toString())
                             if (failCount.value > MAX_FAIL_COUNT) {
                                 straightToReddit()
                             }
@@ -58,7 +67,11 @@
 
                 const straightToReddit = () => {
                     const destinationUrl = new URL(url.value)
-                    location.href = destinationUrl.href.replace(destinationUrl.hostname, 'old.reddit.com')
+                    let destinationHostname = 'old.reddit.com'
+                    if (/Mobi/i.test(window.navigator.userAgent)) {
+                        destinationHostname = destinationHostname.replace('old.', '')
+                    }
+                    location.href = destinationUrl.href.replace(destinationUrl.hostname, destinationHostname)
                 }
 
                 const redirectIfFastEnough = (responseTime) => {
@@ -67,6 +80,7 @@
                     }
                 }
 
+                skipIfFailedRecently()
                 measureResponseTime()
                 setInterval(measureResponseTime, CHECK_INTERVAL_MS)
 
