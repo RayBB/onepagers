@@ -30,6 +30,7 @@
                 <option v-for="property in wikidataProperties" :key="property.id" :value="property.id">{{ property.label }}</option>
             </select>
         </label>
+        Matching Authors: {{ selectedWikidataAuthorCount }}
         <br>
 
         <div class="grid grid-cols-1 gap-4">
@@ -100,10 +101,11 @@
                         {id: "P214", label: "VIAF", url: "https://viaf.org/viaf/"},
                     ],
                     selectedWikidataProperty: "P1899",
+                    selectedWikidataAuthorCount: "loading...",
                 }
             },
             created() {
-                this.queryWikidata();
+                this.queryWikidataForAuthors();
             },
             computed: {
                 selectedWikidataPropertyObject() {
@@ -111,7 +113,12 @@
                 }
             },
             methods: {
-                async queryWikidata(){
+                async queryWikidata(sparqlQuery){
+                    const response = await fetch("https://query.wikidata.org/sparql?query=" + encodeURIComponent(sparqlQuery) + "&format=json");
+                    const data = await response.json();
+                    return data;
+                },
+                async queryWikidataForAuthors(){
                     const sparqlQuery = `SELECT ?human ?humanLabel ?externalAuthorId WHERE {
                     ?human wdt:P31 wd:Q5.  # filter for humans (P31 is "instance of")
                     ?human wdt:P1412 wd:Q1860.  # filter for speaking english
@@ -121,8 +128,8 @@
                     }
                     SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
                     } LIMIT 6`;
-                    const response = await fetch("https://query.wikidata.org/sparql?query=" + encodeURIComponent(sparqlQuery) + "&format=json");
-                    const data = await response.json();
+                    this.queryWikidataForAuthorCount(sparqlQuery);
+                    const data = await this.queryWikidata(sparqlQuery);
                     this.authors = data.results.bindings;
                     this.authors.forEach(async (author) => {
                         const results = await this.getOLSearchResults(author.humanLabel.value);
@@ -132,6 +139,13 @@
                             this.olAuthorWorks[result.key] = works;
                         });
                     });
+                },
+                async queryWikidataForAuthorCount(sparqlQuery){
+                    this.selectedWikidataAuthorCount = "loading...";
+                    const authorCount = await this.queryWikidata(sparqlQuery.replace("?human ?humanLabel ?externalAuthorId", "(COUNT(?human) AS ?count)"));
+                    const count = authorCount.results.bindings[0].count.value;
+                    this.selectedWikidataAuthorCount = count;
+                    return count;
                 },
                 async getOLSearchResults(authorName) {
                     const response = await fetch("https://openlibrary.org/search/authors.json?q=" + encodeURIComponent(authorName));
@@ -150,7 +164,7 @@
             },
             watch: {
                 selectedWikidataProperty() {
-                    this.queryWikidata();
+                    this.queryWikidataForAuthors();
                 }
             }
         }).mount('#app')
