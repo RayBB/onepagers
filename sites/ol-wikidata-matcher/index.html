@@ -37,7 +37,7 @@
                 <h2 class="text-lg font-bold flex items-center gap-2">
                     {{ author.humanLabel.value }}
                     <span class="text-sm">
-                        <a :href="externalAuthorUrl + author.externalAuthorId.value" class="text-blue-500 hover:underline" target="_blank">Librivox</a>
+                        <a :href="externalAuthorUrl + author.externalAuthorId.value" class="text-blue-500 hover:underline" target="_blank">{{ selectedWikidataPropertyLabel }}</a>
                         |
                         <a :href="'https://www.wikidata.org/w/index.php?go=Go&search=' + author.humanLabel.value" class="text-blue-500 hover:underline" target="_blank">Wikidata Search</a>
                         |
@@ -92,13 +92,13 @@
                         "OL1584A": []
                     },
                     wikidataProperties: {
-                        "LibriVox author ID": "P1899",
-                        "The StoryGraph author ID": "P12430",
-                        "LibraryThing ID": "P7400",
-                        "Goodreads author ID": "P2963",
-                        "Project Gutenberg author ID": "P1938",
+                        "LibriVox": "P1899",
+                        "The StoryGraph": "P12430",
+                        "LibraryThing": "P7400",
+                        "Goodreads": "P2963",
+                        "Project Gutenberg": "P1938",
                         "ISNI": "P213",
-                        "VIAF ID": "P214",
+                        "VIAF": "P214",
                     },
                     selectedWikidataProperty: "P1899",
                 }
@@ -107,6 +107,9 @@
                 this.queryWikidata();
             },
             computed: {
+                selectedWikidataPropertyLabel() {
+                    return Object.keys(this.wikidataProperties).find(key => this.wikidataProperties[key] === this.selectedWikidataProperty);
+                }
             },
             methods: {
                 async queryWikidata(){
