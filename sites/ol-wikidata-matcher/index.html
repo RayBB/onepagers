@@ -50,16 +50,14 @@
                             ({{ olAuthorSearchResults[getAuthorWikidataID(author)]?.length || 0 }})
                         </a>
                     </h3>
-                    <ul class="list-disc pl-6">
-                        <li v-for="result in olAuthorSearchResults[getAuthorWikidataID(author)]" :key="result.key">
-                            <a :href="`https://openlibrary.org/authors/${result.key}`" class="text-blue-500 hover:underline" target="_blank">{{ result.name }}</a>
-                            <ul class="list-disc pl-6" v-if="olAuthorWorks[result.key]">
-                                <li v-for="work in olAuthorWorks[result.key]" :key="work.key">
-                                    <a :href="`https://openlibrary.org/works/${work.key}`" class="text-blue-500 hover:underline" target="_blank">{{ work.title }}</a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
+                    <div v-for="result in olAuthorSearchResults[getAuthorWikidataID(author)]" :key="result.key" class="mb-2">
+                        <a :href="`https://openlibrary.org/authors/${result.key}`" class="text-blue-500 hover:underline" target="_blank">{{ result.name }}</a>
+                        <ul class="list-disc pl-6" v-if="olAuthorWorks[result.key]">
+                            <li v-for="work in olAuthorWorks[result.key]" :key="work.key">
+                                <a :href="`https://openlibrary.org/works/${work.key}`" class="text-blue-500 hover:underline" target="_blank">{{ work.title }}</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
