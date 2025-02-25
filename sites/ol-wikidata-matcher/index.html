@@ -27,7 +27,7 @@
         <label for="identifier" class="block text-sm font-medium text-gray-700">
             Match on
             <select v-model="selectedWikidataProperty" id="identifier" class="px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500">
-                <option v-for="(value, key) in wikidataProperties" :key="key" :value="value">{{ key }}</option>
+                <option v-for="property in wikidataProperties" :key="property.id" :value="property.id">{{ property.label }}</option>
             </select>
         </label>
         <br>
@@ -37,7 +37,7 @@
                 <h2 class="text-lg font-bold flex items-center gap-2">
                     {{ author.humanLabel.value }}
                     <span class="text-sm">
-                        <a :href="externalAuthorUrl + author.externalAuthorId.value" class="text-blue-500 hover:underline" target="_blank">{{ selectedWikidataPropertyLabel }}</a>
+                        <a :href="selectedWikidataPropertyObject.url + author.externalAuthorId.value" class="text-blue-500 hover:underline" target="_blank">{{ selectedWikidataPropertyObject.label }}</a>
                         |
                         <a :href="'https://www.wikidata.org/w/index.php?go=Go&search=' + author.humanLabel.value" class="text-blue-500 hover:underline" target="_blank">Wikidata Search</a>
                         |
@@ -69,7 +69,6 @@
         createApp({
             data() {
                 return {
-                    externalAuthorUrl: 'https://librivox.org/author/',
                     authors: [{
                         "human": {
                             "type": "uri",
@@ -91,15 +90,15 @@
                     olAuthorWorks: {
                         "OL1584A": []
                     },
-                    wikidataProperties: {
-                        "LibriVox": "P1899",
-                        "The StoryGraph": "P12430",
-                        "LibraryThing": "P7400",
-                        "Goodreads": "P2963",
-                        "Project Gutenberg": "P1938",
-                        "ISNI": "P213",
-                        "VIAF": "P214",
-                    },
+                    wikidataProperties: [
+                        {id: "P1899", label: "LibriVox", url: "https://librivox.org/author/"},
+                        {id: "P12430", label: "The StoryGraph", url: "https://app.thestorygraph.com/authors/"},
+                        {id: "P7400", label: "LibraryThing", url: "https://www.librarything.com/author/"},
+                        {id: "P2963", label: "Goodreads", url: "https://www.goodreads.com/author/show/"},
+                        {id: "P1938", label: "Project Gutenberg", url: "https://www.gutenberg.org/ebooks/author/"},
+                        {id: "P213", label: "ISNI", url: "https://isni.org/isni/"},
+                        {id: "P214", label: "VIAF", url: "https://viaf.org/viaf/"},
+                    ],
                     selectedWikidataProperty: "P1899",
                 }
             },
@@ -107,8 +106,8 @@
                 this.queryWikidata();
             },
             computed: {
-                selectedWikidataPropertyLabel() {
-                    return Object.keys(this.wikidataProperties).find(key => this.wikidataProperties[key] === this.selectedWikidataProperty);
+                selectedWikidataPropertyObject() {
+                    return this.wikidataProperties.find(property => property.id === this.selectedWikidataProperty);
                 }
             },
             methods: {
