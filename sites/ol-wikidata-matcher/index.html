@@ -158,11 +158,14 @@
                         ?human wdt:P648 ?openLibraryId.  # filter for humans with an Open Library ID (P648 is "Open Library ID")
                     }
                     SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-                    } LIMIT 6`;
+                    } LIMIT 100`;
                     this.queryWikidataForAuthorCount(sparqlQuery);
                     const data = await this.queryWikidata(sparqlQuery);
                     this.authors = data.results.bindings;
-                    this.authors = [this.authors[0]];
+                    
+                    const randomIndex = Math.floor(Math.random() * this.authors.length);
+                    this.authors = [this.authors[randomIndex]];
+                    
                     this.authors.forEach(async (author) => {
                         const results = await this.getOLSearchResults(author.humanLabel.value);
                         this.olAuthorSearchResults[this.getAuthorWikidataID(author)] = results;
