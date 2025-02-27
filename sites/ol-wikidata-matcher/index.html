@@ -131,7 +131,7 @@
                         {id: "P213", label: "ISNI", url: "https://isni.org/isni/"},
                         {id: "P214", label: "VIAF", url: "https://viaf.org/viaf/"},
                     ],
-                    selectedWikidataProperty: "P12430",
+                    selectedWikidataProperty: localStorage.getItem("selectedWikidataProperty") || "P12430",
                     selectedWikidataAuthorCount: "loading...",
                 }
             },
@@ -196,6 +196,7 @@
             },
             watch: {
                 selectedWikidataProperty() {
+                    localStorage.setItem("selectedWikidataProperty", this.selectedWikidataProperty);
                     this.queryWikidataForAuthors();
                 }
             }
