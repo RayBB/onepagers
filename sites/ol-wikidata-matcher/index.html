@@ -63,6 +63,37 @@
             </div>
         </div>
     </div>
+    <div>
+        <h1 class="text-3xl font-bold">Docs</h1>
+        <p>This is a tool to match Wikdata authors to Open Library authors. We do this so OpenLibrary show more data on the author field and so that Wikidata has more information about authors. A complete match requires two steps:</p>
+        <ul class="list-disc pl-6">
+            <li><span class="font-bold">Step 1:</span> Add the Open Library author ID to the Wikidata record</li>
+            <li><span class="font-bold">Step 2:</span> Add the Wikidata author ID to the Open Library record</li>
+        </ul>
+        <br>
+        <dl class="space-y-6">
+            <dt class="text-lg font-bold">What should I do if there are duplicate authors on Open Library?</dt>
+            <ul class="list-disc pl-8">
+                <li><strong>Update the oldest record:</strong> Ideally, select the oldest author record and update it with any missing or new information.</li>
+                <li><strong>Use the record with the most works:</strong> If updating the oldest record is not feasible (it's hard to find), add the information to the author record that has the most works associated with it and report the duplicates.</li>
+                <li><strong>Report duplicates:</strong> If you're unable to resolve the issue, use the "Contact Us" link at the bottom of any Open Library page to report the duplicate authors.</li>
+            </ul>
+
+            <p class="mt-2">
+                <strong>For librarians:</strong> You have the option to merge duplicate author records yourself or request a merge if needed.
+            </p>
+            <dt class="text-lg font-bold">What should I do if an author has works that seem to belong to another author with the same name?</dt>
+            <dd class="pl-4">
+                A few options:
+                <ol class="list-decimal pl-6">
+                    <li>Report it, as above.</li>
+                    <li>Try to fix it following the librarian guidelines here <a href="https://openlibrary.org/librarians" class="text-blue-500 hover:underline" target="_blank">https://openlibrary.org/librarians</a>. 
+                        The general process is to move the works for one of the authors to another author record.  
+                    </li>
+                </ol>
+            </dd>
+        </dl>
+    </div>
 
     <script>
         const { createApp } = Vue
@@ -131,6 +162,7 @@
                     this.queryWikidataForAuthorCount(sparqlQuery);
                     const data = await this.queryWikidata(sparqlQuery);
                     this.authors = data.results.bindings;
+                    this.authors = [this.authors[0]];
                     this.authors.forEach(async (author) => {
                         const results = await this.getOLSearchResults(author.humanLabel.value);
                         this.olAuthorSearchResults[this.getAuthorWikidataID(author)] = results;
