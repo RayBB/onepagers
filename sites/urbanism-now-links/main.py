@@ -7,6 +7,7 @@ from pprint import pprint
 
 from notion import (
     NotionRowInput,
+    NotionRowURL,
     get_notion_rows_without_ai_summary,
     update_notion_row,
 )
@@ -16,27 +17,34 @@ from scrape_page import extract_page
 
 def fill_empty_notion_rows():
     for row in get_notion_rows_without_ai_summary():
-        print(row)
-        page = extract_page(row.url, row.id)
-        print(page)
+        try:
+            fill_notion_row(row)
+        except Exception as e:
+            print(f"Error: {e}")
 
-        llm_results = get_llm_categorizations(page)
-        print(llm_results)
 
-        row_input = NotionRowInput(
-            url=row.url,
-            notion_row_id=row.id,
-            title=page.title or llm_results.title,
-            summary=llm_results.summary,
-            region=llm_results.region,
-            topics=llm_results.topics,
-            other_tags=llm_results.other_tags,
-            vibe=llm_results.vibe,
-            date=page.date or llm_results.date,
-        )
-        pprint(row_input)
+def fill_notion_row(row: NotionRowURL) -> None:
+    print(row)
+    page = extract_page(row.url, row.id)
+    print(page)
 
-        update_notion_row(row_input)
+    llm_results = get_llm_categorizations(page)
+    print(llm_results)
+
+    row_input = NotionRowInput(
+        url=row.url,
+        notion_row_id=row.id,
+        title=page.title or llm_results.title,
+        summary=llm_results.summary,
+        region=llm_results.region,
+        topics=llm_results.topics,
+        other_tags=llm_results.other_tags,
+        vibe=llm_results.vibe,
+        date=page.date or llm_results.date,
+    )
+    pprint(row_input)
+
+    update_notion_row(row_input)
 
 
 if __name__ == "__main__":
