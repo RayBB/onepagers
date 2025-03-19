@@ -28,6 +28,19 @@ MODEL = "gemini-2.0-flash"  # 15RPM This model seems to be working pretty well!
 MODEL = "gemini-2.0-pro-exp-02-05"  # 2RPM 50 requests per day
 
 
+SUMMARY_PROMPT = """
+A 1-2 sentence summary of the content following the AP style.
+The target audience is people who are interested in urbanism.
+Don't be afraid of jargon but focus on clarity.
+If there is a salary include it toward the end.
+If there is a deadline include it at the end.
+Examples for article, job, and event respectively:
+A 21-year-old, with the help of the Tufi Association, created a public transport app for his hometown in Morocco. He single-handedly mapped Tétouan's entire public transport network and became one of the top four mappers in the country.
+NACTO is hiring a senior manager, multimodal design and programs to work on street design and technical projects. $99k - $109k salary. Apply by March 24.
+The Pattis Family Foundation Global Cities Book Award, in partnership with Metropolis, is offering a $25,000 prize for a non-fiction book published in English between January 2023 and March 2025 that focuses on how cities tackle global challenges. March 31.
+"""
+
+
 def build_schema_properties(page: ExtractedPage) -> dict[str, Any]:
     properties = {
         "Topic": {
@@ -58,7 +71,7 @@ def build_schema_properties(page: ExtractedPage) -> dict[str, Any]:
         },
         "Summary": {
             "type": "string",
-            "description": "A 1-2 sentence summary of the content. The target audience is people who are interested in urbanism. Don't be afraid of jargon but focus on clarity.",
+            "description": SUMMARY_PROMPT,
         },
     }
     if not page.title:
