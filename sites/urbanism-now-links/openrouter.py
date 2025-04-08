@@ -33,7 +33,7 @@ A 1-2 sentence summary of the content following the AP style.
 The target audience is people who are interested in urbanism.
 Don't be afraid of jargon but focus on clarity.
 If there is a salary include it toward the end.
-If there is a deadline include it at the end.
+If there is a deadline include it at the end. day/month only. No year.
 Examples for article, job, and event respectively:
 A 21-year-old, with the help of the Tufi Association, created a public transport app for his hometown in Morocco. He single-handedly mapped Tétouan's entire public transport network and became one of the top four mappers in the country.
 NACTO is hiring a senior manager, multimodal design and programs to work on street design and technical projects. $99k - $109k salary. Apply by March 24.
