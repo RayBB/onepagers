@@ -55,7 +55,7 @@
                         <a :href="`https://openlibrary.org/authors/${result.key}`" class="text-blue-500 hover:underline" target="_blank">{{ result.name }}</a>
                         <ul class="list-disc pl-6" v-if="olAuthorWorks[result.key]">
                             <li v-for="work in olAuthorWorks[result.key]" :key="work.key">
-                                <a :href="`https://openlibrary.org/works/${work.key}`" class="text-blue-500 hover:underline" target="_blank">{{ work.title }}</a>
+                                <a :href="`https://openlibrary.org${work.key}`" class="text-blue-500 hover:underline" target="_blank">{{ work.title }}</a>
                             </li>
                         </ul>
                     </div>
