@@ -53,7 +53,7 @@ def extract_page(url: str, notion_id: str) -> ExtractedPage:
         print(e)
         md_result = get_notion_page_contents_as_md(page_id=notion_id)
         if not md_result:
-            raise Exception("Could not get Notion page contents")
+            raise Exception(f"Could not get Notion page contents for {url}")
         return ExtractedPage(text=md_result, url=url)
 
 

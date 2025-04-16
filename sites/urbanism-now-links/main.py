@@ -16,11 +16,14 @@ from scrape_page import extract_page
 
 
 def fill_empty_notion_rows():
+    errors = []
     for row in get_notion_rows_without_ai_summary():
         try:
             fill_notion_row(row)
         except Exception as e:
             print(f"Error: {e}")
+            errors.append(str(e))
+    return errors
 
 
 def fill_notion_row(row: NotionRowURL) -> None:
