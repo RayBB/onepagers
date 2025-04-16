@@ -1,2 +1,2 @@
 [start]
-cmd = "fastapi run api.py"
+cmd = "fastapi run api.py --port 3000"
