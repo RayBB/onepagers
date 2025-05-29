@@ -1,4 +1,6 @@
 FROM ghcr.io/astral-sh/uv:python3.13-alpine
+# Curl for scheduled runs
+RUN apk --no-cache add curl
 
 WORKDIR /app
 
