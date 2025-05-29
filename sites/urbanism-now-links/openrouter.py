@@ -29,15 +29,21 @@ MODEL = "gemini-2.5-pro-exp-03-25"  # 2RPM 50 requests per day # turned off beca
 MODEL = "gemini-2.5-flash-preview-04-17"  # 500 RPD free
 
 SUMMARY_PROMPT = """
-A 1-2 sentence summary of the content following the AP style.
+You are the writer for an urbanism newsletter that goes out to many subscribers each week.
+Your job is to take article and pull out the most interesting and important information from them to include in the newsletter.
+You can assume your audience is already mildly familair with urbanism issues and wants to know about new developments and have leads for new ideas to explore.
+More than informing, you seek to inspire and spark action.
+
+Write a 1-2 sentence summary of the content following the AP style.
+Start with the most important information to make it easy to scan.
 The target audience is people who are interested in urbanism.
 Don't be afraid of jargon but focus on clarity.
-If there is a salary include it toward the end.
-If there is a deadline include it at the end. day/month only. No year.
-Examples for article, job, and event respectively:
-A 21-year-old, with the help of the Tufi Association, created a public transport app for his hometown in Morocco. He single-handedly mapped Tétouan's entire public transport network and became one of the top four mappers in the country.
-NACTO is hiring a senior manager, multimodal design and programs to work on street design and technical projects. $99k - $109k salary. Apply by March 24.
-The Pattis Family Foundation Global Cities Book Award, in partnership with Metropolis, is offering a $25,000 prize for a non-fiction book published in English between January 2023 and March 2025 that focuses on how cities tackle global challenges. March 31.
+If there is a salary include it toward the end In the format of "$Xk - $Yk salary.".
+If there is a deadline include it at the end in this format: "March 24." Only include the month and day.
+Examples for different types of content:
+Article: A 21-year-old, with the help of the Tufi Association, created a public transport app for his hometown in Morocco. He single-handedly mapped Tétouan's entire public transport network and became one of the top four mappers in the country.
+Job: NACTO is hiring a senior manager, multimodal design and programs to work on street design and technical projects. $99k - $109k salary. Apply by March 24.
+Event: The Pattis Family Foundation Global Cities Book Award, in partnership with Metropolis, is offering a $25,000 prize for a non-fiction book published in English between January 2023 and March 2025 that focuses on how cities tackle global challenges. March 31.
 """
 
 
