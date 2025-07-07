@@ -21,12 +21,9 @@ client = OpenAI(
     base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
     api_key=os.environ["GEMINI_API_KEY"],
 )
-MODEL = "gemini-1.5-flash"
-MODEL = "gemini-1.5-pro"
-MODEL = "gemini-2.0-flash"  # 15RPM This model seems to be working pretty well!
-# MODEL = "gemini-2.0-flash-thinking-exp-01-21" # 10 RPM # No JSON mode :(
-MODEL = "gemini-2.5-pro-exp-03-25"  # 2RPM 50 requests per day # turned off because Google removed the free tier
-MODEL = "gemini-2.5-flash-preview-04-17"  # 500 RPD free
+
+# MODEL = "gemini-2.5-flash"  # 500 RPD free
+MODEL = "gemini-2.5-pro"  # 2RPM 50 requests per day
 
 SUMMARY_PROMPT = """
 You are the writer for an urbanism newsletter that goes out to many subscribers each week.
