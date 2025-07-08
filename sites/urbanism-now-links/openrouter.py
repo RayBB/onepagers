@@ -37,6 +37,7 @@ The target audience is people who are interested in urbanism.
 Don't be afraid of jargon but focus on clarity.
 If there is a salary include it toward the end In the format of "$Xk - $Yk salary.".
 If there is a deadline include it at the end in this format: "March 24." Only include the month and day.
+If there is a job title make it lower case, following AP style.
 Examples for different types of content:
 Article: A 21-year-old, with the help of the Tufi Association, created a public transport app for his hometown in Morocco. He single-handedly mapped Tétouan's entire public transport network and became one of the top four mappers in the country.
 Job: NACTO is hiring a senior manager, multimodal design and programs to work on street design and technical projects. $99k - $109k salary. Apply by March 24.
