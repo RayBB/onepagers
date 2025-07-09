@@ -52,9 +52,13 @@ def extract_page(url: str, notion_id: str) -> ExtractedPage:
     except Exception as e:
         print(e)
         md_result = get_notion_page_contents_as_md(page_id=notion_id)
-        if not md_result:
-            raise Exception(f"Could not get Notion page contents for {url}")
-        return ExtractedPage(text=md_result, url=url)
+        if md_result:
+            return ExtractedPage(text=md_result, url=url)
+
+        IA_PREFIX = "https://web.archive.org/web/"
+        if IA_PREFIX not in url:
+            return extract_page(f"{IA_PREFIX}{url}", notion_id)
+        raise Exception(f"Could not get Notion page contents for {url}")
 
 
 if __name__ == "__main__":
