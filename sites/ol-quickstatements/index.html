@@ -470,13 +470,15 @@
                         }
                         if (this.getAutoSubmitFromUrl()) {
                             if (!this.parsedStatements) return;
+                            let diffCount = 0;
                             for (const authorId of Object.keys(this.parsedStatements)) {
                                 if (this.getAuthorDiff(authorId) != null) {
                                     await this.submitChange(authorId);
                                     console.log('submitting changes for author', authorId);
+                                    diffCount++;
                                 }
                             }
-                            if (this.getRedirectUrl()) {
+                            if (diffCount > 0 && this.getRedirectUrl()) {
                                 window.location.href = this.getRedirectUrl();
                             }
                         }
