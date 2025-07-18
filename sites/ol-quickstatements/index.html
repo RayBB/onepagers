@@ -385,6 +385,14 @@
                     const statements = urlParams.get('statements');
                     return statements ? decodeURIComponent(statements) : null;
                 },
+                getAutoSubmitFromUrl() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    return urlParams.get('auto') === 'true';
+                },
+                getRedirectUrl() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    return urlParams.get('redirect');
+                },
                 async submitChange(authorId) {
                     try {
                         this.isSubmitting = { ...this.isSubmitting, [authorId]: true };
@@ -442,7 +450,7 @@
                     for (const authorId of Object.keys(this.parsedStatements)) {
                         await this.fetchAuthorData(authorId, true);
                     }
-                    console.log("finishe refreshing authors")
+                    console.log("finished refreshing authors")
                 },
                 async submitAllChanges() {
                     if (!this.parsedStatements || !this.authCookie) return;
@@ -459,6 +467,18 @@
                         
                         for (const authorId of Object.keys(newStatements)) {
                             await this.fetchAuthorData(authorId);
+                        }
+                        if (this.getAutoSubmitFromUrl()) {
+                            if (!this.parsedStatements) return;
+                            for (const authorId of Object.keys(this.parsedStatements)) {
+                                if (this.getAuthorDiff(authorId) != null) {
+                                    await this.submitChange(authorId);
+                                    console.log('submitting changes for author', authorId);
+                                }
+                            }
+                            if (this.getRedirectUrl()) {
+                                window.location.href = this.getRedirectUrl();
+                            }
                         }
                     }
                 }
