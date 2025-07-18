@@ -209,7 +209,7 @@
             data() {
                 return {
                     authCookie: localStorage.getItem('authCookie') || '',
-                    proxyHost: 'https://ash-lush-seat.glitch.me',
+                    proxyHost: 'https://cors-with-cookies.ray-f63.workers.dev',
                     statements: this.getStatementsFromUrl() || '',
                     authorData: {},
                     jq: null,
@@ -240,7 +240,6 @@
             created() {
                 this.initializeNotyf();
                 this.initializeJq();
-                fetch(this.proxyHost); // Fetch to warmup Glitch.me proxy
                 document.addEventListener('visibilitychange', this.handleVisibilityChange);
             },
             computed: {
