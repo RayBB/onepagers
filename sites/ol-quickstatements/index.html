@@ -464,7 +464,7 @@
                     immediate: true,
                     async handler(newStatements) {
                         if (!newStatements) return;
-                        
+                        await this.initializeJq();
                         for (const authorId of Object.keys(newStatements)) {
                             await this.fetchAuthorData(authorId);
                         }
