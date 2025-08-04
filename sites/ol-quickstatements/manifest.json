@@ -1,0 +1,9 @@
+{
+  "name": "OL Quickstatements",
+  "short_name": "OL Quickstatements",
+  "description": "A tool for editing Open Library quickly",
+  "start_url": "/sites/ol-quickstatements/index.html",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#3b82f6"
+}
