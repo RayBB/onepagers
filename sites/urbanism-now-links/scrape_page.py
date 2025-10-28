@@ -8,6 +8,7 @@ Some notes:
 
 import json
 from dataclasses import dataclass
+from urllib.parse import urlparse, urlunparse
 
 import trafilatura
 from markitdown import MarkItDown
@@ -24,7 +25,22 @@ class ExtractedPage:
     date: str = None
 
 
+def clean_url_for_domains(url: str) -> str:
+    """Strip query parameters and fragments from URLs for specific domains."""
+    parsed = urlparse(url)
+    domains_to_strip = {"linkedin.com", "nextcity.org", "instagram.com"}
+    # Check if the domain matches any in the strip list
+    if any(domain in parsed.netloc for domain in domains_to_strip):
+        # Remove query and fragment
+        cleaned = urlunparse(
+            (parsed.scheme, parsed.netloc, parsed.path, parsed.params, "", "")
+        )
+        return cleaned
+    return url
+
+
 def extract_page(url: str, notion_id: str) -> ExtractedPage:
+    url = clean_url_for_domains(url)
     try:
         downloaded = trafilatura.fetch_url(url)
         extracted = trafilatura.extract(
@@ -63,6 +79,7 @@ def extract_page(url: str, notion_id: str) -> ExtractedPage:
 
 if __name__ == "__main__":
     page = extract_page(
-        "https://transalt.org/newsletter/turning-tragedy-into-action-how-we-can-end-traffic-violence-in-new-york"
+        "https://transalt.org/newsletter/turning-tragedy-into-action-how-we-can-end-traffic-violence-in-new-york",
+        "dummy_id",
     )
     print(page)

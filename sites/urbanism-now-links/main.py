@@ -35,7 +35,7 @@ def fill_notion_row(row: NotionRowURL) -> None:
     print(llm_results)
 
     row_input = NotionRowInput(
-        url=row.url,
+        url=page.url,
         notion_row_id=row.id,
         title=page.title or llm_results.title,
         summary=llm_results.summary,
