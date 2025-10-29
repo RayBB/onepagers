@@ -66,23 +66,38 @@ createApp({
       inputText: '',
       results: [],
       loading: false,
-      cache: new Map() // In-memory cache for Wikidata responses
+      cache: new Map()
     };
   },
   methods: {
     async lookup() {
       this.loading = true;
-      this.results = [];
       const lines = this.inputText.trim().split('\n').filter(line => line.trim());
 
-      for (const input of lines) {
-        const trimmed = input.trim();
-        if (!trimmed) continue;
+      // 1. Immediately populate the results array with placeholder data.
+      //    This makes the table render instantly with a "Loading..." status for each item.
+      this.results = lines.map(line => ({
+        input: line,
+        qid: null,
+        description: 'Querying...'
+      }));
 
-        const result = await this._fetchWikidataEntity(trimmed);
-        this.results.push({ input: trimmed, ...result });
-      }
+      // 5 workers pulling at once
+      const NUM_WORKERS = 5;
+      let counter = 0;
+      const workers = Array(NUM_WORKERS).fill().map(async () => {
+        while (true) {
+          const index = counter++;
+          if (index >= lines.length) {
+            break;
+          }
+          const input = lines[index].trim();
+          const result = await this._fetchWikidataEntity(input);
+          this.results[index] = { input, ...result };
+        }
+      });
 
+      await Promise.all(workers);
       this.loading = false;
     },
 
