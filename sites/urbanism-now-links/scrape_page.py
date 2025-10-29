@@ -10,6 +10,7 @@ import json
 from dataclasses import dataclass
 from urllib.parse import urlparse, urlunparse
 
+import httpx
 import trafilatura
 from markitdown import MarkItDown
 
@@ -39,8 +40,40 @@ def clean_url_for_domains(url: str) -> str:
     return url
 
 
+def extract_youtube_video(url: str) -> ExtractedPage:
+    tldw_url = "https://api.tldw.tube/api/summarize"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:144.0) Gecko/20100101 Firefox/144.0",
+        "Accept": "*/*",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Content-Type": "application/json",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-site",
+    }
+    response = httpx.post(tldw_url, json={"url": url}, headers=headers)
+    response.raise_for_status()
+    response_data = response.json()
+    return ExtractedPage(
+        text=response_data["summary"]["paragraph"],
+        title=response_data["title"],
+        url=url,
+    )
+
+
 def extract_page(url: str, notion_id: str) -> ExtractedPage:
     url = clean_url_for_domains(url)
+
+    YOUTUBE_DOMAINS = {
+        "youtube.com",
+        "www.youtube.com",
+        "m.youtube.com",
+        "youtu.be",
+        "www.youtu.be",
+    }
+    if any(domain in url.lower() for domain in YOUTUBE_DOMAINS):
+        return extract_youtube_video(url)
+
     try:
         downloaded = trafilatura.fetch_url(url)
         extracted = trafilatura.extract(
