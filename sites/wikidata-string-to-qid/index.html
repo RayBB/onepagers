@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wikidata QID Lookup</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    textarea { width: 100%; height: 150px; font-family: monospace; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f0f0f0; }
+    .loading { color: #666; font-style: italic; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <h2>Wikidata QID Lookup</h2>
+  <p>Paste one item per line (e.g., countries, people, etc.)</p>
+  <textarea v-model="inputText" placeholder="France&#10;Germany&#10;Albert Einstein"></textarea>
+  
+  <button @click="lookup" :disabled="loading" style="margin-top: 10px; padding: 8px 16px;">
+    {{ loading ? 'Looking up...' : 'Lookup QIDs' }}
+  </button>
+
+  <div v-if="results.length > 0" style="margin-top: 20px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Input</th>
+          <th>QID</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, index) in results" :key="index">
+          <td>{{ item.input }}</td>
+          <td>
+            <a 
+              v-if="item.qid" 
+              :href="'https://www.wikidata.org/wiki/' + item.qid" 
+              target="_blank"
+            >
+              {{ item.qid }}
+            </a>
+            <span v-else class="error">Not found</span>
+          </td>
+          <td>{{ item.description || '-' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p v-if="loading" class="loading">Querying Wikidata...</p>
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+  data() {
+    return {
+      inputText: '',
+      results: [],
+      loading: false,
+      cache: new Map() // In-memory cache for Wikidata responses
+    };
+  },
+  methods: {
+    async lookup() {
+      this.loading = true;
+      this.results = [];
+      const lines = this.inputText.trim().split('\n').filter(line => line.trim());
+
+      for (const input of lines) {
+        const trimmed = input.trim();
+        if (!trimmed) continue;
+
+        const result = await this._fetchWikidataEntity(trimmed);
+        this.results.push({ input: trimmed, ...result });
+      }
+
+      this.loading = false;
+    },
+
+    async _fetchWikidataEntity(searchTerm) {
+      if (this.cache.has(searchTerm)) {
+        return this.cache.get(searchTerm);
+      }
+
+      try {
+        const searchUrl = `https://www.wikidata.org/w/api.php?` +
+          `action=wbsearchentities&search=${encodeURIComponent(searchTerm)}` +
+          `&language=en&format=json&origin=*&limit=1`;
+
+        const searchRes = await fetch(searchUrl);
+        const searchData = await searchRes.json();
+
+        let qid = null;
+        let description = null;
+
+        if (searchData.search && searchData.search.length > 0) {
+          const entity = searchData.search[0];
+          qid = entity.id;
+          description = entity.description || null;
+        }
+
+        const result = { qid, description };
+        this.cache.set(searchTerm, result);
+        return result;
+      } catch (err) {
+        const result = { qid: null, description: 'Error' };
+        this.cache.set(searchTerm, result);
+        return result;
+      }
+    }
+  }
+}).mount('#app');
+</script>
+
+</body>
+</html>
