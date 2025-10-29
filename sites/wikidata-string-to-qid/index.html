@@ -11,6 +11,7 @@
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     th { background-color: #f0f0f0; }
+    button { padding: 8px 16px; margin-right: 10px; }
     .loading { color: #666; font-style: italic; }
     .error { color: red; }
   </style>
@@ -22,9 +23,13 @@
   <p>Paste one item per line (e.g., countries, people, etc.)</p>
   <textarea v-model="inputText" placeholder="France&#10;Germany&#10;Albert Einstein"></textarea>
   
-  <button @click="lookup" :disabled="loading" style="margin-top: 10px; padding: 8px 16px;">
-    {{ loading ? 'Looking up...' : 'Lookup QIDs' }}
-  </button>
+  <div  style="margin-top: 10px;">
+    <button @click="lookup" :disabled="loading"> {{ loading ? 'Looking up...' : 'Lookup QIDs' }} </button>
+    <span v-if="!loading && results.length > 0">
+      <button @click="copyAsTSV">Copy as TSV</button>
+      <button @click="copyAsCSV">Copy as CSV</button>
+    </span>
+  </div>
 
   <div v-if="results.length > 0" style="margin-top: 20px;">
     <table>
@@ -131,6 +136,22 @@ createApp({
         this.cache.set(searchTerm, result);
         return result;
       }
+    },
+
+    copyAsTSV() {
+      const tsv = this.results.map(row =>
+        [row.input, row.qid || '', row.description || ''].join('\t')
+      ).join('\n');
+      navigator.clipboard.writeText(tsv);
+    },
+
+    copyAsCSV() {
+      const csv = this.results.map(row =>
+        [row.input, row.qid || '', row.description || ''].map(field =>
+          '"' + (field || '').replace(/"/g, '""') + '"'
+        ).join(',')
+      ).join('\n');
+      navigator.clipboard.writeText(csv);
     }
   }
 }).mount('#app');
