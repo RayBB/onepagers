@@ -8,7 +8,7 @@ Some notes:
 
 import json
 from dataclasses import dataclass
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import httpx
 import trafilatura
@@ -37,7 +37,53 @@ def clean_url_for_domains(url: str) -> str:
             (parsed.scheme, parsed.netloc, parsed.path, parsed.params, "", "")
         )
         return cleaned
-    return url
+    else:
+        tracking_params = {
+            "utm_source",
+            "utm_medium",
+            "utm_campaign",
+            "utm_term",
+            "utm_content",
+            "fbclid",
+            "gclid",
+            "dclid",
+            "msclkid",
+            "_ga",
+            "__hstc",
+            "__hssc",
+            "__hssrc",
+            "mc_cid",
+            "mc_eid",
+            "ref",
+            "source",
+            "pk_",
+            "igshid",
+            "si",
+        }
+        query = parse_qs(parsed.query, keep_blank_values=True)
+        # Remove tracking params
+        cleaned_query = {
+            k: v
+            for k, v in query.items()
+            if not any(
+                k.startswith(p.rstrip("_")) if p.endswith("_") else k == p
+                for p in tracking_params
+            )
+        }
+
+        # Rebuild URL
+        new_query = urlencode(cleaned_query, doseq=True)
+        return urlunparse(
+            (
+                parsed.scheme,
+                parsed.netloc,
+                parsed.path,
+                parsed.params,
+                new_query,
+                parsed.fragment,
+            )
+        )
+        return url
 
 
 def extract_youtube_video(url: str) -> ExtractedPage:
