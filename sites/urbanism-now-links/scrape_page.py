@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import httpx
+import requests
 import trafilatura
 from markitdown import MarkItDown
 
@@ -106,6 +107,25 @@ def extract_youtube_video(url: str) -> ExtractedPage:
     )
 
 
+def archive(url: str):
+    """Archives pages to IA. Runs on a thread in the background"""
+
+    def do_archive(url: str):
+        try:
+            check = requests.get(
+                f"https://archive.org/wayback/available?url={url}", timeout=10
+            ).json()
+            if not check.get("archived_snapshots"):
+                requests.get(f"https://web.archive.org/save/{url}", timeout=100)
+        except:
+            pass  # Fail silently
+
+    import threading
+
+    print("starting background archive")
+    threading.Thread(target=do_archive, args=(url,), daemon=True).start()
+
+
 def extract_page(url: str, notion_id: str) -> ExtractedPage:
     url = clean_url_for_domains(url)
 
@@ -120,6 +140,7 @@ def extract_page(url: str, notion_id: str) -> ExtractedPage:
         return extract_youtube_video(url)
 
     try:
+        archive(url)  # This runs on a thread in the background
         downloaded = trafilatura.fetch_url(url)
         extracted = trafilatura.extract(
             downloaded, with_metadata=True, output_format="json"
