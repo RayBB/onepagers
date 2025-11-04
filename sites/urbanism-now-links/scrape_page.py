@@ -83,7 +83,6 @@ def clean_url_for_domains(url: str) -> str:
                 parsed.fragment,
             )
         )
-        return url
 
 
 def extract_youtube_video(url: str) -> ExtractedPage:
