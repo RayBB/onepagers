@@ -11,7 +11,6 @@ from dataclasses import dataclass
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import httpx
-import requests
 import trafilatura
 from markitdown import MarkItDown
 
@@ -112,11 +111,11 @@ def archive(url: str):
 
     def do_archive(url: str):
         try:
-            check = requests.get(
-                f"https://archive.org/wayback/available?url={url}", timeout=10
+            check = httpx.get(
+                f"https://archive.org/wayback/available?url={url}", timeout=100
             ).json()
             if not check.get("archived_snapshots"):
-                requests.get(f"https://web.archive.org/save/{url}", timeout=100)
+                httpx.get(f"https://web.archive.org/save/{url}", timeout=100)
         except:
             pass  # Fail silently
 
