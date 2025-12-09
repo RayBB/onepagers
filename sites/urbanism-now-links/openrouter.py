@@ -15,15 +15,15 @@ client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.environ["OPEN_ROUTER_TOKEN"],
 )
-MODEL = "google/gemini-flash-1.5"
+MODEL = "z-ai/glm-4.5-air:free"
 
-client = OpenAI(
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-    api_key=os.environ["GEMINI_API_KEY"],
-)
+# client = OpenAI(
+#     base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+#     api_key=os.environ["GEMINI_API_KEY"],
+# )
 
 # MODEL = "gemini-2.5-flash"  # 500 RPD free
-MODEL = "gemini-2.5-pro"  # 2RPM 50 requests per day
+# MODEL = "gemini-2.5-pro"  # 2RPM 50 requests per day
 
 SUMMARY_PROMPT = """
 You are the writer for an urbanism newsletter that goes out to many subscribers each week.
