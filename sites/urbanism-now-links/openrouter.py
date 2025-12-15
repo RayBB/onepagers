@@ -16,14 +16,15 @@ client = OpenAI(
     api_key=os.environ["OPEN_ROUTER_TOKEN"],
 )
 MODEL = "z-ai/glm-4.5-air:free"
+# MODEL = "google/gemini-3-pro-preview"  # Paid, about $0.02 per request
 
-# client = OpenAI(
-#     base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-#     api_key=os.environ["GEMINI_API_KEY"],
-# )
+client = OpenAI(
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+    api_key=os.environ["GEMINI_API_KEY"],
+)
 
-# MODEL = "gemini-2.5-flash"  # 500 RPD free
-# MODEL = "gemini-2.5-pro"  # 2RPM 50 requests per day
+MODEL = "gemini-2.5-flash"  # 20 RPD free
+# MODEL = "gemini-2.5-pro"  # Free tier removed :(
 
 SUMMARY_PROMPT = """
 You are the writer for an urbanism newsletter that goes out to many subscribers each week.
