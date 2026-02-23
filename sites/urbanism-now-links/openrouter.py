@@ -4,27 +4,19 @@ from dataclasses import dataclass
 from typing import Any, List
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from litellm import completion
 
 from notion import get_select_options
 from scrape_page import ExtractedPage
 
 load_dotenv()
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.environ["OPEN_ROUTER_TOKEN"],
-)
-MODEL = "z-ai/glm-4.5-air:free"
-# MODEL = "google/gemini-3-pro-preview"  # Paid, about $0.02 per request
-
-client = OpenAI(
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-    api_key=os.environ["GEMINI_API_KEY"],
-)
-
-MODEL = "gemini-2.5-flash"  # 20 RPD free
-# MODEL = "gemini-2.5-pro"  # Free tier removed :(
+MODEL = os.environ.get("LITELLM_MODEL", "gemini/gemini-2.5-flash")
+# Alternative models:
+# MODEL = "zai/glm-4.7" # not currently working
+# MODEL = "openrouter/google/gemini-3-pro-preview"  # Paid, about $0.02 per request
+# MODEL = "openrouter/arcee-ai/trinity-large-preview:free" # not working
+# MODEL = "openrouter/google/gemini-2.5-flash-lite" # works...
 
 SUMMARY_PROMPT = """
 You are the writer for an urbanism newsletter that goes out to many subscribers each week.
@@ -112,7 +104,7 @@ class LLM_Results:
 def get_llm_categorizations(
     page: ExtractedPage,
 ) -> LLM_Results:
-    completion = client.chat.completions.create(
+    response = completion(
         extra_headers={
             "HTTP-Referer": "https://urbanismnow.com",  # Optional. Site URL for rankings on openrouter.ai.
             "X-Title": "Urbanism Now",  # Optional. Site title for rankings on openrouter.ai.
@@ -138,7 +130,7 @@ def get_llm_categorizations(
             },
         },
     )
-    output_json = json.loads(completion.choices[0].message.content)
+    output_json = json.loads(response.choices[0].message.content)
     return LLM_Results(
         vibe=output_json.get("Vibe"),
         other_tags=output_json.get("Other Tags", []),
@@ -149,10 +141,3 @@ def get_llm_categorizations(
         author=output_json.get("Author"),
         date=output_json.get("Date"),
     )
-
-
-if __name__ == "__main__":
-    output = get_llm_categorizations(
-        "Caltrain’s Electric Fleet More Efficient than Expected", ""
-    )
-    print(output)

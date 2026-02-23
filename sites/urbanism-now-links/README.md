@@ -19,3 +19,27 @@ A few main components here:
 I'm going to use Python because it's more common for data science.
 
 `uv run main.py` to have it run through and update rows without AI summaries!
+
+## LLM Provider Configuration
+
+This project uses LiteLLM to easily switch between different LLM providers. Set `LITELLM_MODEL` environment variable to switch providers.
+
+### API Keys
+
+LiteLLM automatically picks up API keys from environment variables. Set the key for your provider:
+
+| Provider | Env Variable |
+|----------|-------------|
+| Z.AI (direct) | `ZAI_API_KEY` |
+| OpenRouter | `OPENROUTER_API_KEY` |
+| Gemini | `GEMINI_API_KEY` |
+
+### Provider Examples
+
+**Z.AI (Direct Subscription)**
+```bash
+LITELLM_MODEL=zai/glm-4.7
+LITELLM_MODEL=openrouter/z-ai/glm-4.5-air:free
+LITELLM_MODEL=gemini/gemini-3-pro-preview
+```
+
