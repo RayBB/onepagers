@@ -10,7 +10,6 @@ RUN uv sync --locked
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
+HEALTHCHECK CMD curl --silent -f http://localhost:3000/health || exit 1
 
 CMD ["uv", "run", "fastapi", "run", "api.py", "--port", "3000"]
