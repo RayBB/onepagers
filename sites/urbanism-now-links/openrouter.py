@@ -1,22 +1,31 @@
-import json
 import os
-from dataclasses import dataclass
-from typing import Any, List
+from typing import List, Optional
 
+import instructor
 from dotenv import load_dotenv
 from litellm import completion
+from pydantic import BaseModel, Field, field_validator
 
 from notion import get_select_options
 from scrape_page import ExtractedPage
 
 load_dotenv()
 
-MODEL = os.environ.get("LITELLM_MODEL", "gemini/gemini-2.5-flash")
-# Alternative models:
-# MODEL = "zai/glm-4.7" # not currently working
-# MODEL = "openrouter/google/gemini-3-pro-preview"  # Paid, about $0.02 per request
-# MODEL = "openrouter/arcee-ai/trinity-large-preview:free" # not working
-# MODEL = "openrouter/google/gemini-2.5-flash-lite" # works...
+MODEL = os.environ.get("LITELLM_MODEL", "zai/glm-4.7")
+
+# Set Z.AI coding endpoint for coding plan users
+ZAI_CODING_API_BASE = "https://api.z.ai/api/coding/paas/v4"
+
+# Create instructor client using litellm integration
+client = instructor.from_litellm(completion, mode=instructor.Mode.MD_JSON)
+
+# Map Python field names to Notion property names
+FIELD_TO_NOTION = {
+    "vibe": "Vibe",
+    "region": "Region",
+    "topics": "Topic",
+    "other_tags": "Other Tags",
+}
 
 SUMMARY_PROMPT = """
 You are the writer for an urbanism newsletter that goes out to many subscribers each week.
@@ -38,106 +47,74 @@ Event: The Pattis Family Foundation Global Cities Book Award, in partnership wit
 """
 
 
-def build_schema_properties(page: ExtractedPage) -> dict[str, Any]:
-    properties = {
-        "Topic": {
-            "type": "array",
-            "items": {
-                "enum": get_select_options("Topic"),
-                "description": "The topics that best map to this content.",
-                "type": "string",
-            },
-        },
-        "Vibe": {
-            "description": "Is this content about something positive people want to see more of in the world or negative that people want less of in the world?",
-            "enum": get_select_options("Vibe"),
-            "type": "string",
-        },
-        "Region": {
-            "description": "The region that this content is about. If it doesn't specify, where does it originate from?",
-            "enum": get_select_options("Region"),
-            "type": "string",
-        },
-        "Other Tags": {
-            "type": "array",
-            "items": {
-                "enum": get_select_options("Other Tags"),
-                "description": "The topics that best represent this content.",
-                "type": "string",
-            },
-        },
-        "Summary": {
-            "type": "string",
-            "description": SUMMARY_PROMPT,
-        },
-    }
-    if not page.title:
-        properties["Title"] = {
-            "type": "string",
-            "description": "The title of the content. If none exists, create one.",
-        }
-    if not page.author:
-        properties["Author"] = {
-            "type": "string",
-            "description": "The author of the content.",
-        }
-    if not page.date:
-        properties["Date"] = {
-            "type": "string",
-            "description": "The date the content was written in YYYY-MM-DD format.",
-        }
-    return properties
+class LLM_Results(BaseModel):
+    """Pydantic model for LLM categorization results with dynamic enum support."""
 
+    vibe: Optional[str] = Field(
+        description=f"Is this content about something positive people want to see more of in the world or negative that people want less of in the world? Choose from: {', '.join(get_select_options('Vibe'))}"
+    )
+    region: Optional[str] = Field(
+        description=f"The region that this content is about. If it doesn't specify, where does it originate from? Choose from: {', '.join(get_select_options('Region'))}"
+    )
+    topics: List[str] = Field(
+        description=f"The topics that best map to this content. Choose from: {', '.join(get_select_options('Topic'))}"
+    )
+    other_tags: List[str] = Field(
+        default_factory=list,
+        description=f"Optional tags. Choose from: {', '.join(get_select_options('Other Tags'))}",
+    )
+    summary: str = Field(description=SUMMARY_PROMPT)
+    title: Optional[str] = None
+    author: Optional[str] = None
+    date: Optional[str] = None
 
-@dataclass
-class LLM_Results:
-    vibe: str = None
-    other_tags: List[str] = None
-    region: str = None
-    topics: List[str] = None
-    summary: str = None
-    title: str = None
-    author: str = None
-    date: str = None
+    # Single validator for all single-value enum fields
+    @field_validator("vibe", "region", mode="before")
+    def validate_single_enum(v, info):
+        """Validate single-value enum fields (vibe, region)."""
+        if v is None:
+            return v
+        notion_name = FIELD_TO_NOTION[info.field_name]
+        valid_options = get_select_options(notion_name)
+        return v if v in valid_options else valid_options[0]
+
+    # Single validator for all list enum fields
+    @field_validator("topics", "other_tags", mode="before")
+    def validate_list_enum(v, info):
+        """Validate list enum fields (topics, other_tags)."""
+        notion_name = FIELD_TO_NOTION[info.field_name]
+        valid_options = get_select_options(notion_name)
+        return [tag if tag in valid_options else valid_options[0] for tag in v]
 
 
 def get_llm_categorizations(
     page: ExtractedPage,
 ) -> LLM_Results:
-    response = completion(
-        extra_headers={
-            "HTTP-Referer": "https://urbanismnow.com",  # Optional. Site URL for rankings on openrouter.ai.
-            "X-Title": "Urbanism Now",  # Optional. Site title for rankings on openrouter.ai.
-        },
+    """Extract structured categorizations using Instructor."""
+    kwargs = {}
+
+    # Use coding endpoint for Z.AI models (for coding plan users)
+    if MODEL.startswith("zai/"):
+        kwargs["api_base"] = ZAI_CODING_API_BASE
+
+    result = client.create(
         model=MODEL,
+        response_model=LLM_Results,
         messages=[
             {
                 "role": "user",
-                "content": f"Url: {page.url}\nTitle: {page.title}\nText: {page.text}\nFill out the json schema about the above content",
+                "content": f"Url: {page.url}\nTitle: {page.title}\nText: {page.text}\nFill out the information about the above content",
             }
         ],
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "content_check",
-                "strict": True,
-                "schema": {
-                    "type": "object",
-                    "properties": build_schema_properties(page),
-                    "required": ["Topic", "Vibe", "Region", "Summary"],
-                    "additionalProperties": True,
-                },
-            },
-        },
+        **kwargs,  # Pass api_base for Z.AI coding plan
     )
-    output_json = json.loads(response.choices[0].message.content)
-    return LLM_Results(
-        vibe=output_json.get("Vibe"),
-        other_tags=output_json.get("Other Tags", []),
-        region=output_json.get("Region"),
-        topics=output_json.get("Topic", []),
-        summary=output_json.get("Summary"),
-        title=output_json.get("Title"),
-        author=output_json.get("Author"),
-        date=output_json.get("Date"),
+    return result
+
+
+if __name__ == "__main__":
+    page = ExtractedPage(
+        url="https://www.archpaper.com/2026/02/curbed-archive-urban-reporting-goes-dark/",
+        title="Curbed’s archive of urban reporting goes dark",
+        text="Vox Media has taken down a significant portion of Curbed’s archive of urban reporting, leaving thousands of historic stories about city evolution, architecture, and real estate inaccessible. The decision, attributed to a content management system migration, has drawn criticism from former staffers and urbanism advocates who lament the loss of crucial historical documentation and civic memory.",
     )
+    print(get_llm_categorizations(page))

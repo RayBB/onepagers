@@ -41,5 +41,6 @@ LiteLLM automatically picks up API keys from environment variables. Set the key 
 LITELLM_MODEL=zai/glm-4.7
 LITELLM_MODEL=openrouter/z-ai/glm-4.5-air:free
 LITELLM_MODEL=gemini/gemini-3-pro-preview
+LITELLM_MODEL=gemini/gemini-2.5-flash
 ```
 
