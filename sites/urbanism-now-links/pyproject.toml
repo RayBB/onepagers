@@ -5,22 +5,22 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "cachetools>=5.5.1",
-    "fastapi[standard]>=0.115.12",
-    "httpx>=0.28.1",
-    "instructor[litellm]>=1.9.0",
-    "litellm>=1.81.0",
-    "markitdown>=0.0.1a3",
-    "notion-client>=2.3.0",
-    "notion2md>=2.9.0",
-    "python-dotenv>=1.0.1",
-    "pydantic>=2.10.0",
-    "trafilatura>=2.0.0",
+    "cachetools==5.5.1",
+    "fastapi[standard]==0.115.12",
+    "httpx==0.28.1",
+    "instructor[litellm]==1.14.5",
+    "litellm==1.81.14",
+    "markitdown==0.0.1a3",
+    "notion-client==2.3.0",
+    "notion2md==2.9.0",
+    "python-dotenv==1.0.1",
+    "pydantic==2.10.6",
+    "trafilatura==2.0.0",
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.9.4",
+    "ruff==0.9.4",
 ]
 
 [tool.ruff.lint]
