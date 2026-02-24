@@ -14,7 +14,7 @@ dependencies = [
     "notion-client==2.3.0",
     "notion2md==2.9.0",
     "python-dotenv==1.0.1",
-    "pydantic==2.10.6",
+    "pydantic==2.12.5",
     "trafilatura==2.0.0",
 ]
 
