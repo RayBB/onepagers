@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "cachetools==5.5.1",
+    "cachetools==7.0.1",
     "fastapi[standard]==0.115.12",
     "httpx==0.28.1",
     "instructor[litellm]==1.14.5",
