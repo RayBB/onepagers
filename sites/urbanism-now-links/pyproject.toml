@@ -9,7 +9,7 @@ dependencies = [
     "fastapi[standard]==0.132.0",
     "httpx==0.28.1",
     "instructor[litellm]==1.14.5",
-    "markitdown==0.1.5",
+    "markitdown[pdf,docx,pptx]==0.1.5",
     "notion-client==2.3.0",
     "notion2md==2.9.0",
     "python-dotenv==1.0.1",
