@@ -12,23 +12,20 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import httpx
 import trafilatura
-from markitdown import MarkItDown
 
 from notion import get_notion_page_contents_as_md
 
 # Reuse async HTTP client for connection pooling
 async_client = None
-# Reuse MarkItDown instance
-md = MarkItDown()
 
 
 @dataclass
 class ExtractedPage:
     text: str
     url: str
-    title: str = None
-    author: str = None
-    date: str = None
+    title: str | None = None
+    author: str | None = None
+    date: str | None = None
 
 
 def clean_url_for_domains(url: str) -> str:
@@ -166,10 +163,18 @@ async def extract_page(
         print(e)
 
     try:
-        md_result = md.convert_url(url)
-        return ExtractedPage(
-            text=md_result.text_content, title=md_result.title, url=url
-        )
+        # Import MarkItDown only when needed to avoid loading heavy dependencies (Azure AI, ONNX Runtime, NumPy, Pandas)
+        # at startup. This saves ~100-150MB of RAM since MarkItDown is only used as a fallback when trafilatura fails.
+        from markitdown import MarkItDown
+
+        md = MarkItDown()
+        try:
+            md_result = md.convert_url(url)
+            return ExtractedPage(
+                text=md_result.text_content, title=md_result.title, url=url
+            )
+        finally:
+            del md
 
     except Exception as e:
         print(e)
