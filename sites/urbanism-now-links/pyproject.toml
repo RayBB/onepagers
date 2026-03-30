@@ -5,21 +5,21 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "cachetools==7.0.1",
-    "fastapi[standard]==0.132.0",
+    "cachetools>=7.0.5",
+    "fastapi[standard]>=0.135.2",
     "httpx==0.28.1",
     "instructor[litellm]==1.14.5",
     "markitdown[pdf,docx,pptx]==0.1.5",
     "notion-client==2.3.0",
     "notion2md==2.9.0",
-    "python-dotenv==1.0.1",
+    "python-dotenv>=1.2.2",
     "pydantic==2.12.5",
     "trafilatura==2.0.0",
 ]
 
 [dependency-groups]
 dev = [
-    "ruff==0.15.2",
+    "ruff>=0.15.8",
 ]
 
 [tool.ruff.lint]
