@@ -1348,14 +1348,14 @@ wheels = [
 
 [[package]]
 name = "notion-client"
-version = "2.3.0"
+version = "3.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b2/67/c1284de4877496a669ef3a5be36726491dace66261a78a78f73555bffe84/notion-client-2.3.0.tar.gz", hash = "sha256:c4b4ae04ce182eb89611d41544dac710049683a4d7309c4b22fde52f81cbcb39", size = 18790, upload-time = "2024-12-18T11:00:55.561Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a5/39/60afcbc0148c3dafaaefe851ae3f058077db49d66288dfb218a11a57b997/notion_client-3.0.0.tar.gz", hash = "sha256:05c4d2b4fa3491dc0de21c9c826277202ea8b8714077ee7f51a6e1a09ab23d0f", size = 31357, upload-time = "2026-02-16T11:15:48.024Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/61/ea/03f2fc5d3f5a42397c0ca5a210d5ed605959bc60d7f13d6e5bfa84d31488/notion_client-2.3.0-py2.py3-none-any.whl", hash = "sha256:6696bb057b7872477077d6a3bb4299c4a7924450e7d168174e79cbf8e01d9576", size = 13928, upload-time = "2024-12-18T11:00:53.332Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/ce/6b03f9aedd2edfcc28e23ced5c2582d543f6ddbb2be5c570533f02890b27/notion_client-3.0.0-py2.py3-none-any.whl", hash = "sha256:177fc3d2ace7e8ef69cf96f46269e8a66071c2c7c526194bf06ce7925853e759", size = 18746, upload-time = "2026-02-16T11:15:46.602Z" },
 ]
 
 [[package]]
@@ -2520,7 +2520,7 @@ requires-dist = [
     { name = "httpx", specifier = "==0.28.1" },
     { name = "instructor", extras = ["litellm"], specifier = "==1.14.5" },
     { name = "markitdown", extras = ["pdf", "docx", "pptx"], specifier = "==0.1.5" },
-    { name = "notion-client", specifier = "==2.3.0" },
+    { name = "notion-client", specifier = ">=3.0.0" },
     { name = "notion2md", specifier = "==2.9.0" },
     { name = "pydantic", specifier = "==2.12.5" },
     { name = "python-dotenv", specifier = ">=1.2.2" },

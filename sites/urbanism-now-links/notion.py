@@ -16,10 +16,26 @@ DATABASE_ID = os.environ["NOTION_DATABASE_ID"]
 
 
 @cached(TTLCache(maxsize=1, ttl=300))
-def get_db_properties() -> Dict[str, Any]:
+def get_data_source_id() -> str:
+    """Get the data source ID from the database.
+
+    Best practice: Extract data_source_id efficiently with minimal API calls.
+    This avoids retrieving properties when we only need the data source ID.
+
+    https://developers.notion.com/reference/retrieve-database
     """
-        https://developers.notion.com/reference/retrieve-a-database
-        Properties look something like this:
+    db_schema = notion.databases.retrieve(DATABASE_ID)
+    return db_schema["data_sources"][0]["id"]
+
+
+@cached(TTLCache(maxsize=1, ttl=300))
+def get_db_properties() -> Dict[str, Any]:
+    """Get database properties from the first data source.
+
+    https://developers.notion.com/reference/retrieve-a-database
+
+    In notion-client 3.0.0, properties are in data_source, not directly in database.
+    Properties look something like this:
       {
             "URL": { "id": "c%40%40%3C", "name": "URL", "type": "url", "url": {} },
             "Used in Newsletter Number": { "id": "OO%3B%7D", "name": "Used in Newsletter Number", "rich_text": {}, "type": "rich_text" },
@@ -33,8 +49,9 @@ def get_db_properties() -> Dict[str, Any]:
     }
     /// We cannot use these fields when updating: rollup, created_by, created_time, last_edited_by, or last_edited_time
     """
-    db_schema = notion.databases.retrieve(DATABASE_ID)
-    return db_schema["properties"]
+    data_source_id = get_data_source_id()
+    data_source = notion.data_sources.retrieve(data_source_id)
+    return data_source["properties"]
 
 
 def get_select_options(field_name, db_properties=None):
@@ -92,8 +109,9 @@ def create_notion_input_properties(row_input: NotionRowInput) -> Dict[str, Any]:
 
 # Todo I think we'll be updating Notion rows rather than creating them.
 def create_notion_row(properties):
-    # https://developers.notion.com/reference/post-page
-    PARENT = {"type": "database_id", "database_id": DATABASE_ID}
+    """Create a new row in the data source."""
+    data_source_id = get_data_source_id()
+    PARENT = {"type": "data_source_id", "data_source_id": data_source_id}
     o = notion.pages.create(parent=PARENT, properties=properties)
     pprint(o)
     return o
@@ -106,14 +124,15 @@ class NotionRowURL:
 
 
 def get_notion_rows_without_ai_summary() -> List[NotionRowURL]:
-    # No AI summary and no region so we don't get old articles
+    """Query rows without AI summary from data source."""
+    data_source_id = get_data_source_id()
     filter = {
         "and": [
             {"property": "A.I. Summary", "rich_text": {"is_empty": True}},
             # {"property": "Region", "select": {"is_empty": True}},
         ]
     }
-    results = notion.databases.query(**{"database_id": DATABASE_ID, "filter": filter})
+    results = notion.data_sources.query(data_source_id=data_source_id, filter=filter)
     notion_rows = []
     for result in results["results"]:
         notion_row = NotionRowURL(
