@@ -16,6 +16,9 @@ from markitdown import MarkItDown
 
 from notion import get_notion_page_contents_as_md
 
+# Reuse HTTP client for connection pooling
+http_client = httpx.Client(timeout=30.0)
+
 
 @dataclass
 class ExtractedPage:
@@ -96,7 +99,7 @@ def extract_youtube_video(url: str) -> ExtractedPage:
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "same-site",
     }
-    response = httpx.post(tldw_url, json={"url": url}, headers=headers)
+    response = http_client.post(tldw_url, json={"url": url}, headers=headers)
     response.raise_for_status()
     response_data = response.json()
     return ExtractedPage(
@@ -111,11 +114,11 @@ def archive(url: str):
 
     def do_archive(url: str):
         try:
-            check = httpx.get(
-                f"https://archive.org/wayback/available?url={url}", timeout=100
+            check = http_client.get(
+                f"https://archive.org/wayback/available?url={url}"
             ).json()
             if not check.get("archived_snapshots"):
-                httpx.get(f"https://web.archive.org/save/{url}", timeout=100)
+                http_client.get(f"https://web.archive.org/save/{url}", timeout=100)
         except:
             pass  # Fail silently
 
