@@ -18,6 +18,8 @@ from notion import get_notion_page_contents_as_md
 
 # Reuse HTTP client for connection pooling
 http_client = httpx.Client(timeout=30.0)
+# Reuse MarkItDown instance
+md = MarkItDown()
 
 
 @dataclass
@@ -160,7 +162,6 @@ def extract_page(url: str, notion_id: str) -> ExtractedPage:
         print(e)
 
     try:
-        md = MarkItDown()
         md_result = md.convert_url(url)
         return ExtractedPage(
             text=md_result.text_content, title=md_result.title, url=url
