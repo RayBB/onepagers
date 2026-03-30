@@ -16,8 +16,8 @@ from markitdown import MarkItDown
 
 from notion import get_notion_page_contents_as_md
 
-# Reuse HTTP client for connection pooling
-http_client = httpx.Client(timeout=30.0)
+# Reuse async HTTP client for connection pooling
+async_client = None
 # Reuse MarkItDown instance
 md = MarkItDown()
 
@@ -90,7 +90,7 @@ def clean_url_for_domains(url: str) -> str:
         )
 
 
-def extract_youtube_video(url: str) -> ExtractedPage:
+async def extract_youtube_video(url: str) -> ExtractedPage:
     tldw_url = "https://api.tldw.tube/api/summarize"
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:144.0) Gecko/20100101 Firefox/144.0",
@@ -101,7 +101,7 @@ def extract_youtube_video(url: str) -> ExtractedPage:
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "same-site",
     }
-    response = http_client.post(tldw_url, json={"url": url}, headers=headers)
+    response = await async_client.post(tldw_url, json={"url": url}, headers=headers)
     response.raise_for_status()
     response_data = response.json()
     return ExtractedPage(
@@ -111,26 +111,30 @@ def extract_youtube_video(url: str) -> ExtractedPage:
     )
 
 
-def archive(url: str):
-    """Archives pages to IA. Runs on a thread in the background"""
+async def archive(url: str, background_tasks=None):
+    """Archives pages to IA. Runs as a background task"""
 
-    def do_archive(url: str):
+    async def do_archive(url: str):
         try:
-            check = http_client.get(
+            check = await async_client.get(
                 f"https://archive.org/wayback/available?url={url}"
             ).json()
             if not check.get("archived_snapshots"):
-                http_client.get(f"https://web.archive.org/save/{url}", timeout=100)
-        except:
-            pass  # Fail silently
+                await async_client.get(
+                    f"https://web.archive.org/save/{url}", timeout=100
+                )
+        except Exception as e:
+            print(f"Archive error for {url}: {e}")
 
-    import threading
+    if background_tasks:
+        background_tasks.add_task(do_archive, url)
+    else:
+        print("Skipping archive - no background tasks available")
 
-    print("starting background archive")
-    threading.Thread(target=do_archive, args=(url,), daemon=True).start()
 
-
-def extract_page(url: str, notion_id: str) -> ExtractedPage:
+async def extract_page(
+    url: str, notion_id: str, background_tasks=None
+) -> ExtractedPage:
     url = clean_url_for_domains(url)
 
     YOUTUBE_DOMAINS = {
@@ -141,10 +145,10 @@ def extract_page(url: str, notion_id: str) -> ExtractedPage:
         "www.youtu.be",
     }
     if any(domain in url.lower() for domain in YOUTUBE_DOMAINS):
-        return extract_youtube_video(url)
+        return await extract_youtube_video(url)
 
     try:
-        archive(url)  # This runs on a thread in the background
+        await archive(url, background_tasks)  # This runs as a background task
         downloaded = trafilatura.fetch_url(url)
         extracted = trafilatura.extract(
             downloaded, with_metadata=True, output_format="json"
@@ -175,13 +179,21 @@ def extract_page(url: str, notion_id: str) -> ExtractedPage:
 
         IA_PREFIX = "https://web.archive.org/web/"
         if IA_PREFIX not in url:
-            return extract_page(f"{IA_PREFIX}{url}", notion_id)
+            return await extract_page(f"{IA_PREFIX}{url}", notion_id)
         raise Exception(f"Could not get Notion page contents for {url}")
 
 
 if __name__ == "__main__":
-    page = extract_page(
-        "https://transalt.org/newsletter/turning-tragedy-into-action-how-we-can-end-traffic-violence-in-new-york",
-        "dummy_id",
-    )
-    print(page)
+    import asyncio
+
+    if async_client is None:
+        async_client = httpx.AsyncClient(timeout=30.0)
+
+    async def test_extract():
+        page = await extract_page(
+            "https://transalt.org/newsletter/turning-tragedy-into-action-how-we-can-end-traffic-violence-in-new-york",
+            "dummy_id",
+        )
+        print(page)
+
+    asyncio.run(test_extract())

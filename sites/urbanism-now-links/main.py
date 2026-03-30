@@ -15,20 +15,20 @@ from openrouter import get_llm_categorizations
 from scrape_page import extract_page
 
 
-def fill_empty_notion_rows():
+async def fill_empty_notion_rows(background_tasks=None):
     errors = []
     for row in get_notion_rows_without_ai_summary():
         try:
-            fill_notion_row(row)
+            await fill_notion_row(row, background_tasks)
         except Exception as e:
             print(f"Error: {e}")
             errors.append(str(e))
     return errors
 
 
-def fill_notion_row(row: NotionRowURL) -> None:
+async def fill_notion_row(row: NotionRowURL, background_tasks=None) -> None:
     print(row)
-    page = extract_page(row.url, row.id)
+    page = await extract_page(row.url, row.id, background_tasks)
     print(page)
 
     llm_results = get_llm_categorizations(page)
@@ -51,10 +51,25 @@ def fill_notion_row(row: NotionRowURL) -> None:
 
 
 if __name__ == "__main__":
-    while True:
-        try:
-            fill_empty_notion_rows()
-        except Exception as e:
-            print(f"Error: {e}")
-        print("checking again in 60 seconds...")
-        time.sleep(60)
+    import asyncio
+
+    import httpx
+
+    # Initialize async client for standalone execution
+    import scrape_page
+
+    scrape_page.async_client = httpx.AsyncClient(timeout=30.0)
+
+    async def run_loop():
+        while True:
+            try:
+                await fill_empty_notion_rows()
+            except Exception as e:
+                print(f"Error: {e}")
+            print("checking again in 60 seconds...")
+            await asyncio.sleep(60)
+
+    try:
+        asyncio.run(run_loop())
+    finally:
+        asyncio.run(scrape_page.async_client.aclose())
