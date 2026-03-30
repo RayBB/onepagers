@@ -141,8 +141,9 @@ async def extract_page(
         "youtu.be",
         "www.youtu.be",
     }
-    if any(domain in url.lower() for domain in YOUTUBE_DOMAINS):
-        return await extract_youtube_video(url)
+    # Youtube special rule is disabled because the summarizer doesn't work now
+    # if any(domain in url.lower() for domain in YOUTUBE_DOMAINS):
+    #     return await extract_youtube_video(url)
 
     try:
         await archive(url, background_tasks)  # This runs as a background task
