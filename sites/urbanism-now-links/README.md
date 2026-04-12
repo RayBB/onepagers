@@ -42,5 +42,6 @@ LITELLM_MODEL=zai/glm-4.7
 LITELLM_MODEL=openrouter/z-ai/glm-4.5-air:free
 LITELLM_MODEL=gemini/gemini-3-pro-preview
 LITELLM_MODEL=gemini/gemini-2.5-flash
+LITELLM_MODEL=gemini-3.1-flash-lite-preview # has a higher rate limit
 ```
 

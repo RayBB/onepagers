@@ -8,7 +8,7 @@ dependencies = [
     "cachetools>=7.0.5",
     "fastapi[standard]>=0.135.2",
     "httpx==0.28.1",
-    "instructor[litellm]==1.14.5",
+    "instructor[litellm]==1.15.1",
     "markitdown[pdf,docx,pptx]==0.1.5",
     "notion-client>=3.0.0",
     "notion2md==2.9.0",
