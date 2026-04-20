@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paste to Markdown to TSV</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f7f8;
+      color: #222;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      height: 100vh;
+      padding: 16px;
+    }
+    .panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .panel h2 {
+      margin: 0;
+      padding: 12px 14px;
+      font-size: 16px;
+      border-bottom: 1px solid #eee;
+      background: #fafafa;
+    }
+    .editor, textarea {
+      width: 100%;
+      flex: 1;
+      border: 0;
+      padding: 14px;
+      resize: none;
+      font: 14px/1.5 monospace;
+      outline: none;
+      background: transparent;
+      min-height: 0;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+    .editor {
+      font-family: Arial, sans-serif;
+    }
+    .editor:empty:before {
+      content: attr(data-placeholder);
+      color: #888;
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 10px 14px;
+      border-top: 1px solid #eee;
+      background: #fafafa;
+      flex-wrap: wrap;
+    }
+    button {
+      border: 1px solid #ccc;
+      background: white;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { background: #f0f0f0; }
+    .hint {
+      padding: 0 14px 12px;
+      color: #666;
+      font-size: 12px;
+      border-top: 1px solid #eee;
+      background: #fafafa;
+    }
+    @media (max-width: 1100px) {
+      .app {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .panel {
+        min-height: 32vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="panel">
+      <h2>Rich Text Input</h2>
+      <div id="input" class="editor" contenteditable="true" data-placeholder="Paste rich text here..."></div>
+      <div class="toolbar">
+        <button id="clearBtn">Clear</button>
+        <button id="sampleBtn">Load sample</button>
+      </div>
+      <div class="hint">Paste from docs, email, Slack, websites, or anywhere with formatting.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Markdown</h2>
+      <textarea id="markdown" readonly placeholder="Markdown will appear here automatically..."></textarea>
+      <div class="toolbar">
+        <button id="copyMarkdownBtn">Copy Markdown</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>TSV Output</h2>
+      <textarea id="output" readonly placeholder="TSV output will appear here automatically..."></textarea>
+      <div class="toolbar">
+        <button id="copyBtn">Copy TSV</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const inputEl = document.getElementById('input');
+    const markdownEl = document.getElementById('markdown');
+    const outputEl = document.getElementById('output');
+    const clearBtn = document.getElementById('clearBtn');
+    const sampleBtn = document.getElementById('sampleBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const copyMarkdownBtn = document.getElementById('copyMarkdownBtn');
+
+    const sampleHtml = `
+      <p>Let’s get started:</p>
+      <ul>
+        <li><a href="https://www.newsweek.com/new-skyscraper-utah-tallest-building-tracks-air-quality-real-time-11367536">Utah’s tallest building</a> features an illuminated crown that acts as a real-time air quality monitor, changing colors based on pollution levels.</li>
+        <li>A new paper “<a href="https://www.linkedin.com/posts/gshill_pleased-to-share-schr%C3%B6dingers-crosswalk-activity-7443060049251405824-BvPZ/">Schrödinger’s Crosswalk</a>,” examines legal complexities around who is protected in crosswalks throughout the US.</li>
+        <li>A commuter launched FixHudsonLink.com to track unreliable <a href="https://hudsonvalley.news12.com/rockland-commuter-launches-website-to-track-no-show-hudson-link-buses">“no show” Hudson Link buses</a>, which she says frequently strand passengers.</li>
+        <li>New York City has established a new <a href="https://www.govtech.com/transportation/new-york-city-sets-up-new-office-of-curb-management">Office of Curb Management</a> to modernize street policies.</li>
+      </ul>
+    `;
+
+    function escapeMarkdown(text) {
+      return text.replace(/([\\`*_{}\[\]()#+\-.!|>])/g, '\\$1');
+    }
+
+    function inlineMarkdown(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return escapeMarkdown(node.textContent.replace(/\s+/g, ' '));
+      }
+
+      if (node.nodeType !== Node.ELEMENT_NODE) return '';
+
+      const tag = node.tagName.toLowerCase();
+      const inner = Array.from(node.childNodes).map(inlineMarkdown).join('').replace(/\s+/g, ' ').trim();
+
+      if (tag === 'a') {
+        const href = node.getAttribute('href') || '';
+        return `[${inner}](${href})`;
+      }
+      if (tag === 'strong' || tag === 'b') return `**${inner}**`;
+      if (tag === 'em' || tag === 'i') return `*${inner}*`;
+      if (tag === 'code') return `\`${inner}\``;
+      if (tag === 'br') return '  \n';
+
+      return Array.from(node.childNodes).map(inlineMarkdown).join('');
+    }
+
+    function blockToMarkdown(node, depth = 0) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent.replace(/\s+/g, ' ').trim();
+        return text ? `${escapeMarkdown(text)}\n\n` : '';
+      }
+
+      if (node.nodeType !== Node.ELEMENT_NODE) return '';
+
+      const tag = node.tagName.toLowerCase();
+
+      if (tag === 'ul' || tag === 'ol') {
+        return Array.from(node.children).map((li, index) => {
+          if (li.tagName.toLowerCase() !== 'li') return '';
+          const prefix = tag === 'ol' ? `${index + 1}. ` : '-   ';
+          const item = listItemToMarkdown(li, depth);
+          return `${'  '.repeat(depth)}${prefix}${item}`;
+        }).join('\n') + '\n\n';
+      }
+
+      if (tag === 'p' || tag === 'div') {
+        const content = Array.from(node.childNodes).map(inlineMarkdown).join('').replace(/\s+/g, ' ').trim();
+        return content ? `${content}\n\n` : '';
+      }
+
+      if (tag === 'blockquote') {
+        const content = Array.from(node.childNodes).map(inlineMarkdown).join('').replace(/\s+/g, ' ').trim();
+        return content ? `> ${content}\n\n` : '';
+      }
+
+      if (/^h[1-6]$/.test(tag)) {
+        const level = Number(tag[1]);
+        const content = Array.from(node.childNodes).map(inlineMarkdown).join('').replace(/\s+/g, ' ').trim();
+        return `${'#'.repeat(level)} ${content}\n\n`;
+      }
+
+      if (tag === 'pre') {
+        const code = node.textContent.replace(/\n$/, '');
+        return `\`\`\`\n${code}\n\`\`\`\n\n`;
+      }
+
+      return Array.from(node.childNodes).map(child => blockToMarkdown(child, depth)).join('');
+    }
+
+    function listItemToMarkdown(li, depth) {
+      let parts = [];
+
+      for (const child of li.childNodes) {
+        if (child.nodeType === Node.ELEMENT_NODE) {
+          const tag = child.tagName.toLowerCase();
+          if (tag === 'ul' || tag === 'ol') {
+            const nested = '\n' + blockToMarkdown(child, depth + 1).trimEnd();
+            parts.push(nested);
+            continue;
+          }
+          if (tag === 'p' || tag === 'div') {
+            const content = Array.from(child.childNodes).map(inlineMarkdown).join('').replace(/\s+/g, ' ').trim();
+            if (content) parts.push(content);
+            continue;
+          }
+        }
+
+        const inline = inlineMarkdown(child).replace(/\s+/g, ' ').trim();
+        if (inline) parts.push(inline);
+      }
+
+      return parts.join(' ').replace(/\s+\n/g, '\n').trim();
+    }
+
+    function htmlToMarkdown(html) {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const markdown = Array.from(doc.body.childNodes)
+        .map(node => blockToMarkdown(node))
+        .join('')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+
+      return markdown;
+    }
+
+    function markdownToTSV(text) {
+      return text
+        .split('\n')
+        .filter(line => line.startsWith('-   '))
+        .map(line => {
+          const withoutBullet = line.slice(4);
+          const urlMatch = withoutBullet.match(/\((https?:\/\/[^\s)]+)\)/);
+          const url = urlMatch ? urlMatch[1] : '';
+
+          let plainText = withoutBullet
+            .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '$1')
+            .replace(/[\*_`~]/g, '')
+            .replace(/\\([\\`*_{}\[\]()#+\-.!|>])/g, '$1')
+            .trim()
+            .replace(/\t/g, ' ')
+            .replace(/\n/g, ' ');
+
+          return `${plainText}\t${url}`;
+        })
+        .join('\n');
+    }
+
+    function updateOutputs() {
+      const markdown = htmlToMarkdown(inputEl.innerHTML);
+      markdownEl.value = markdown;
+      outputEl.value = markdownToTSV(markdown);
+    }
+
+    inputEl.addEventListener('input', updateOutputs);
+
+    inputEl.addEventListener('paste', () => {
+      requestAnimationFrame(updateOutputs);
+    });
+
+    clearBtn.addEventListener('click', () => {
+      inputEl.innerHTML = '';
+      markdownEl.value = '';
+      outputEl.value = '';
+      inputEl.focus();
+    });
+
+    sampleBtn.addEventListener('click', () => {
+      inputEl.innerHTML = sampleHtml;
+      updateOutputs();
+    });
+
+    async function copyWithFeedback(button, text, defaultLabel, successLabel) {
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = successLabel;
+        setTimeout(() => {
+          button.textContent = defaultLabel;
+        }, 1200);
+      } catch {
+        button.textContent = 'Copy failed';
+        setTimeout(() => {
+          button.textContent = defaultLabel;
+        }, 1200);
+      }
+    }
+
+    copyMarkdownBtn.addEventListener('click', () => {
+      copyWithFeedback(copyMarkdownBtn, markdownEl.value, 'Copy Markdown', 'Copied');
+    });
+
+    copyBtn.addEventListener('click', () => {
+      copyWithFeedback(copyBtn, outputEl.value, 'Copy TSV', 'Copied');
+    });
+
+    updateOutputs();
+  </script>
+</body>
+</html>
