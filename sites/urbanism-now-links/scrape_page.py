@@ -110,6 +110,10 @@ async def extract_youtube_video_tldw(url: str) -> ExtractedPage:
 
 
 async def extract_youtube_video_defuddle(url: str) -> ExtractedPage:
+    """
+    Use defuddle.md to extract the video contents.
+    Only works LOCALLY. Gets blocked on when VPS.
+    """
     defuddle_url = "https://defuddle.md/"
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:144.0) Gecko/20100101 Firefox/144.0",
