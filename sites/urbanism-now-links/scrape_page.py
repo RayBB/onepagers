@@ -7,6 +7,7 @@ Some notes:
 """
 
 import json
+import re
 from dataclasses import dataclass
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
@@ -87,7 +88,7 @@ def clean_url_for_domains(url: str) -> str:
         )
 
 
-async def extract_youtube_video(url: str) -> ExtractedPage:
+async def extract_youtube_video_tldw(url: str) -> ExtractedPage:
     tldw_url = "https://api.tldw.tube/api/summarize"
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:144.0) Gecko/20100101 Firefox/144.0",
@@ -104,6 +105,27 @@ async def extract_youtube_video(url: str) -> ExtractedPage:
     return ExtractedPage(
         text=response_data["summary"]["paragraph"],
         title=response_data["title"],
+        url=url,
+    )
+
+
+async def extract_youtube_video_defuddle(url: str) -> ExtractedPage:
+    defuddle_url = "https://defuddle.md/"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:144.0) Gecko/20100101 Firefox/144.0",
+    }
+    response = await async_client.get(
+        defuddle_url + (url.replace("https://", "")), headers=headers
+    )
+    response.raise_for_status()
+    response_data = response.text
+
+    match = re.search(r'^title:\s*"(.+?)"', response_data, re.MULTILINE)
+    title = match.group(1) if match else None
+
+    return ExtractedPage(
+        text=response_data,
+        title=title,
         url=url,
     )
 
@@ -141,9 +163,9 @@ async def extract_page(
         "youtu.be",
         "www.youtu.be",
     }
-    # Youtube special rule is disabled because the summarizer doesn't work now
-    # if any(domain in url.lower() for domain in YOUTUBE_DOMAINS):
-    #     return await extract_youtube_video(url)
+
+    if any(domain in url.lower() for domain in YOUTUBE_DOMAINS):
+        return await extract_youtube_video_defuddle(url)
 
     try:
         await archive(url, background_tasks)  # This runs as a background task
