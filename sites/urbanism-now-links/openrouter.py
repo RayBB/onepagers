@@ -73,7 +73,7 @@ class LLM_Results(BaseModel):
     date: Optional[str] = None
     job_title: Optional[str] = Field(
         default=None,
-        description="If this is a job posting or hiring announcement, the job title (e.g. 'senior data scientist'). Leave blank if not a job posting. Make it lower case, following AP style.",
+        description="If this is a job posting or hiring announcement, the job title (e.g. 'Senior Data Scientist'). Leave blank if not a job posting. Make it title case.",
     )
     job_description: Optional[str] = Field(
         default=None,
