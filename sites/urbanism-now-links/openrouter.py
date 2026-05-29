@@ -77,7 +77,7 @@ class LLM_Results(BaseModel):
     )
     job_description: Optional[str] = Field(
         default=None,
-        description="If this is a job posting or hiring announcement, a 2-sentence summary of what the role involves. Leave blank if not a job posting.",
+        description="If this is a job posting or hiring announcement, a 1-2 sentence description that captures: (1) what the role is actually doing (be specific, not generic), (2) what impact or purpose the work serves, and (3) why it matters. Avoid boilerplate like 'the analyst will perform...' — instead say something like 'Lead a participatory budgeting redesign for Seattle's transportation department, embedding community input into capital planning.' Leave blank if not a job posting.",
     )
     job_organization: Optional[str] = Field(
         default=None,
