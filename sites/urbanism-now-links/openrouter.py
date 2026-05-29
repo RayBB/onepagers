@@ -25,6 +25,7 @@ FIELD_TO_NOTION = {
     "region": "Region",
     "topics": "Topic",
     "other_tags": "Other Tags",
+    "job_location_type": "job_location_type",
 }
 
 SUMMARY_PROMPT = """
@@ -40,6 +41,9 @@ Don't be afraid of jargon but focus on clarity.
 If there is a salary include it toward the end In the format of "$Xk - $Yk salary.".
 If there is a deadline include it at the end in this format: "March 24." Only include the month and day.
 If there is a job title make it lower case, following AP style.
+
+Also extract structured job fields (job_title, job_organization, job_location, job_location_type, job_salary, job_deadline, job_description) if this is a job posting/hiring announcement. Leave them blank otherwise.
+
 Examples for different types of content:
 Article: A 21-year-old, with the help of the Tufi Association, created a public transport app for his hometown in Morocco. He single-handedly mapped Tétouan's entire public transport network and became one of the top four mappers in the country.
 Job: NACTO is hiring a senior manager, multimodal design and programs to work on street design and technical projects. $99k - $109k salary. Apply by March 24.
@@ -67,9 +71,37 @@ class LLM_Results(BaseModel):
     title: Optional[str] = None
     author: Optional[str] = None
     date: Optional[str] = None
+    job_title: Optional[str] = Field(
+        default=None,
+        description="If this is a job posting or hiring announcement, the job title (e.g. 'senior data scientist'). Leave blank if not a job posting. Make it lower case, following AP style.",
+    )
+    job_description: Optional[str] = Field(
+        default=None,
+        description="If this is a job posting or hiring announcement, a 2-sentence summary of what the role involves. Leave blank if not a job posting.",
+    )
+    job_organization: Optional[str] = Field(
+        default=None,
+        description="If this is a job posting or hiring announcement, the name of the organization hiring. Leave blank if not a job posting.",
+    )
+    job_location: Optional[str] = Field(
+        default=None,
+        description="If this is a job posting or hiring announcement, the location (city, state/country, or 'Remote'). Leave blank if not a job posting.",
+    )
+    job_location_type: Optional[str] = Field(
+        default=None,
+        description=f"If this is a job posting or hiring announcement, the work location type. Choose from: {', '.join(get_select_options('job_location_type'))}. Leave blank if not a job posting.",
+    )
+    job_salary: Optional[str] = Field(
+        default=None,
+        description="If this is a job posting or hiring announcement, the salary range (e.g. '$99k - $109k'). Leave blank if not a job posting.",
+    )
+    job_deadline: Optional[str] = Field(
+        default=None,
+        description="If this is a job posting or hiring announcement, the application deadline (e.g. 'March 24'). Leave blank if not a job posting.",
+    )
 
     # Single validator for all single-value enum fields
-    @field_validator("vibe", "region", mode="before")
+    @field_validator("vibe", "region", "job_location_type", mode="before")
     def validate_single_enum(v, info):
         """Validate single-value enum fields (vibe, region)."""
         if v is None:

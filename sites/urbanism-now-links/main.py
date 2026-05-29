@@ -6,6 +6,7 @@ import time
 from pprint import pprint
 
 from notion import (
+    LLM_FIELDS,
     NotionRowInput,
     NotionRowURL,
     get_notion_rows_without_ai_summary,
@@ -38,12 +39,9 @@ async def fill_notion_row(row: NotionRowURL, background_tasks=None) -> None:
         url=page.url,
         notion_row_id=row.id,
         title=page.title or llm_results.title,
-        summary=llm_results.summary,
-        region=llm_results.region,
-        topics=llm_results.topics,
-        other_tags=llm_results.other_tags,
-        vibe=llm_results.vibe,
         date=page.date or llm_results.date,
+        # Auto-wire all LLM-extracted fields (defined in notion.LLM_FIELDS)
+        **{f: getattr(llm_results, f) for f in LLM_FIELDS},
     )
     pprint(row_input)
 

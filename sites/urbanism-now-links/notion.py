@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 from pprint import pprint
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from cachetools import TTLCache, cached
 from dotenv import load_dotenv
@@ -71,39 +71,92 @@ def get_select_options(field_name, db_properties=None):
     return []
 
 
+# Maps Python field name -> (Notion column name, Notion type)
+# To add a new field:
+#   1. Add a field to NotionRowInput and NotionRowInput dataclass below
+#   2. Add a line to FIELD_MAP
+#   3. If the LLM should extract it, add the field name to LLM_FIELDS
+#   4. Add a Field to LLM_Results in openrouter.py
+# No other changes needed — create_notion_input_properties and main.py auto-wire from FIELD_MAP.
+FIELD_MAP: Dict[str, tuple[str, str]] = {
+    "url": ("URL", "url"),
+    "title": ("Title", "title"),
+    "summary": ("A.I. Summary", "rich_text"),
+    "region": ("Region", "select"),
+    "vibe": ("Vibe", "select"),
+    "topics": ("Topic", "multi_select"),
+    "other_tags": ("Other Tags", "multi_select"),
+    "date": ("Publication Date", "date"),
+    "job_title": ("job_title", "rich_text"),
+    "job_description": ("job_description", "rich_text"),
+    "job_organization": ("job_organization", "rich_text"),
+    "job_location": ("job_location", "rich_text"),
+    "job_location_type": ("job_location_type", "select"),
+    "job_salary": ("job_salary", "rich_text"),
+    "job_deadline": ("job_deadline", "rich_text"),
+}
+
+# Set of field names that the LLM extracts (auto-wired in main.py)
+LLM_FIELDS = {
+    "summary",
+    "region",
+    "vibe",
+    "topics",
+    "other_tags",
+    "job_title",
+    "job_description",
+    "job_organization",
+    "job_location",
+    "job_location_type",
+    "job_salary",
+    "job_deadline",
+}
+
+
 @dataclass
 class NotionRowInput:
-    url: str = None
-    topics: List[str] = None
-    other_tags: List[str] = None
-    notion_row_id: str = None  # Only for updating row
-    title: str = None
-    summary: str = None
-    region: str = None
-    vibe: str = None
-    date: str = None  # YYYY-MM-DD
+    url: Optional[str] = None
+    topics: Optional[List[str]] = None
+    other_tags: Optional[List[str]] = None
+    notion_row_id: Optional[str] = None  # Only for updating row
+    title: Optional[str] = None
+    summary: Optional[str] = None
+    region: Optional[str] = None
+    vibe: Optional[str] = None
+    date: Optional[str] = None  # YYYY-MM-DD
+    job_title: Optional[str] = None
+    job_description: Optional[str] = None
+    job_organization: Optional[str] = None
+    job_location: Optional[str] = None
+    job_location_type: Optional[str] = None
+    job_salary: Optional[str] = None
+    job_deadline: Optional[str] = None
+
+
+def _format_notion_value(value: Any, notion_type: str) -> Any:
+    """Format a Python value into the JSON structure Notion expects for a given column type."""
+    if notion_type in ("title", "rich_text"):
+        return [{"text": {"content": value}}]
+    elif notion_type == "url":
+        return value  # plain URL string
+    elif notion_type == "select":
+        return {"name": value}
+    elif notion_type == "multi_select":
+        return [{"name": v} for v in value]
+    elif notion_type == "date":
+        return {"start": value}
+    raise ValueError(f"Unknown Notion type: {notion_type}")
 
 
 def create_notion_input_properties(row_input: NotionRowInput) -> Dict[str, Any]:
+    """Build the Notion API properties dict from a NotionRowInput.
+    Auto-wires all fields defined in FIELD_MAP — add new fields there instead of adding if-blocks here."""
     properties = {}
-    if row_input.title:
-        properties["Title"] = [{"text": {"content": row_input.title}}]
-    if row_input.url:
-        properties["URL"] = row_input.url
-    if row_input.summary:
-        properties["A.I. Summary"] = [{"text": {"content": row_input.summary}}]
-    if row_input.region:
-        properties["Region"] = {"name": row_input.region}
-    if row_input.vibe:
-        properties["Vibe"] = {
-            "name": row_input.vibe
-        }  # Not a multiselect, can only have one
-    if row_input.topics:
-        properties["Topic"] = [{"name": topic} for topic in row_input.topics]
-    if row_input.other_tags:
-        properties["Other Tags"] = [{"name": tag} for tag in row_input.other_tags]
-    if row_input.date:
-        properties["Publication Date"] = {"start": row_input.date}  # YYYY-MM-DD
+    for field_name, (notion_col, notion_type) in FIELD_MAP.items():
+        value = getattr(row_input, field_name, None)
+        if not value:  # skip None, empty string, empty list, etc.
+            continue
+        properties[notion_col] = _format_notion_value(value, notion_type)
     return properties
 
 
