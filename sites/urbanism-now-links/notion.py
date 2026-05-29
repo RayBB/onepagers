@@ -1,4 +1,5 @@
 import os
+import re
 from dataclasses import dataclass
 from pprint import pprint
 from typing import Any, Dict, List, Optional
@@ -94,6 +95,7 @@ FIELD_MAP: Dict[str, tuple[str, str]] = {
     "job_location_type": ("job_location_type", "select"),
     "job_salary": ("job_salary", "rich_text"),
     "job_deadline": ("job_deadline", "rich_text"),
+    "job_slug": ("job_slug", "rich_text"),
 }
 
 # Set of field names that the LLM extracts (auto-wired in main.py)
@@ -131,6 +133,13 @@ class NotionRowInput:
     job_location_type: Optional[str] = None
     job_salary: Optional[str] = None
     job_deadline: Optional[str] = None
+    job_slug: Optional[str] = None
+
+
+def slugify(text: str) -> str:
+    """Convert text to kebab-case slug (lowercase, hyphens, no special chars)."""
+    text = re.sub(r"[^\w\s-]", "", text).strip().lower()
+    return re.sub(r"[-\s]+", "-", text).strip("-")
 
 
 def _format_notion_value(value: Any, notion_type: str) -> Any:

@@ -10,6 +10,7 @@ from notion import (
     NotionRowInput,
     NotionRowURL,
     get_notion_rows_without_ai_summary,
+    slugify,
     update_notion_row,
 )
 from openrouter import get_llm_categorizations
@@ -35,11 +36,20 @@ async def fill_notion_row(row: NotionRowURL, background_tasks=None) -> None:
     llm_results = get_llm_categorizations(page)
     print(llm_results)
 
+    slug_parts = []
+    if llm_results.job_title:
+        slug_parts.append(slugify(llm_results.job_title))
+    if llm_results.job_location:
+        slug_parts.append(slugify(llm_results.job_location))
+    slug_parts.append(row.id[-6:])
+    job_slug = "-".join(slug_parts)
+
     row_input = NotionRowInput(
         url=page.url,
         notion_row_id=row.id,
         title=page.title or llm_results.title,
         date=page.date or llm_results.date,
+        job_slug=job_slug,
         # Auto-wire all LLM-extracted fields (defined in notion.LLM_FIELDS)
         **{f: getattr(llm_results, f) for f in LLM_FIELDS},
     )
