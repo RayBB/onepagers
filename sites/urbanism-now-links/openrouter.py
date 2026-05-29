@@ -97,7 +97,7 @@ class LLM_Results(BaseModel):
     )
     job_deadline: Optional[str] = Field(
         default=None,
-        description="If this is a job posting or hiring announcement, the application deadline (e.g. 'March 24'). Leave blank if not a job posting.",
+        description="If this is a job posting or hiring announcement, the application deadline (e.g. 'March 24, 2026'). Leave blank if not a job posting.",
     )
 
     # Single validator for all single-value enum fields
