@@ -41,7 +41,7 @@ Write a 1-2 sentence summary of the content following the AP style.
 Start with the most important information to make it easy to scan.
 The target audience is people who are interested in urbanism.
 Don't be afraid of jargon but focus on clarity.
-If there is a salary include it toward the end In the format of "$Xk - $Yk salary." Round to the nearest thousand for large annual salaries, but leave hourly rates and small stipends as-is.
+If there is a salary include it toward the end In the format of "$Xk - $Yk salary." Round to the nearest thousand for large annual salaries, but leave hourly rates and small stipends as-is. Skip the salary if it's vague (e.g. "commensurate with experience").
 If there is a deadline include it at the end in this format: "March 24." Only include the month and day.
 If there is a job title make it lower case, following AP style.
 
@@ -96,7 +96,7 @@ class LLM_Results(BaseModel):
     )
     job_salary: Optional[str] = Field(
         default=None,
-        description="If this is a job posting or hiring announcement, the salary range (e.g. '$99k - $109k'). Round to the nearest thousand for large annual salaries, but leave hourly rates and small stipends as-is. Leave blank if not a job posting.",
+        description="If this is a job posting or hiring announcement, the salary range (e.g. '$99k - $109k'). Round to the nearest thousand for large annual salaries, but leave hourly rates and small stipends as-is. Leave blank if vague (e.g. 'commensurate with experience') or if not a job posting.",
     )
     job_deadline: Optional[str] = Field(
         default=None,
