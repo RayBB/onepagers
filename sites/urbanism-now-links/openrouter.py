@@ -1,4 +1,5 @@
 import os
+from datetime import date
 from typing import List, Optional
 
 import instructor
@@ -28,7 +29,9 @@ FIELD_TO_NOTION = {
     "job_location_type": "job_location_type",
 }
 
-SUMMARY_PROMPT = """
+SUMMARY_PROMPT = f"""
+Today's date is {date.today().strftime("%B %d, %Y")}. Use today's date to infer relative dates and years mentioned in the article.
+
 You are the writer for an urbanism newsletter that goes out to many subscribers each week.
 Your job is to take article and pull out the most interesting and important information from them to include in the newsletter.
 You can assume your audience is already mildly familair with urbanism issues and wants to know about new developments and have leads for new ideas to explore.
