@@ -41,8 +41,8 @@ Write a 1-2 sentence summary of the content following the AP style.
 Start with the most important information to make it easy to scan.
 The target audience is people who are interested in urbanism.
 Don't be afraid of jargon but focus on clarity.
-If there is a salary include it toward the end In the format of "$Xk - $Yk salary." Round to the nearest thousand for large annual salaries, but leave hourly rates and small stipends as-is. Skip the salary if it's vague (e.g. "commensurate with experience").
-If there is a deadline include it at the end in this format: "March 24." Only include the month and day.
+If there is a salary append it as a bare fragment toward the end in the format "$Xk - $Yk salary." — no surrounding sentence like "The role offers...". Round to the nearest thousand for large annual salaries, but leave hourly rates and small stipends as-is. Skip the salary if it's vague (e.g. "commensurate with experience").
+If there is a deadline append it as a bare fragment at the very end in this format: "Apply by March 24." Only include the month and day.
 If there is a job title make it lower case, following AP style.
 
 Also extract structured job fields (job_title, job_organization, job_location, job_location_type, job_salary, job_deadline, job_description) if this is a job posting/hiring announcement. Leave them blank otherwise.
