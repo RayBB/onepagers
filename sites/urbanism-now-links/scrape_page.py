@@ -7,6 +7,7 @@ Some notes:
 """
 
 import json
+import os
 import re
 from dataclasses import dataclass
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
@@ -134,6 +135,34 @@ async def extract_youtube_video_defuddle(url: str) -> ExtractedPage:
     )
 
 
+FIRECRAWL_API_KEY = os.environ.get("FIRECRAWL_API_KEY")
+
+
+async def extract_firecrawl(url: str) -> ExtractedPage | None:
+    """Fallback: scrape JS-rendered pages via Firecrawl API."""
+    if not FIRECRAWL_API_KEY:
+        return None
+    try:
+        response = await async_client.post(
+            "https://api.firecrawl.dev/v2/scrape",
+            headers={
+                "Authorization": f"Bearer {FIRECRAWL_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={"url": url, "formats": ["markdown"]},
+            timeout=30.0,
+        )
+        response.raise_for_status()
+        data = response.json()
+        md = data.get("data", {}).get("markdown", "")
+        if not md:
+            return None
+        title = data.get("data", {}).get("metadata", {}).get("title", None)
+        return ExtractedPage(text=md, title=title, url=url)
+    except Exception:
+        return None
+
+
 async def archive(url: str, background_tasks=None):
     """Archives pages to IA. Runs as a background task"""
 
@@ -168,8 +197,15 @@ async def extract_page(
         "www.youtu.be",
     }
 
+    FIRECRAWL_FIRST_DOMAINS = {"governmentjobs.com", "tandfonline.com"}
+
     if any(domain in url.lower() for domain in YOUTUBE_DOMAINS):
         return await extract_youtube_video_defuddle(url)
+
+    if any(domain in url.lower() for domain in FIRECRAWL_FIRST_DOMAINS):
+        fc_result = await extract_firecrawl(url)
+        if fc_result:
+            return fc_result
 
     try:
         await archive(url, background_tasks)  # This runs as a background task
@@ -205,6 +241,12 @@ async def extract_page(
 
     except Exception as e:
         print(e)
+
+    fc_result = await extract_firecrawl(url)
+    if fc_result:
+        return fc_result
+
+    try:
         md_result = get_notion_page_contents_as_md(page_id=notion_id)
         if md_result:
             return ExtractedPage(text=md_result, url=url)
@@ -213,6 +255,8 @@ async def extract_page(
         if IA_PREFIX not in url:
             return await extract_page(f"{IA_PREFIX}{url}", notion_id)
         raise Exception(f"Could not get Notion page contents for {url}")
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
