@@ -26,7 +26,7 @@ def get_data_source_id() -> str:
     https://developers.notion.com/reference/retrieve-database
     """
     db_schema = notion.databases.retrieve(DATABASE_ID)
-    return db_schema["data_sources"][0]["id"]
+    return db_schema["data_sources"][0]["id"]  # ty: ignore
 
 
 @cached(TTLCache(maxsize=1, ttl=300))
@@ -52,7 +52,7 @@ def get_db_properties() -> Dict[str, Any]:
     """
     data_source_id = get_data_source_id()
     data_source = notion.data_sources.retrieve(data_source_id)
-    return data_source["properties"]
+    return data_source["properties"]  # ty: ignore
 
 
 def get_select_options(field_name, db_properties=None):
@@ -196,7 +196,7 @@ def get_notion_rows_without_ai_summary() -> List[NotionRowURL]:
     }
     results = notion.data_sources.query(data_source_id=data_source_id, filter=filter)
     notion_rows = []
-    for result in results["results"]:
+    for result in results["results"]:  # ty: ignore
         notion_row = NotionRowURL(
             id=result["id"], url=result["properties"]["URL"]["url"]
         )
@@ -205,6 +205,8 @@ def get_notion_rows_without_ai_summary() -> List[NotionRowURL]:
 
 
 def update_notion_row(row: NotionRowInput) -> None:
+    if row.notion_row_id is None:
+        return
     notion.pages.update(
         page_id=row.notion_row_id,
         properties=create_notion_input_properties(row),

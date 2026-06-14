@@ -18,7 +18,14 @@ import trafilatura
 from notion import get_notion_page_contents_as_md
 
 # Reuse async HTTP client for connection pooling
-async_client = None
+async_client: httpx.AsyncClient | None = None
+
+
+def get_async_client() -> httpx.AsyncClient:
+    global async_client
+    if async_client is None:
+        async_client = httpx.AsyncClient(timeout=30.0)
+    return async_client
 
 
 @dataclass
@@ -100,7 +107,9 @@ async def extract_youtube_video_tldw(url: str) -> ExtractedPage:
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "same-site",
     }
-    response = await async_client.post(tldw_url, json={"url": url}, headers=headers)
+    response = await get_async_client().post(
+        tldw_url, json={"url": url}, headers=headers
+    )
     response.raise_for_status()
     response_data = response.json()
     return ExtractedPage(
@@ -119,7 +128,7 @@ async def extract_youtube_video_defuddle(url: str) -> ExtractedPage:
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:144.0) Gecko/20100101 Firefox/144.0",
     }
-    response = await async_client.get(
+    response = await get_async_client().get(
         defuddle_url + (url.replace("https://", "")), headers=headers
     )
     response.raise_for_status()
@@ -143,7 +152,7 @@ async def extract_firecrawl(url: str) -> ExtractedPage | None:
     if not FIRECRAWL_API_KEY:
         return None
     try:
-        response = await async_client.post(
+        response = await get_async_client().post(
             "https://api.firecrawl.dev/v2/scrape",
             headers={
                 "Authorization": f"Bearer {FIRECRAWL_API_KEY}",
@@ -168,11 +177,12 @@ async def archive(url: str, background_tasks=None):
 
     async def do_archive(url: str):
         try:
-            check = await async_client.get(
+            resp = await get_async_client().get(
                 f"https://archive.org/wayback/available?url={url}"
-            ).json()
+            )
+            check = resp.json()
             if not check.get("archived_snapshots"):
-                await async_client.get(
+                await get_async_client().get(
                     f"https://web.archive.org/save/{url}", timeout=100
                 )
         except Exception as e:
@@ -246,17 +256,14 @@ async def extract_page(
     if fc_result:
         return fc_result
 
-    try:
-        md_result = get_notion_page_contents_as_md(page_id=notion_id)
-        if md_result:
-            return ExtractedPage(text=md_result, url=url)
+    md_result = get_notion_page_contents_as_md(page_id=notion_id)
+    if md_result:
+        return ExtractedPage(text=md_result, url=url)
 
-        IA_PREFIX = "https://web.archive.org/web/"
-        if IA_PREFIX not in url:
-            return await extract_page(f"{IA_PREFIX}{url}", notion_id)
-        raise Exception(f"Could not get Notion page contents for {url}")
-    except Exception as e:
-        print(e)
+    IA_PREFIX = "https://web.archive.org/web/"
+    if IA_PREFIX not in url:
+        return await extract_page(f"{IA_PREFIX}{url}", notion_id)
+    raise Exception(f"Could not extract content for {url}")
 
 
 if __name__ == "__main__":
