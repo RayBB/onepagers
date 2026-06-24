@@ -16,14 +16,20 @@ from notion import (
 from openrouter import get_llm_categorizations
 from scrape_page import extract_page
 
+# Track notion IDs that failed extraction to avoid infinite retries
+_failed_notion_ids: set[str] = set()
+
 
 async def fill_empty_notion_rows(background_tasks=None):
     errors = []
     for row in get_notion_rows_without_ai_summary():
+        if row.id in _failed_notion_ids:
+            continue
         try:
             await fill_notion_row(row, background_tasks)
         except Exception as e:
             print(f"Error: {e}")
+            _failed_notion_ids.add(row.id)
             errors.append(str(e))
     return errors
 

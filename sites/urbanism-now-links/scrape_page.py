@@ -208,11 +208,16 @@ async def extract_page(
     }
 
     FIRECRAWL_FIRST_DOMAINS = {"governmentjobs.com", "tandfonline.com"}
+    IA_PREFIX = "https://web.archive.org/web/"
+    is_ia_url = IA_PREFIX in url
 
     if any(domain in url.lower() for domain in YOUTUBE_DOMAINS):
         return await extract_youtube_video_defuddle(url)
 
-    if any(domain in url.lower() for domain in FIRECRAWL_FIRST_DOMAINS):
+    firecrawl_first = any(domain in url.lower() for domain in FIRECRAWL_FIRST_DOMAINS)
+
+    # Only try Firecrawl first for these domains if not already an IA URL
+    if firecrawl_first and not is_ia_url:
         fc_result = await extract_firecrawl(url)
         if fc_result:
             return fc_result
@@ -252,16 +257,18 @@ async def extract_page(
     except Exception as e:
         print(e)
 
-    fc_result = await extract_firecrawl(url)
-    if fc_result:
-        return fc_result
+    # Firecrawl fallback: skip if we already tried it (first-resort domains)
+    # or if this is an IA URL (static HTML — trafilatura is sufficient)
+    if not is_ia_url and not firecrawl_first:
+        fc_result = await extract_firecrawl(url)
+        if fc_result:
+            return fc_result
 
     md_result = get_notion_page_contents_as_md(page_id=notion_id)
     if md_result:
         return ExtractedPage(text=md_result, url=url)
 
-    IA_PREFIX = "https://web.archive.org/web/"
-    if IA_PREFIX not in url:
+    if not is_ia_url:
         return await extract_page(f"{IA_PREFIX}{url}", notion_id)
     raise Exception(f"Could not extract content for {url}")
 
