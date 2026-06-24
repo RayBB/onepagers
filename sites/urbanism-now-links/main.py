@@ -75,15 +75,19 @@ if __name__ == "__main__":
     scrape_page.async_client = httpx.AsyncClient(timeout=30.0)
 
     async def run_loop():
-        while True:
-            try:
-                await fill_empty_notion_rows()
-            except Exception as e:
-                print(f"Error: {e}")
-            print("checking again in 60 seconds...")
-            await asyncio.sleep(60)
+        try:
+            while True:
+                try:
+                    await fill_empty_notion_rows()
+                except Exception as e:
+                    print(f"Error: {e}")
+                print("checking again in 60 seconds...")
+                await asyncio.sleep(60)
+        except asyncio.CancelledError:
+            pass
+        finally:
+            client = scrape_page.async_client
+            if client:
+                await client.aclose()
 
-    try:
-        asyncio.run(run_loop())
-    finally:
-        asyncio.run(scrape_page.async_client.aclose())
+    asyncio.run(run_loop())
