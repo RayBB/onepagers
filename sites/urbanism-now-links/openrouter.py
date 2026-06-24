@@ -73,7 +73,10 @@ class LLM_Results(BaseModel):
     summary: str = Field(description=SUMMARY_PROMPT)
     title: Optional[str] = None
     author: Optional[str] = None
-    date: Optional[str] = None
+    date: Optional[str] = Field(
+        default=None,
+        description="The publication date of the content in YYYY-MM-DD format. Extract from the page metadata or content. Leave blank if not available.",
+    )
     job_title: Optional[str] = Field(
         default=None,
         description="If this is a job posting or hiring announcement, the job title (e.g. 'Senior Data Scientist'). Leave blank if not a job posting. Make it title case.",
