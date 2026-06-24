@@ -142,6 +142,16 @@ def slugify(text: str) -> str:
     return re.sub(r"[-\s]+", "-", text).strip("-")
 
 
+def _normalize_date(value: str) -> str:
+    """Normalize a date string to ISO 8601 (YYYY-MM-DD) for Notion's date type."""
+    try:
+        from dateutil import parser
+
+        return parser.parse(value).strftime("%Y-%m-%d")
+    except Exception:
+        return value
+
+
 def _format_notion_value(value: Any, notion_type: str) -> Any:
     """Format a Python value into the JSON structure Notion expects for a given column type."""
     if notion_type in ("title", "rich_text"):
@@ -153,7 +163,7 @@ def _format_notion_value(value: Any, notion_type: str) -> Any:
     elif notion_type == "multi_select":
         return [{"name": v} for v in value]
     elif notion_type == "date":
-        return {"start": value}
+        return {"start": _normalize_date(value)}
     raise ValueError(f"Unknown Notion type: {notion_type}")
 
 
