@@ -207,17 +207,15 @@ async def extract_page(
         "www.youtu.be",
     }
 
-    FIRECRAWL_FIRST_DOMAINS = {"governmentjobs.com", "tandfonline.com"}
     IA_PREFIX = "https://web.archive.org/web/"
     is_ia_url = IA_PREFIX in url
 
     if any(domain in url.lower() for domain in YOUTUBE_DOMAINS):
         return await extract_youtube_video_defuddle(url)
 
-    firecrawl_first = any(domain in url.lower() for domain in FIRECRAWL_FIRST_DOMAINS)
-
-    # Only try Firecrawl first for these domains if not already an IA URL
-    if firecrawl_first and not is_ia_url:
+    # Firecrawl first for all URLs — JS rendering captures metadata panels
+    # (salary, location, etc.) that trafilatura strips as non-content.
+    if not is_ia_url:
         fc_result = await extract_firecrawl(url)
         if fc_result:
             return fc_result
@@ -256,13 +254,6 @@ async def extract_page(
 
     except Exception as e:
         print(e)
-
-    # Firecrawl fallback: skip if we already tried it (first-resort domains)
-    # or if this is an IA URL (static HTML — trafilatura is sufficient)
-    if not is_ia_url and not firecrawl_first:
-        fc_result = await extract_firecrawl(url)
-        if fc_result:
-            return fc_result
 
     md_result = get_notion_page_contents_as_md(page_id=notion_id)
     if md_result:
