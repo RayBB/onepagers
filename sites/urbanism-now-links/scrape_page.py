@@ -15,7 +15,7 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 import httpx
 import trafilatura
 
-from notion import get_notion_page_contents_as_md
+from notion import get_notion_page_contents_as_md, get_notion_page_title
 
 # Reuse async HTTP client for connection pooling
 async_client: httpx.AsyncClient | None = None
@@ -266,7 +266,8 @@ async def extract_page(
 
     md_result = get_notion_page_contents_as_md(page_id=notion_id)
     if md_result:
-        return ExtractedPage(text=md_result, url=url)
+        notion_title = get_notion_page_title(page_id=notion_id)
+        return ExtractedPage(text=md_result, title=notion_title, url=url)
 
     if not is_ia_url:
         return await extract_page(f"{IA_PREFIX}{url}", notion_id)

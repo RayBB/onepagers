@@ -6,8 +6,9 @@ from typing import Any, Dict, List, Optional
 
 from cachetools import TTLCache, cached
 from dotenv import load_dotenv
-from notion2md.exporter.block import StringExporter
 from notion_client import Client
+
+from notion_to_md import get_page_body_as_md
 
 load_dotenv()
 
@@ -224,7 +225,21 @@ def update_notion_row(row: NotionRowInput) -> None:
 
 
 def get_notion_page_contents_as_md(page_id: str) -> str:
-    return StringExporter(block_id=page_id).export()
+    return get_page_body_as_md(page_id, notion)
+
+
+def get_notion_page_title(page_id: str) -> str | None:
+    try:
+        page = notion.pages.retrieve(page_id)
+        properties = page.get("properties", {})  # ty: ignore
+        for prop_value in properties.values():
+            if prop_value.get("type") == "title":
+                texts = prop_value.get("title", [])
+                if texts:
+                    return "".join(t.get("plain_text", "") for t in texts)
+    except Exception:
+        pass
+    return None
 
 
 if __name__ == "__main__":
