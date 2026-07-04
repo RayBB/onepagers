@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urbanism+ News Bluesky Feed</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f5;
+    color: #222;
+    padding: 1.5rem;
+    max-width: 44rem;
+    margin: 0 auto;
+  }
+  h1 { font-size: 1.25rem; margin-bottom: .75rem; }
+
+  .tabs { display: flex; gap: 0; margin-bottom: 1rem; }
+  .tabs button {
+    flex: 1;
+    padding: .5rem 1rem;
+    border: 1px solid #ccc;
+    background: #eee;
+    cursor: pointer;
+    font-size: .9rem;
+  }
+  .tabs button:first-child { border-radius: 6px 0 0 6px; }
+  .tabs button:last-child { border-radius: 0 6px 6px 0; }
+  .tabs button.active { background: #fff; border-bottom-color: #fff; font-weight: 600; }
+
+  .post {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: .75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .post p { margin-bottom: .5rem; line-height: 1.5; word-break: break-word; }
+  .meta { font-size: .85rem; color: #666; }
+  .meta span { margin-right: .75rem; }
+  .meta a { color: #2563eb; text-decoration: none; }
+  .meta a[href^="http"] { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+  .meta a:hover { text-decoration: underline; }
+  .rank { font-size: .75rem; color: #999; margin-bottom: .25rem; }
+  #loading, #error { text-align: center; padding: 3rem; color: #888; }
+  #error { color: #c00; }
+  .url-group { margin-bottom: 1rem; }
+  .url-header {
+    font-size: .85rem; font-weight: 600; margin-bottom: .5rem;
+    background: #e8f0fe; padding: .4rem .6rem; border-radius: 6px;
+    word-break: break-all;
+  }
+  .url-header a { color: #2563eb; text-decoration: none; display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+  .url-header .count { color: #555; font-weight: 400; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<h1>Urbanism+ News Bluesky Feed</h1>
+
+<div class="tabs">
+  <button id="tab-btn-0" class="active" onclick="switchTab(0)">Top Posts</button>
+  <button id="tab-btn-1" onclick="switchTab(1)">Most Shared URLs</button>
+</div>
+
+<div id="loading">Loading…</div>
+<div id="tab-0" class="tab-content"></div>
+<div id="tab-1" class="tab-content"></div>
+
+<script>
+(async () => {
+  try {
+    let r = await fetch('bluesky_summary.json');
+    if (r.ok) {
+      const summary = await r.json();
+      document.getElementById('loading').remove();
+      renderTopPosts(summary.top_posts, 0);
+      renderUrlGroups(summary.top_urls);
+    } else {
+      r = await fetch('bluesky_feed.json');
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const posts = await r.json();
+      document.getElementById('loading').remove();
+      const sorted = [...posts].sort((a, b) => (b.hearts + b.reshares + b.comments) - (a.hearts + a.reshares + a.comments));
+      renderTopPosts(sorted, 200);
+      const groups = {};
+      for (const p of posts) {
+        if (!p.url) continue;
+        (groups[p.url] ??= []).push(p);
+      }
+      const urlEntries = Object.entries(groups).sort((a, b) => b[1].length - a[1].length);
+      renderUrlGroups(urlEntries.map(([url, grp]) => ({url, count: grp.length, posts: grp})));
+    }
+    switchTab(0);
+  } catch (e) {
+    document.getElementById('loading').textContent = '';
+    document.getElementById('error').textContent = e.message;
+  }
+})();
+
+function renderTopPosts(posts, limit) {
+  const top = limit ? posts.slice(0, limit) : posts;
+  const container = document.getElementById('tab-0');
+  for (const [i, post] of top.entries()) {
+    container.appendChild(renderPost(post, i + 1));
+  }
+}
+
+function renderUrlGroups(groups) {
+  const container = document.getElementById('tab-1');
+  for (const g of groups) {
+    const group = document.createElement('div');
+    group.className = 'url-group';
+    const hdr = document.createElement('div');
+    hdr.className = 'url-header';
+    hdr.innerHTML = `<a href="${escapeAttr(g.url)}" target="_blank" rel="noopener">${escapeHtml(g.url)}</a> <span class="count">— ${g.count} post${g.count > 1 ? 's' : ''}</span>`;
+    group.appendChild(hdr);
+    for (const post of g.posts) {
+      group.appendChild(renderPost(post));
+    }
+    container.appendChild(group);
+  }
+}
+
+function renderPost(post, rank) {
+  const div = document.createElement('div');
+  div.className = 'post';
+  div.innerHTML = `
+    ${rank ? `<div class="rank">#${rank}</div>` : ''}
+    <p>${escapeHtml(post.text)}</p>
+    <div class="meta">
+      ${post.url ? `<a href="${escapeAttr(post.url)}" target="_blank" rel="noopener">${escapeHtml(post.url)}</a>` : ''}
+      <span>♥ ${post.hearts}</span>
+      <span>↻ ${post.reshares}</span>
+      <span>💬 ${post.comments}</span>
+      <span><a href="${escapeAttr(post.post_url)}" target="_blank" rel="noopener">source</a></span>
+    </div>
+  `;
+  return div;
+}
+
+function switchTab(i) {
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-btn-${i}`).classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(`tab-${i}`).classList.add('active');
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function escapeAttr(s) {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+</script>
+</body>
+</html>
