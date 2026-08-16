@@ -2,8 +2,11 @@
 Gets all the pages from Notion without AI summaries or regions and updates them with the results of the LLM.
 """
 
+import asyncio
 import time
 from pprint import pprint
+
+import httpx
 
 from notion import (
     LLM_FIELDS,
@@ -65,29 +68,18 @@ async def fill_notion_row(row: NotionRowURL, background_tasks=None) -> None:
 
 
 if __name__ == "__main__":
-    import asyncio
-
-    import httpx
-
     # Initialize async client for standalone execution
     import scrape_page
 
     scrape_page.async_client = httpx.AsyncClient(timeout=30.0)
 
-    async def run_loop():
+    async def run_once():
         try:
-            while True:
-                try:
-                    await fill_empty_notion_rows()
-                except Exception as e:
-                    print(f"Error: {e}")
-                print("checking again in 60 seconds...")
-                await asyncio.sleep(60)
-        except asyncio.CancelledError:
-            pass
+            errors = await fill_empty_notion_rows()
+            print(f"done, {len(errors)} error(s)")
         finally:
             client = scrape_page.async_client
             if client:
                 await client.aclose()
 
-    asyncio.run(run_loop())
+    asyncio.run(run_once())
