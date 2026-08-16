@@ -13,4 +13,5 @@ description: Use when the user wants to pull the latest Urbanism+ News Bluesky f
    - Skip recycled car/bike-lane takes and obvious re-shares of the same article.
    - Favor novel angles: unexpected third places, fresh "next frontier" framing, concrete cost math, systemic pieces, quirky cultural/historical fits.
    - Editorial emphasis: prefer good things that are happening (wins, success stories, progress), but also include things we want to stop from happening (harms, regressions, injustices worth calling out).
+   - Surface non-Western stories deliberately: the feed skews heavily toward the US/Canada/Europe, so scan the full feed for posts from outside the Western world (Asia, Latin America, Africa, Middle East, Oceania) and present them as their own "outside the Western world" section — they're rare and easy to miss. Include a couple even if engagement is low.
 4. When the user asks for a URL, give both the article URL and the original post URL (from `post_url`).
