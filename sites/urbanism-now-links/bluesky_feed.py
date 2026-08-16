@@ -21,15 +21,21 @@ import argparse
 import json
 import re
 import urllib.parse
-import urllib.request
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from urllib.parse import parse_qs, urlsplit, urlunsplit
 
+import httpx
+
 # The feed URL https://bsky.app/profile/did:plc:lptjvw6ut224kwrj7ub3sqbe/feed/aaapugyzmggrw
 # maps to this AT-URI: at://<did>/app.bsky.feed.generator/<record_key>
 FEED_URI = "at://did:plc:lptjvw6ut224kwrj7ub3sqbe/app.bsky.feed.generator/aaapugyzmggrw"
-GET_FEED = "https://public.api.bsky.app/xrpc/app.bsky.feed.getFeed"
+# public.api.bsky.app is the primary host; api.bsky.app is a fallback used
+# when the primary times out or returns 5xx.
+GET_FEED_HOSTS = [
+    "https://public.api.bsky.app/xrpc/app.bsky.feed.getFeed",
+    "https://api.bsky.app/xrpc/app.bsky.feed.getFeed",
+]
 
 # Domains that only exist to redirect elsewhere; resolve them to their target.
 SHORTENERS = {
@@ -67,9 +73,12 @@ def _resolve_shortener(url: str, timeout: float = 5.0) -> str:
         _resolve_cache[url] = url
         return url
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            resolved = resp.geturl()
+        with httpx.Client(
+            timeout=timeout,
+            follow_redirects=True,
+            headers={"User-Agent": "Mozilla/5.0"},
+        ) as client:
+            resolved = str(client.get(url).url)
     except Exception:
         resolved = url
     _resolve_cache[url] = resolved
@@ -118,46 +127,56 @@ def get_week_posts(days: int = 7, max_pages: int = 20) -> list[dict]:
     out: list[dict] = []
     started = False
 
-    for _ in range(max_pages):
-        params = {"feed": FEED_URI, "limit": 100}
-        if cursor:
-            params["cursor"] = cursor
-        with urllib.request.urlopen(
-            GET_FEED + "?" + urllib.parse.urlencode(params)
-        ) as r:
-            data = json.load(r)
+    with httpx.Client(timeout=60.0) as client:
+        for _ in range(max_pages):
+            params = {"feed": FEED_URI, "limit": 100}
+            if cursor:
+                params["cursor"] = cursor
+            data = None
+            last_err: Exception | None = None
+            for endpoint in GET_FEED_HOSTS:
+                try:
+                    resp = client.get(endpoint, params=params)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    break
+                except (httpx.HTTPError, TimeoutError) as e:
+                    last_err = e
+                    continue
+            if data is None:
+                raise last_err or RuntimeError("all feed endpoints failed")
 
-        for item in data.get("feed", []):
-            post = item["post"]
-            created = datetime.fromisoformat(
-                post["record"]["createdAt"].replace("Z", "+00:00")
-            )
-            if created >= cutoff:
-                started = True
-                rkey = post["uri"].rsplit("/", 1)[-1]
-                embed = post.get("embed") or post["record"].get("embed")
-                link = ""
-                if embed and embed.get("external"):
-                    link = normalize_url(embed["external"].get("uri", ""))
-                out.append(
-                    {
-                        "text": post["record"].get("text", ""),
-                        "post_url": f"https://bsky.app/profile/{post['author']['handle']}/post/{rkey}",
-                        "url": link,
-                        "comments": post.get("replyCount", 0),
-                        "hearts": post.get("likeCount", 0),
-                        "reshares": post.get("repostCount", 0),
-                        "created_at": created.isoformat(),
-                    }
+            for item in data.get("feed", []):
+                post = item["post"]
+                created = datetime.fromisoformat(
+                    post["record"]["createdAt"].replace("Z", "+00:00")
                 )
-            elif started:
-                # Feed is sorted newest-first; once we exit the recent window,
-                # stop. (Old posts before any recent one are e.g. pinned posts.)
-                return out
+                if created >= cutoff:
+                    started = True
+                    rkey = post["uri"].rsplit("/", 1)[-1]
+                    embed = post.get("embed") or post["record"].get("embed")
+                    link = ""
+                    if embed and embed.get("external"):
+                        link = normalize_url(embed["external"].get("uri", ""))
+                    out.append(
+                        {
+                            "text": post["record"].get("text", ""),
+                            "post_url": f"https://bsky.app/profile/{post['author']['handle']}/post/{rkey}",
+                            "url": link,
+                            "comments": post.get("replyCount", 0),
+                            "hearts": post.get("likeCount", 0),
+                            "reshares": post.get("repostCount", 0),
+                            "created_at": created.isoformat(),
+                        }
+                    )
+                elif started:
+                    # Feed is sorted newest-first; once we exit the recent window,
+                    # stop. (Old posts before any recent one are e.g. pinned posts.)
+                    return out
 
-        cursor = data.get("cursor")
-        if not cursor:
-            break
+            cursor = data.get("cursor")
+            if not cursor:
+                break
 
     return out
 
