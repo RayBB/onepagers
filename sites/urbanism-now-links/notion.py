@@ -84,6 +84,7 @@ FIELD_MAP: Dict[str, tuple[str, str]] = {
     "url": ("URL", "url"),
     "title": ("Title", "title"),
     "summary": ("A.I. Summary", "rich_text"),
+    "hashtags": ("Hashtags", "rich_text"),
     "region": ("Region", "select"),
     "vibe": ("Vibe", "select"),
     "topics": ("Topic", "multi_select"),
@@ -102,6 +103,7 @@ FIELD_MAP: Dict[str, tuple[str, str]] = {
 # Set of field names that the LLM extracts (auto-wired in main.py)
 LLM_FIELDS = {
     "summary",
+    "hashtags",
     "region",
     "vibe",
     "topics",
@@ -124,6 +126,7 @@ class NotionRowInput:
     notion_row_id: Optional[str] = None  # Only for updating row
     title: Optional[str] = None
     summary: Optional[str] = None
+    hashtags: Optional[str] = None
     region: Optional[str] = None
     vibe: Optional[str] = None
     date: Optional[str] = None  # YYYY-MM-DD

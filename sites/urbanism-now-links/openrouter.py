@@ -71,6 +71,10 @@ class LLM_Results(BaseModel):
         description=f"Optional tags. Choose from: {', '.join(get_select_options('Other Tags'))}",
     )
     summary: str = Field(description=SUMMARY_PROMPT)
+    hashtags: Optional[str] = Field(
+        default=None,
+        description="Generate the 2 or 3 best hashtags for this besides #urbanism and #urbanplanning. Format as space-separated hashtags like '#transit #housingpolicy'.",
+    )
     title: Optional[str] = None
     author: Optional[str] = None
     date: Optional[str] = Field(
