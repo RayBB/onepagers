@@ -14,6 +14,11 @@ load_dotenv()
 
 MODEL = os.environ.get("LITELLM_MODEL", "zai/glm-4.7")
 
+# Bluesky post body limits: prompt targets SHORT_POST_LIMIT chars; the
+# validator's hard ceiling is SHORT_POST_MAX (a small buffer so retries are rare).
+SHORT_POST_LIMIT = 225
+SHORT_POST_MAX = 230
+
 # Set Z.AI coding endpoint for coding plan users
 ZAI_CODING_API_BASE = "https://api.z.ai/api/coding/paas/v4"
 
@@ -71,6 +76,10 @@ class LLM_Results(BaseModel):
         description=f"Optional tags. Choose from: {', '.join(get_select_options('Other Tags'))}",
     )
     summary: str = Field(description=SUMMARY_PROMPT)
+    short_social_post: Optional[str] = Field(
+        default=None,
+        description=f"Compose a short social media post for Bluesky. It should be the A.I. Summary itself, edited down to fit under {SHORT_POST_LIMIT} characters: preserve the summary's exact wording, facts, and order as closely as possible, only cutting or tightening what's needed. Do not add new information, hashtags, or URLs — this is just the post body text.",
+    )
     hashtags: Optional[str] = Field(
         default=None,
         description="Generate the 2 or 3 best hashtags for this besides #urbanism and #urbanplanning. Format as space-separated hashtags like '#transit #housingpolicy'.",
@@ -109,6 +118,17 @@ class LLM_Results(BaseModel):
         default=None,
         description="If this is a job posting or hiring announcement, the application deadline (e.g. 'March 24, 2026'). Leave blank if not a job posting.",
     )
+
+    # Validator that enforces the short post length cap with a retry loop:
+    # if the LLM exceeds SHORT_POST_MAX, instructor re-prompts it to shorten.
+    @field_validator("short_social_post", mode="after")
+    def validate_short_social_post(v: Optional[str]):
+        """Keep the short social media post at or under the hard char limit."""
+        if v is None or len(v) <= SHORT_POST_MAX:
+            return v
+        raise ValueError(
+            f"short_social_post is {len(v)} characters, over the {SHORT_POST_LIMIT}-character target ({SHORT_POST_MAX} max). Rewrite a shorter version under {SHORT_POST_LIMIT} characters."
+        )
 
     # Single validator for all single-value enum fields
     @field_validator("vibe", "region", "job_location_type", mode="before")
@@ -150,6 +170,11 @@ def get_llm_categorizations(
         ],
         **kwargs,  # Pass api_base for Z.AI coding plan
     )
+
+    # Keep the short post as close to the summary as possible: when the
+    # summary already fits the cap, reuse it verbatim instead of a variant.
+    if result.summary and len(result.summary) <= SHORT_POST_MAX:
+        result.short_social_post = result.summary
     return result
 
 
