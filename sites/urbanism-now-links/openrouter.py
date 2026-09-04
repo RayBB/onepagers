@@ -19,6 +19,13 @@ MODEL = os.environ.get("LITELLM_MODEL", "zai/glm-4.7")
 SHORT_POST_LIMIT = 225
 SHORT_POST_MAX = 230
 
+SHORT_POST_COPYEDIT_INSTRUCTION = (
+    f"The short social media post should be the A.I. Summary itself, edited down to fit "
+    f"under {SHORT_POST_LIMIT} characters: preserve the summary's exact wording, facts, "
+    f"and order as closely as possible, only cutting or tightening what's needed. Do not "
+    f"add new information, hashtags, or URLs — this is just the post body text."
+)
+
 # Set Z.AI coding endpoint for coding plan users
 ZAI_CODING_API_BASE = "https://api.z.ai/api/coding/paas/v4"
 
@@ -78,7 +85,7 @@ class LLM_Results(BaseModel):
     summary: str = Field(description=SUMMARY_PROMPT)
     short_social_post: Optional[str] = Field(
         default=None,
-        description=f"Compose a short social media post for Bluesky. It should be the A.I. Summary itself, edited down to fit under {SHORT_POST_LIMIT} characters: preserve the summary's exact wording, facts, and order as closely as possible, only cutting or tightening what's needed. Do not add new information, hashtags, or URLs — this is just the post body text.",
+        description=SHORT_POST_COPYEDIT_INSTRUCTION,
     )
     hashtags: Optional[str] = Field(
         default=None,
@@ -124,11 +131,7 @@ class LLM_Results(BaseModel):
     @field_validator("short_social_post", mode="after")
     def validate_short_social_post(v: Optional[str]):
         """Keep the short social media post at or under the hard char limit."""
-        if v is None or len(v) <= SHORT_POST_MAX:
-            return v
-        raise ValueError(
-            f"short_social_post is {len(v)} characters, over the {SHORT_POST_LIMIT}-character target ({SHORT_POST_MAX} max). Rewrite a shorter version under {SHORT_POST_LIMIT} characters."
-        )
+        return validate_short_social_post_len(v)
 
     # Single validator for all single-value enum fields
     @field_validator("vibe", "region", "job_location_type", mode="before")
@@ -147,6 +150,70 @@ class LLM_Results(BaseModel):
         notion_name = FIELD_TO_NOTION[info.field_name]
         valid_options = get_select_options(notion_name)
         return [tag if tag in valid_options else valid_options[0] for tag in v]
+
+
+def validate_short_social_post_len(v: Optional[str]) -> Optional[str]:
+    """Keep the short social media post at or under the hard char limit.
+
+    Raises ValueError so instructor retries the completion when over length.
+    """
+    if v is None or len(v) <= SHORT_POST_MAX:
+        return v
+    raise ValueError(
+        f"short_social_post is {len(v)} characters, over the {SHORT_POST_LIMIT}-character target ({SHORT_POST_MAX} max). Rewrite a shorter version under {SHORT_POST_LIMIT} characters."
+    )
+
+
+class ShortSocialPost(BaseModel):
+    """Single-field model for copyediting an existing A.I. Summary into a Bluesky post."""
+
+    short_social_post: Optional[str] = Field(
+        default=None,
+        description=SHORT_POST_COPYEDIT_INSTRUCTION,
+    )
+
+    @field_validator("short_social_post", mode="after")
+    def validate_short_social_post(v: Optional[str]):
+        """Keep the short social media post at or under the hard char limit."""
+        return validate_short_social_post_len(v)
+
+
+def _truncate_to_char_limit(text: str, max_len: int = SHORT_POST_MAX) -> str:
+    """Truncate text to max_len at the last word boundary, appending an ellipsis."""
+    if len(text) <= max_len:
+        return text
+    target = text[: max_len - 1].rstrip()
+    space = target.rfind(" ")
+    if space > 0:
+        target = target[:space].rstrip()
+    return target + "…"
+
+
+def copyedit_short_social_post(summary: str) -> str:
+    """Copyedit an existing A.I. Summary into a short Bluesky post body."""
+    kwargs = {}
+
+    # Use coding endpoint for Z.AI models (for coding plan users)
+    if MODEL.startswith("zai/"):
+        kwargs["api_base"] = ZAI_CODING_API_BASE
+
+    try:
+        result = client.create(
+            model=MODEL,
+            response_model=ShortSocialPost,
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"A.I. Summary:\n{summary}\n\nProduce the short social media post body.",
+                }
+            ],
+            **kwargs,  # Pass api_base for Z.AI coding plan
+        )
+        return result.short_social_post or summary
+    except Exception:
+        # Deterministic fallback if the LLM can't fit the cap: keep as much of
+        # the summary as possible, trimmed at a word boundary.
+        return _truncate_to_char_limit(summary)
 
 
 def get_llm_categorizations(
