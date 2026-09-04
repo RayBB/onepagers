@@ -385,8 +385,20 @@ async function postToBuffer({ text, profile_ids, media }) {
 //   });
 
 // Example 2: Schedule multiple posts from TSV
-const tsvData = `New research develops an open-data method for assessing equity in X-minute cities, finding that ethical frameworks significantly shape equity assessments and that car-dependent cities can surprisingly outperform walkable ones in proximity-based planning models.	https://journals.sagepub.com/doi/epub/10.1177/23998083251398660	#urbanism #urbanplanning #smartcities #equity #walkability
-URBACT explores Vienna’s people-first mobility transformation, where half of households are car-free and 130 projects have created 100 kilometers of cycling infrastructure, turning former parking lots into climate-resilient community spaces.	https://urbact.eu/whats-new/articles/vienna-calling-mobility-lessons-city-built-around-people	#urbanism #urbanplanning #ViennaCalling #SustainableMobility #CarFree`;
+const tsvData = `
+
+A beautiful visualization and analysis of the 2023 Türkiye-Syria earthquake response shows how thousands of OpenStreetMap volunteers traced more than 2 million buildings and 72,000 kilometers of roads to support rescue and aid logistics. This is now underway for Venezuela and anyone can volunteer.	https://sheets.works/data-viz/strangers-draw-maps	#urbanism #urbanplanning #OpenStreetMap #HumanitarianAid #DisasterResponse
+Tokyo’s reliance on “mamachari” bikes, primarily used by women for caregiving, is threatened by new traffic penalties that penalize sidewalk riding without offering protected bike infrastructure. Grassroots initiatives advocating for safer streets and inclusive urban planning.	https://thecityfix.com/blog/protecting-tokyos-cyclists-is-a-gender-equity-issue/	#urbanism #urbanplanning #Mamachari #CyclingSafety #GenderInclusiveCity
+Urbanist Jeffery Tompkins argues that front porches are vital social infrastructure that fosters community and counters modern housing designs that inhibit neighborly interaction. He advocates to reintroduce usable porches to combat social isolation.	https://www.thinkingbigbythinkingsmall.com/p/porches-as-social-infrastructure	#urbanism #urbanplanning #FrontPorches #SocialInfrastructure #CommunityBuilding
+Cyclearchive.com offers a free, browsable online library of vintage cycling magazines and books from the 1860s-1940s, featuring deep-linked articles and a full-text search function to explore cycling history and early innovations.	https://cyclearchive.com/	#urbanism #urbanplanning #cyclinghistory #vintagecycling #bikelife
+Morning Brew’s latest video is about how modular construction offers a pathway to build housing faster and more sustainably, yet the industry struggles to scale in the U.S. due to fragmented zoning, risk-averse financing, and a lack of standardized building codes. 	https://www.youtube.com/watch?v=2pbYafEcsbk	#urbanism #urbanplanning #ModularConstruction #AffordableHousing #SustainableBuilding
+Global Cycling Network is back with Why Aren’t Dangerous Drivers Punished? It advocated for an ‘aviation-style’ approach that prioritizes learning from incidents to prevent future harm.	https://www.youtube.com/watch?v=dHRfClVJg70	#urbanism #urbanplanning #RoadSafety #CyclingSafety #VisionZero
+See all our new jobs at https://urbanismnow.com/jobs below are a select few.	https://urbanismnow.com/jobs	#urbanism #urbanplanning #CityPlanning #UrbanDesign #JobSearch
+EIT Urban Mobility is hiring a regional innovation scheme assistant to support the coordination of the EIT Community Officer Network across 29 countries. €18k - €22k salary. Apply by July 8.	https://eiturbanmobility.bamboohr.com/careers/135	#urbanism #urbanplanning #Innovation #Mobility #EIT
+Cascadia Partners is hiring a senior associate, urban data & policy analysis to lead data-driven spatial planning projects, managing budgets and technical production for initiatives like housing policy and comprehensive plans. $85k - $100k salary. Apply by July 26.	https://www.cascadia-partners.com/senior-associate	#urbanism #urbanplanning #UrbanData #HousingPolicy #SpatialPlanning
+The Brussels Centre for Urban Studies is hiring a four-year postdoc researcher on polluter and wealth elites to lead collaborative research and co-supervise PhD students within the Chair in Decarbonisation and Justice.	https://urbanstudies.brussels/news-events/vacancy-postdoc-researcher-polluter-and-wealth-elites	#urbanism #urbanplanning #Decarbonisation #Sustainability #UrbanStudies
+
+`;
 
 schedulePostsFromTSV(tsvData)
   .then(result => {

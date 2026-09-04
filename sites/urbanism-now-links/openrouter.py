@@ -14,10 +14,10 @@ load_dotenv()
 
 MODEL = os.environ.get("LITELLM_MODEL", "zai/glm-4.7")
 
-# Bluesky post body limits: prompt targets SHORT_POST_LIMIT chars; the
-# validator's hard ceiling is SHORT_POST_MAX (a small buffer so retries are rare).
+# Bluesky post body limits: the prompt targets SHORT_POST_LIMIT chars, and the
+# validator only retries well above it. A little over the target is fine.
 SHORT_POST_LIMIT = 225
-SHORT_POST_MAX = 230
+SHORT_POST_MAX = 245
 
 SHORT_POST_COPYEDIT_INSTRUCTION = (
     f"The short social media post should be the A.I. Summary itself, edited down to fit "
@@ -130,7 +130,7 @@ class LLM_Results(BaseModel):
     # if the LLM exceeds SHORT_POST_MAX, instructor re-prompts it to shorten.
     @field_validator("short_social_post", mode="after")
     def validate_short_social_post(v: Optional[str]):
-        """Keep the short social media post at or under the hard char limit."""
+        """Keep the short social media post near the target length."""
         return validate_short_social_post_len(v)
 
     # Single validator for all single-value enum fields
@@ -153,9 +153,10 @@ class LLM_Results(BaseModel):
 
 
 def validate_short_social_post_len(v: Optional[str]) -> Optional[str]:
-    """Keep the short social media post at or under the hard char limit.
+    """Keep the short social media post near the target length.
 
-    Raises ValueError so instructor retries the completion when over length.
+    A little over the target is acceptable; raises ValueError (triggering an
+    instructor retry) only when genuinely too long.
     """
     if v is None or len(v) <= SHORT_POST_MAX:
         return v
@@ -174,19 +175,8 @@ class ShortSocialPost(BaseModel):
 
     @field_validator("short_social_post", mode="after")
     def validate_short_social_post(v: Optional[str]):
-        """Keep the short social media post at or under the hard char limit."""
+        """Keep the short social media post near the target length."""
         return validate_short_social_post_len(v)
-
-
-def _truncate_to_char_limit(text: str, max_len: int = SHORT_POST_MAX) -> str:
-    """Truncate text to max_len at the last word boundary, appending an ellipsis."""
-    if len(text) <= max_len:
-        return text
-    target = text[: max_len - 1].rstrip()
-    space = target.rfind(" ")
-    if space > 0:
-        target = target[:space].rstrip()
-    return target + "…"
 
 
 def copyedit_short_social_post(summary: str) -> str:
@@ -197,23 +187,18 @@ def copyedit_short_social_post(summary: str) -> str:
     if MODEL.startswith("zai/"):
         kwargs["api_base"] = ZAI_CODING_API_BASE
 
-    try:
-        result = client.create(
-            model=MODEL,
-            response_model=ShortSocialPost,
-            messages=[
-                {
-                    "role": "user",
-                    "content": f"A.I. Summary:\n{summary}\n\nProduce the short social media post body.",
-                }
-            ],
-            **kwargs,  # Pass api_base for Z.AI coding plan
-        )
-        return result.short_social_post or summary
-    except Exception:
-        # Deterministic fallback if the LLM can't fit the cap: keep as much of
-        # the summary as possible, trimmed at a word boundary.
-        return _truncate_to_char_limit(summary)
+    result = client.create(
+        model=MODEL,
+        response_model=ShortSocialPost,
+        messages=[
+            {
+                "role": "user",
+                "content": f"A.I. Summary:\n{summary}\n\nProduce the short social media post body.",
+            }
+        ],
+        **kwargs,  # Pass api_base for Z.AI coding plan
+    )
+    return result.short_social_post or summary
 
 
 def get_llm_categorizations(
