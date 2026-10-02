@@ -52,6 +52,7 @@ async def fill_notion_row(row: NotionRowURL) -> dict:
             title=page.title or llm_results.title,
             date=page.date or llm_results.date,
             job_slug=job_slug,
+            source=page.source,
             # Auto-wire all LLM-extracted fields (defined in notion.LLM_FIELDS)
             **{f: getattr(llm_results, f) for f in LLM_FIELDS},
         )

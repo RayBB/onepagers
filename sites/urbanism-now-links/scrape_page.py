@@ -36,6 +36,8 @@ class ExtractedPage:
     title: str | None = None
     author: str | None = None
     date: str | None = None
+    # Which extractor produced this page (firecrawl/trafilatura/markitdown/notion/defuddle).
+    source: str | None = None
 
 
 def clean_url_for_domains(url: str) -> str:
@@ -117,6 +119,7 @@ async def extract_youtube_video_tldw(url: str) -> ExtractedPage:
         text=response_data["summary"]["paragraph"],
         title=response_data["title"],
         url=url,
+        source="tldw",
     )
 
 
@@ -142,6 +145,7 @@ async def extract_youtube_video_defuddle(url: str) -> ExtractedPage:
         text=response_data,
         title=title,
         url=url,
+        source="defuddle",
     )
 
 
@@ -168,7 +172,7 @@ async def extract_firecrawl(url: str) -> ExtractedPage | None:
         if not md:
             return None
         title = data.get("data", {}).get("metadata", {}).get("title", None)
-        return ExtractedPage(text=md, title=title, url=url)
+        return ExtractedPage(text=md, title=title, url=url, source="firecrawl")
     except Exception:
         return None
 
@@ -235,6 +239,7 @@ async def extract_page(
                 author=result["author"],
                 date=result["date"],  # seems to be YYYY-MM-DD
                 url=url,
+                source="trafilatura",
             )
     except Exception as e:
         print(e, file=sys.stderr)
@@ -248,7 +253,10 @@ async def extract_page(
         try:
             md_result = md.convert_url(url)
             return ExtractedPage(
-                text=md_result.text_content, title=md_result.title, url=url
+                text=md_result.text_content,
+                title=md_result.title,
+                url=url,
+                source="markitdown",
             )
         finally:
             del md
@@ -259,7 +267,9 @@ async def extract_page(
     md_result = get_notion_page_contents_as_md(page_id=notion_id)
     if md_result:
         notion_title = get_notion_page_title(page_id=notion_id)
-        return ExtractedPage(text=md_result, title=notion_title, url=url)
+        return ExtractedPage(
+            text=md_result, title=notion_title, url=url, source="notion"
+        )
 
     if not is_ia_url:
         return await extract_page(f"{IA_PREFIX}{url}", notion_id)

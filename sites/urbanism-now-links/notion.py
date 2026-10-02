@@ -99,6 +99,7 @@ FIELD_MAP: Dict[str, tuple[str, str]] = {
     "job_salary": ("job_salary", "rich_text"),
     "job_deadline": ("job_deadline", "rich_text"),
     "job_slug": ("job_slug", "rich_text"),
+    "source": ("Scraped Via", "rich_text"),
 }
 
 # Set of field names that the LLM extracts (auto-wired in main.py)
@@ -141,6 +142,7 @@ class NotionRowInput:
     job_salary: Optional[str] = None
     job_deadline: Optional[str] = None
     job_slug: Optional[str] = None
+    source: Optional[str] = None
 
 
 def slugify(text: str) -> str:
@@ -176,11 +178,18 @@ def _format_notion_value(value: Any, notion_type: str) -> Any:
 
 def create_notion_input_properties(row_input: NotionRowInput) -> Dict[str, Any]:
     """Build the Notion API properties dict from a NotionRowInput.
-    Auto-wires all fields defined in FIELD_MAP — add new fields there instead of adding if-blocks here."""
+    Auto-wires all fields defined in FIELD_MAP — add new fields there instead of adding if-blocks here.
+
+    Only includes properties that actually exist in the database schema, so a
+    newly-added Notion column is silently skipped until you create it in Notion
+    (rather than 400-ing the whole update)."""
+    existing = set(get_db_properties().keys())
     properties = {}
     for field_name, (notion_col, notion_type) in FIELD_MAP.items():
         value = getattr(row_input, field_name, None)
         if not value:  # skip None, empty string, empty list, etc.
+            continue
+        if notion_col not in existing:
             continue
         properties[notion_col] = _format_notion_value(value, notion_type)
     return properties
