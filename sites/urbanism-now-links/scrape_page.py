@@ -9,6 +9,7 @@ Some notes:
 import json
 import os
 import re
+import sys
 from dataclasses import dataclass
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
@@ -186,12 +187,12 @@ async def archive(url: str, background_tasks=None):
                     f"https://web.archive.org/save/{url}", timeout=100
                 )
         except Exception as e:
-            print(f"Archive error for {url}: {e}")
+            print(f"Archive error for {url}: {e}", file=sys.stderr)
 
     if background_tasks:
         background_tasks.add_task(do_archive, url)
     else:
-        print("Skipping archive - no background tasks available")
+        print("Skipping archive - no background tasks available", file=sys.stderr)
 
 
 async def extract_page(
@@ -236,7 +237,7 @@ async def extract_page(
                 url=url,
             )
     except Exception as e:
-        print(e)
+        print(e, file=sys.stderr)
 
     try:
         # Import MarkItDown only when needed to avoid loading heavy dependencies (Azure AI, ONNX Runtime, NumPy, Pandas)
@@ -253,7 +254,7 @@ async def extract_page(
             del md
 
     except Exception as e:
-        print(e)
+        print(e, file=sys.stderr)
 
     md_result = get_notion_page_contents_as_md(page_id=notion_id)
     if md_result:

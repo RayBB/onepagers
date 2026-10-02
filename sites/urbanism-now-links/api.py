@@ -1,25 +1,27 @@
-from contextlib import asynccontextmanager
+"""Lean API server.
 
-import httpx
-from fastapi import BackgroundTasks, FastAPI
+Only imports the cheap Notion query + batch dispatcher — the heavy work (scrape,
+LLM, markitdown) runs in a short-lived `python -m worker` subprocess via
+batch.py, so this process stays ~40MB instead of ~250MB.
 
-from main import fill_empty_notion_rows
+`GET /` queries Notion for rows missing an AI summary and dispatches each batch
+of up to batch.MAX_BATCH rows to a worker subprocess. Failed rows are remembered
+in-process so the next minute's check doesn't retry them.
+"""
 
+import sys
+from typing import Set
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup - create async client
-    import scrape_page
+from fastapi import FastAPI
 
-    scrape_page.async_client = httpx.AsyncClient(timeout=30.0)
-    yield
-    # Shutdown - clean up resources
-    await scrape_page.async_client.aclose()
+from batch import run_all_batches
+from notion import get_notion_rows_without_ai_summary
 
+app = FastAPI()
 
-app = FastAPI(lifespan=lifespan)
-
-# uv run fastapi dev api.py
+# Track notion IDs that failed processing so we don't retry them every minute.
+# Lives in-process (a set of strings, ~0 KB); resets when the server restarts.
+_failed_notion_ids: Set[str] = set()
 
 
 @app.get("/health")
@@ -28,6 +30,27 @@ def health():
 
 
 @app.get("/")
-async def read_root(background_tasks: BackgroundTasks):
-    errors = await fill_empty_notion_rows(background_tasks)
-    return {"errors": errors}
+def read_root():
+    try:
+        rows = [
+            r
+            for r in get_notion_rows_without_ai_summary()
+            if r.id not in _failed_notion_ids
+        ]
+    except Exception as e:
+        return {"error": str(e), "results": []}
+
+    if not rows:
+        return {"results": [], "failed": sorted(_failed_notion_ids)}
+
+    results = []
+    for _, batch_results in run_all_batches(rows):
+        for res in batch_results:
+            if not res.get("ok"):
+                _failed_notion_ids.add(res["id"])
+        results.extend(batch_results)
+
+    return {
+        "results": results,
+        "failed": sorted(_failed_notion_ids),
+    }

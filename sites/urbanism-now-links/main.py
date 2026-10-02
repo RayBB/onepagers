@@ -1,85 +1,38 @@
+"""CLI: process all Notion rows missing an AI summary.
+
+`uv run main.py` queries Notion for rows without an AI summary and processes them
+by shelling out to worker.py (one short-lived subprocess per batch of up to
+batch.MAX_BATCH rows). The heavy stack (litellm, trafilatura, markitdown) lives
+only in those subprocesses, so this CLI's own footprint stays small and each
+batch's memory is reclaimed when its worker exits.
 """
-Gets all the pages from Notion without AI summaries or regions and updates them with the results of the LLM.
-"""
 
-import asyncio
-import time
-from pprint import pprint
+import sys
 
-import httpx
-
-from notion import (
-    LLM_FIELDS,
-    NotionRowInput,
-    NotionRowURL,
-    get_notion_rows_without_ai_summary,
-    slugify,
-    update_notion_row,
-)
-from openrouter import get_llm_categorizations
-from scrape_page import extract_page
-
-# Track notion IDs that failed extraction to avoid infinite retries
-_failed_notion_ids: set[str] = set()
+from batch import run_all_batches
+from notion import get_notion_rows_without_ai_summary
 
 
-async def fill_empty_notion_rows(background_tasks=None):
-    errors = []
-    for row in get_notion_rows_without_ai_summary():
-        if row.id in _failed_notion_ids:
-            continue
-        try:
-            await fill_notion_row(row, background_tasks)
-        except Exception as e:
-            print(f"Error: {e}")
-            _failed_notion_ids.add(row.id)
-            errors.append(str(e))
+def run_once() -> int:
+    """Process all pending rows. Returns the number of errors."""
+    rows = get_notion_rows_without_ai_summary()
+    if not rows:
+        print("no rows without AI summary; nothing to do")
+        return 0
+
+    print(f"processing {len(rows)} row(s) in batches of up to 10...")
+    ok = 0
+    errors = 0
+    for batch, batch_results in run_all_batches(rows):
+        for res in batch_results:
+            if res.get("ok"):
+                ok += 1
+            else:
+                errors += 1
+                print(f"  error {res['id']}: {res.get('error')}", file=sys.stderr)
+    print(f"done, {ok} ok, {errors} error(s)")
     return errors
 
 
-async def fill_notion_row(row: NotionRowURL, background_tasks=None) -> None:
-    print(row)
-    page = await extract_page(row.url, row.id, background_tasks)
-    print(page)
-
-    llm_results = get_llm_categorizations(page)
-    print(llm_results)
-
-    slug_parts = []
-    if llm_results.job_title:
-        slug_parts.append(slugify(llm_results.job_title))
-    if llm_results.job_location:
-        slug_parts.append(slugify(llm_results.job_location))
-    slug_parts.append(row.id[-6:])
-    job_slug = "-".join(slug_parts)
-
-    row_input = NotionRowInput(
-        url=page.url,
-        notion_row_id=row.id,
-        title=page.title or llm_results.title,
-        date=page.date or llm_results.date,
-        job_slug=job_slug,
-        # Auto-wire all LLM-extracted fields (defined in notion.LLM_FIELDS)
-        **{f: getattr(llm_results, f) for f in LLM_FIELDS},
-    )
-    pprint(row_input)
-
-    update_notion_row(row_input)
-
-
 if __name__ == "__main__":
-    # Initialize async client for standalone execution
-    import scrape_page
-
-    scrape_page.async_client = httpx.AsyncClient(timeout=30.0)
-
-    async def run_once():
-        try:
-            errors = await fill_empty_notion_rows()
-            print(f"done, {len(errors)} error(s)")
-        finally:
-            client = scrape_page.async_client
-            if client:
-                await client.aclose()
-
-    asyncio.run(run_once())
+    sys.exit(0 if run_once() == 0 else 1)

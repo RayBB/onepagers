@@ -1,3 +1,5 @@
+import sys
+
 from notion_client import Client
 
 
@@ -133,5 +135,5 @@ def get_page_body_as_md(page_id: str, notion: Client) -> str:
             _inline_child_blocks(block, notion)
         return render_blocks(top_blocks)
     except Exception as e:
-        print(f"  [notion_to_md] error getting page body: {e}")
+        print(f"  [notion_to_md] error getting page body: {e}", file=sys.stderr)
         return ""
