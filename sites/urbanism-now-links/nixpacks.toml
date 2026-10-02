@@ -1,2 +1,2 @@
 [start]
-cmd = "fastapi run api.py --port 3000"
+cmd = "/app/.venv/bin/python -m fastapi run api.py --port 3000"
