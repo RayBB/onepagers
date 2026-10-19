@@ -28,6 +28,13 @@ select = [
     "I",  # isort
 ]
 
+# The laya_experiment/ scripts are throwaway evaluation harnesses. They import
+# `laya`, which is deliberately not a project dependency (torch + an ~808MB
+# checkpoint), so the type checker cannot resolve it. See
+# docs/laya-evaluation.md for the results.
+[tool.ty.src]
+exclude = ["laya_experiment"]
+
 [tool.uv]
 required-environments = [
     "sys_platform == 'darwin' and platform_machine == 'arm64'",

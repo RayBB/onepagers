@@ -42,7 +42,7 @@ FIELD_TO_NOTION = {
 }
 
 SUMMARY_PROMPT = f"""
-Today's date is {date.today().strftime("%B %d, %Y")}. Use today's date to infer relative dates and years mentioned in the article.
+Today's date is {date.today().strftime("%Y-%m-%d")}. Use today's date to infer relative dates and years mentioned in the article.
 
 You are the writer for an urbanism newsletter that goes out to many subscribers each week.
 Your job is to take article and pull out the most interesting and important information from them to include in the newsletter.
@@ -54,15 +54,15 @@ Start with the most important information to make it easy to scan.
 The target audience is people who are interested in urbanism.
 Don't be afraid of jargon but focus on clarity.
 If there is a salary append it as a bare fragment toward the end in the format "$Xk - $Yk salary." — no surrounding sentence like "The role offers...". Round to the nearest thousand for large annual salaries, but leave hourly rates and small stipends as-is. Skip the salary if it's vague (e.g. "commensurate with experience").
-If there is a deadline append it as a bare fragment at the very end in this format: "Apply by March 24." Only include the month and day.
+If there is a deadline append it as a bare fragment at the very end in this format: "Apply by Mar. 24." Only include the month and day. Always abbreviate the month in the deadline to three letters followed by a period (Jan., Feb., Mar., Apr., May, Jun., Jul., Aug., Sep., Oct., Nov., Dec.) — never spell out the full month name.
 If there is a job title make it lower case, following AP style.
 
 Also extract structured job fields (job_title, job_organization, job_location, job_location_type, job_salary, job_deadline, job_description) if this is a job posting/hiring announcement. Leave them blank otherwise.
 
 Examples for different types of content:
 Article: A 21-year-old, with the help of the Tufi Association, created a public transport app for his hometown in Morocco. He single-handedly mapped Tétouan's entire public transport network and became one of the top four mappers in the country.
-Job: NACTO is hiring a senior manager, multimodal design and programs to work on street design and technical projects. $99k - $109k salary. Apply by March 24.
-Event: The Pattis Family Foundation Global Cities Book Award, in partnership with Metropolis, is offering a $25,000 prize for a non-fiction book published in English between January 2023 and March 2025 that focuses on how cities tackle global challenges. March 31.
+Job: NACTO is hiring a senior manager, multimodal design and programs to work on street design and technical projects. $99k - $109k salary. Apply by Mar. 24.
+Event: The Pattis Family Foundation Global Cities Book Award, in partnership with Metropolis, is offering a $25,000 prize for a non-fiction book published in English between January 2023 and March 2025 that focuses on how cities tackle global challenges. Mar. 31.
 """
 
 
@@ -123,7 +123,7 @@ class LLM_Results(BaseModel):
     )
     job_deadline: Optional[str] = Field(
         default=None,
-        description="If this is a job posting or hiring announcement, the application deadline (e.g. 'March 24, 2026'). Leave blank if not a job posting.",
+        description="If this is a job posting or hiring announcement, the application deadline (e.g. 'Mar. 24, 2026'). Use a three-letter month abbreviation followed by a period. Leave blank if not a job posting.",
     )
 
     # Validator that enforces the short post length cap with a retry loop:
