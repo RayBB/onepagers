@@ -40,8 +40,43 @@ class ExtractedPage:
     source: str | None = None
 
 
+# LinkedIn wraps outbound links in redirect pages. Unlike normal LinkedIn
+# permalinks (where the query string is just tracking junk like `trk`/`lipi`),
+# these redirect pages store the *real* destination in the `url` query param.
+_LINKEDIN_REDIRECT_PATHS = ("/safety/go", "/redir/redirect")
+
+
+def unwrap_linkedin_redirect(url: str) -> str:
+    """Unwrap a LinkedIn outbound-redirect URL to its real destination.
+
+    LinkedIn wraps outbound links as, e.g.:
+
+        https://www.linkedin.com/safety/go?url=<encoded>&urlhash=...
+        https://www.linkedin.com/redir/redirect?url=<encoded>&urlhash=...
+
+    The real destination lives in the `url` query param, so the generic
+    query-stripping for linkedin.com would delete it entirely (leaving a
+    useless `.../safety/go`). Unwrap to the destination first so it flows
+    through normal cleaning/archiving/scraping.
+
+    Returns the original URL when it is not a LinkedIn redirect, or when
+    the destination is missing or is not a plain `http(s)://` URL.
+    """
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    if host != "linkedin.com" and not host.endswith(".linkedin.com"):
+        return url
+    if parsed.path.rstrip("/") not in _LINKEDIN_REDIRECT_PATHS:
+        return url
+    destination = parse_qs(parsed.query).get("url", [""])[0].strip()
+    if destination.startswith(("http://", "https://")):
+        return destination
+    return url
+
+
 def clean_url_for_domains(url: str) -> str:
     """Strip query parameters and fragments from URLs for specific domains."""
+    url = unwrap_linkedin_redirect(url)
     parsed = urlparse(url)
     domains_to_strip = {"linkedin.com", "nextcity.org", "instagram.com"}
     # Check if the domain matches any in the strip list
